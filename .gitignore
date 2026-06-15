@@ -144,3 +144,8 @@ vite.config.ts.timestamp-*
 
 # Terminal Paste Image folder
 .cp-images/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
