@@ -1,0 +1,50 @@
+"""HarnessPRD — FastAPI 应用入口"""
+
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from api.sessions import router as sessions_router
+from api.dialogues import router as dialogues_router
+from api.documents import router as documents_router
+from core.config import settings
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description="AI-driven conversational requirements workbench",
+)
+
+# ---------- CORS（从 settings 读取） ----------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origin_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------- 挂载路由 ----------
+app.include_router(sessions_router)
+app.include_router(dialogues_router)
+app.include_router(documents_router)
+
+
+@app.get("/")
+async def root():
+    return {"app": settings.app_name, "status": "running"}
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
+# ---------- 直接运行时启动 ----------
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host=settings.server_host,
+        port=settings.server_port,
+        reload=settings.debug,
+    )
