@@ -1,27 +1,23 @@
 """AI 对话路由：消息 + 摘要 + SSE"""
 
 import json
-from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
 
-from core.state import ChatMessage, StateEnum, session_store
+from api.schemas import MessageRequest, SummaryResponse, ConfirmResponse
+
+from core.state import ChatMessage, StateEnum
 from services.llm_service import stream_chat
 from services.session_service import get_session, update_session
 
 router = APIRouter(prefix="/api/sessions/{session_id}", tags=["dialogues"])
 
 
-class MessageInput(BaseModel):
-    content: str
-
-
 # ========== 消息 ==========
 
 @router.post("/messages")
-async def send_message(session_id: str, data: MessageInput):
+async def send_message(session_id: str, data: MessageRequest):
     """发送用户消息（非流式，只追加记录；SSE 连接走 /messages/stream）"""
     session = get_session(session_id)
     if not session:
@@ -85,7 +81,7 @@ async def stream_messages(session_id: str):
 
 # ========== 摘要 ==========
 
-@router.post("/summary/generate")
+@router.post("/summary/generate", response_model=SummaryResponse)
 async def generate_summary(session_id: str):
     """触发需求摘要生成"""
     session = get_session(session_id)
@@ -106,7 +102,7 @@ async def generate_summary(session_id: str):
     return {"summary": session.requirements_summary}
 
 
-@router.post("/summary/confirm")
+@router.post("/summary/confirm", response_model=ConfirmResponse)
 async def confirm_summary(session_id: str):
     """确认摘要 → 进入 generating_prd 状态"""
     session = get_session(session_id)
@@ -135,7 +131,7 @@ async def reject_summary(session_id: str):
 
 # ========== 跳过对话 ==========
 
-@router.post("/dialogues/skip")
+@router.post("/dialogues/skip", response_model=ConfirmResponse)
 async def skip_dialogue(session_id: str):
     """跳过对话兜底分支"""
     session = get_session(session_id)

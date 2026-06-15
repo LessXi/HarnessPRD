@@ -1,11 +1,11 @@
 """文档生成路由：PRD / 接口文档 / 提示词套件"""
 
 import json
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+
+from api.schemas import ContentRequest, GenerateResponse, ConfirmResponse
 
 from core.state import StateEnum, session_store
 from services.document_service import stream_generate_document, run_review_rewrite, check_streaming_timeout
@@ -38,13 +38,9 @@ _CONFIRM_ALLOWED: dict[str, StateEnum] = {
 }
 
 
-class ContentInput(BaseModel):
-    content: str
-
-
 # ========== 生成 ==========
 
-@router.post("/{doc_type}/generate")
+@router.post("/{doc_type}/generate", response_model=GenerateResponse)
 async def generate_document(session_id: str, doc_type: str):
     """启动文档生成，返回 SSE 流地址"""
     if doc_type not in DOC_TYPES:
@@ -130,7 +126,7 @@ async def get_review_rounds(session_id: str, doc_type: str):
 # ========== 编辑 ==========
 
 @router.put("/{doc_type}/content")
-async def update_document_content(session_id: str, doc_type: str, data: ContentInput):
+async def update_document_content(session_id: str, doc_type: str, data: ContentRequest):
     """保存用户手动编辑内容"""
     if doc_type not in DOC_TYPES:
         raise HTTPException(400, f"不支持的文档类型: {doc_type}")
@@ -173,7 +169,7 @@ async def download_document(session_id: str, doc_type: str):
 
 # ========== 确认 ==========
 
-@router.post("/{doc_type}/confirm")
+@router.post("/{doc_type}/confirm", response_model=ConfirmResponse)
 async def confirm_document(session_id: str, doc_type: str):
     """确认文档完成 → 进入下一阶段"""
     if doc_type not in DOC_TYPES:

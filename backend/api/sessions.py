@@ -5,6 +5,7 @@ import json
 
 from fastapi import APIRouter, HTTPException
 
+from api.schemas import SessionCreatedResponse, SessionSummary
 from core.state import FormData
 from services.session_service import create_session, get_session, list_sessions
 
@@ -22,7 +23,7 @@ async def get_questions():
     return _questions_config
 
 
-@router.post("")
+@router.post("", response_model=SessionCreatedResponse)
 async def create_session_endpoint(data: FormData):
     """创建 Session + 提交表单 → 进入 ai_dialogue 状态"""
     try:
@@ -35,7 +36,7 @@ async def create_session_endpoint(data: FormData):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("")
+@router.get("", response_model=list[SessionSummary])
 async def list_sessions_endpoint(limit: int = 10):
     """最近会话列表"""
     return list_sessions(limit)
