@@ -162,21 +162,17 @@ MVP 功能: {', '.join(form.mvp_features) if form else ''}
 
 
 def _build_summary_prompt(session) -> str:
-    """构造摘要 Prompt"""
+    """构造摘要 Prompt（从 Jinja2 模板加载）"""
     form = session.form_data
     chat_log = "\n".join(
         f"{'用户' if m.role == 'user' else 'AI'}: {m.content}"
         for m in session.chat_messages
     )
-    return f"""请根据以下产品信息和对话历史，生成结构化的需求摘要（JSON 格式），
-包含：产品概述、核心功能、目标用户、技术偏好、关键决策点。
-
-## 产品信息
-产品名称: {form.product_name if form else ''}
-一句话定义: {form.one_liner if form else ''}
-核心痛点: {form.problem_statement if form else ''}
-目标用户: {form.target_users if form else ''}
-MVP 功能: {', '.join(form.mvp_features) if form else ''}
-
-## 对话历史
-{chat_log}"""
+    return load_prompt("backend/prompts/chat_summary.jinja2",
+        product_name=form.product_name if form else '',
+        one_liner=form.one_liner if form else '',
+        problem_statement=form.problem_statement if form else '',
+        target_users=form.target_users if form else '',
+        mvp_features=', '.join(form.mvp_features) if form else '',
+        chat_log=chat_log,
+    )

@@ -131,34 +131,25 @@ def _build_prompt_kwargs(session: SessionData, doc_type: DocType) -> dict:
 
 
 def _build_review_prompt(session: SessionData, doc_type: DocType) -> str:
-    """构造审核 Prompt（根据 doc_type 不同）"""
+    """构造审核 Prompt（从 Jinja2 模板加载）"""
     doc = getattr(session, _DOC_TYPE_MAP[doc_type][0])
-    return f"""你是一位资深文档审核专家。请审核以下{doc_type}文档的质量。
-检查项：完整性、一致性、清晰度、可执行性。
-如果发现问题，逐条列出问题位置和修改建议。
-如果没有问题，输出："审核通过"。
-
-文档内容：
-{doc.content}"""
+    return load_prompt("backend/prompts/doc_review.jinja2",
+        doc_type=doc_type,
+        content=doc.content,
+    )
 
 
 def _build_rewrite_prompt(session: SessionData, doc_type: DocType, review: str) -> str:
-    """构造改写 Prompt"""
+    """构造改写 Prompt（从 Jinja2 模板加载）"""
     key = _DOC_TYPE_MAP[doc_type][0]
     doc = getattr(session, key)
     prompt_name = _DOC_TYPE_MAP[doc_type][3]
     base_prompt = load_prompt(prompt_name, **_build_prompt_kwargs(session, doc_type))
-    return f"""{base_prompt}
-
----
-
-## 上一版文档
-{doc.content}
-
-## 审核意见
-{review}
-
-请根据以上审核意见修改文档，输出完整的新版文档。"""
+    return load_prompt("backend/prompts/doc_rewrite.jinja2",
+        base_prompt=base_prompt,
+        previous_content=doc.content,
+        review=review,
+    )
 
 
 def _has_issues(review_result: str) -> bool:
