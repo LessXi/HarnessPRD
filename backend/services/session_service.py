@@ -1,8 +1,15 @@
 """会话服务：创建 / 查询 / 校验 Session"""
 
+from pathlib import Path
+import json
 from typing import Optional
 
 from core.state import FormData, SessionData, session_store
+
+# 加载表单配置，用于校验
+_QUESTIONS_CONFIG_PATH = Path(__file__).resolve().parent.parent / "core" / "questions_config.json"
+with open(_QUESTIONS_CONFIG_PATH, encoding="utf-8") as _f:
+    _questions_config = json.load(_f)
 
 
 def create_session(form_data: FormData) -> SessionData:
@@ -26,20 +33,35 @@ def list_sessions(limit: int = 10) -> list[dict]:
     return session_store.list_recent(limit)
 
 
+def _load_questions() -> list[dict]:
+    """将 base_questions 和 advanced_questions 合并为扁平列表"""
+    return _questions_config.get("base_questions", []) + _questions_config.get("advanced_questions", [])
+
+
 def _validate_form(data: FormData) -> None:
-    """补充校验（Pydantic 字段校验之外）"""
-    allowed_platform = {"web", "mobile", "wechat_miniprogram", "desktop", "multi"}
-    if data.platform_type not in allowed_platform:
-        raise ValueError(f"platform_type 必须是 {allowed_platform} 之一")
+    """根据 questions_config.json 校验表单数据"""
+    questions = _load_questions()
+    data_dict = data.model_dump()
 
-    allowed_auth = {"yes", "no", "unsure"}
-    if data.needs_auth not in allowed_auth:
-        raise ValueError(f"needs_auth 必须是 {allowed_auth} 之一")
+    for q in questions:
+        qid = q["id"]
+        value = data_dict.get(qid)
 
-    allowed_db = {"yes", "no", "unsure"}
-    if data.needs_database not in allowed_db:
-        raise ValueError(f"needs_database 必须是 {allowed_db} 之一")
+        # 必填检查
+        if q.get("required") and not value:
+            raise ValueError(f"{q['label']}（{qid}）是必填项")
 
-    allowed_pages = {"1-3", "4-10", "10+", "unsure"}
-    if data.page_count not in allowed_pages:
-        raise ValueError(f"page_count 必须是 {allowed_pages} 之一")
+        # 枚举值检查（select / radio 类型）
+        options = q.get("options")
+        if options and value:
+            allowed = {o["value"] for o in options}
+            if value not in allowed:
+                raise ValueError(
+                    f"{q['label']}（{qid}）的值 '{value}' 不在允许范围内，"
+                    f"允许值: {allowed}"
+                )
+
+    # mvp_features 长度检查（Pydantic 模型已有 min_length=3，这里做兜底）
+    if hasattr(data, "mvp_features") and data.mvp_features is not None:
+        if len(data.mvp_features) < 3:
+            raise ValueError("MVP 功能至少需要 3 条")

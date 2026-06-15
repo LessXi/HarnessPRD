@@ -12,7 +12,7 @@
       "id": "one_liner",
       "label": "一句话定义",
       "question": "用一句话概括你的产品是什么？",
-      "description": "例如"一个帮助自由职业者自动记账的工具"，这是 PRD 开篇的第一句话",
+      "description": "例如“一个帮助自由职业者自动记账的工具”，这是 PRD 开篇的第一句话",
       "type": "text",
       "required": true
     },
@@ -28,7 +28,7 @@
       "id": "target_users",
       "label": "目标用户",
       "question": "谁会使用这个产品？",
-      "description": "描述典型用户的身份、场景和使用动机，越具体越好，例如"面向自由职业者的记账工具"",
+      "description": "描述典型用户的身份、场景和使用动机，越具体越好，例如“面向自由职业者的记账工具”",
       "type": "textarea",
       "required": true
     },
