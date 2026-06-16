@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.sessions import router as sessions_router
-from api.dialogues import router as dialogues_router
+from api.conversation import router as conversation_router
 from api.documents import router as documents_router
 from core.config import settings
 
@@ -26,7 +26,7 @@ app.add_middleware(
 
 # ---------- 挂载路由 ----------
 app.include_router(sessions_router)
-app.include_router(dialogues_router)
+app.include_router(conversation_router)
 app.include_router(documents_router)
 
 

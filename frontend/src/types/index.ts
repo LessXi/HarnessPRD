@@ -45,3 +45,18 @@ export const STEP_INDEX_MAP: Record<ViewState, number> = {
   reviewing_prompts: 4,
   completed: 4,
 };
+
+// ===== SSE 对话消息 =====
+
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp?: string
+}
+
+/** SSE 流式回调 */
+export interface StreamCallbacks {
+  onChunk: (text: string) => void
+  onDone: () => void
+  onError: (error: string) => void
+}
