@@ -58,3 +58,8 @@ cd frontend && npm run preview
 ## 备注
 
 （项目特定备注可在此处添加。）
+
+## Notes
+
+- 当网络不通畅时，尝试29290端口
+- 关于安装 Puppeteer：只需在 launchOptions 中传入 executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" 即可使用已有Chrome无需额外安装。已验证可用。
