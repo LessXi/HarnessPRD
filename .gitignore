@@ -149,3 +149,6 @@ vite.config.ts.timestamp-*
 __pycache__/
 *.pyc
 *.pyo
+
+# Reasonix agent workspace
+.reasonix/
