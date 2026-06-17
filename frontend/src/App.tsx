@@ -1,10 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
 import FormStep from "@/components/FormStep";
-import { getQuestions, createSession } from "@/services/api";
-import type { QuestionsConfig, ViewState } from "@/types";
+import MessageList from "@/components/MessageList";
+import ChatInput from "@/components/ChatInput";
+import {
+  getQuestions, createSession,
+  startConversationStream, continueConversationStream,
+  sendMessage, getMessages,
+} from "@/services/api";
+import type { QuestionsConfig, ViewState, ChatMessage } from "@/types";
 import { STEPS, STEP_INDEX_MAP } from "@/types";
 
 const DRAFT_KEY = "harnessprd:form-draft";
+const CHAT_KEY = "harnessprd:chat-messages";
+const SESSION_KEY = "harnessprd:session";
+
+interface SessionInfo {
+  sessionId: string;
+  viewState: ViewState;
+}
 
 function loadDraft(): Record<string, any> {
   try {
@@ -21,6 +34,45 @@ function saveDraft(formData: Record<string, any>) {
   } catch {
     // localStorage 不可用时静默失败
   }
+}
+
+function loadMessages(): ChatMessage[] {
+  try {
+    const raw = localStorage.getItem(CHAT_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(messages: ChatMessage[]) {
+  try {
+    localStorage.setItem(CHAT_KEY, JSON.stringify(messages));
+  } catch {
+    // localStorage 不可用时静默失败
+  }
+}
+
+function loadSession(): SessionInfo | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(info: SessionInfo) {
+  try {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(info));
+  } catch {
+    // 静默失败
+  }
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(CHAT_KEY);
 }
 
 // ===== 步骤进度条 =====
@@ -41,7 +93,6 @@ function StepProgress({ current }: { current: ViewState }) {
 
           return (
             <li key={step.id} className="flex items-center flex-1 last:flex-none">
-              {/* 圆圈/对勾 */}
               <span
                 className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium shrink-0 ${
                   stepState === "done"
@@ -60,7 +111,6 @@ function StepProgress({ current }: { current: ViewState }) {
                 )}
               </span>
 
-              {/* 标签 */}
               <span
                 className={`ml-2 text-xs ${
                   stepState === "current"
@@ -73,7 +123,6 @@ function StepProgress({ current }: { current: ViewState }) {
                 {step.label}
               </span>
 
-              {/* 连接线 */}
               {idx < STEPS.length - 1 && (
                 <div
                   className={`flex-1 h-px mx-3 ${
@@ -89,7 +138,7 @@ function StepProgress({ current }: { current: ViewState }) {
   );
 }
 
-// ===== 占位页 =====
+// ===== 占位页（尚未实现的步骤） =====
 
 function PlaceholderPage({ title, sessionId }: { title: string; sessionId?: string | null }) {
   return (
@@ -110,13 +159,25 @@ function PlaceholderPage({ title, sessionId }: { title: string; sessionId?: stri
 // ===== 主组件 =====
 
 export default function App() {
+  // 尝试恢复会话（刷新后保持对话页）
+  const savedSession = loadSession();
+
   const [questions, setQuestions] = useState<QuestionsConfig | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>(loadDraft);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [viewState, setViewState] = useState<ViewState>("form_editing");
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [viewState, setViewState] = useState<ViewState>(
+    savedSession?.viewState ?? "form_editing"
+  );
+  const [sessionId, setSessionId] = useState<string | null>(
+    savedSession?.sessionId ?? null
+  );
   const [error, setError] = useState<string | null>(null);
+
+  // 对话状态
+  const [messages, setMessages] = useState<ChatMessage[]>(loadMessages);
+  const [streamingContent, setStreamingContent] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
 
   useEffect(() => {
     getQuestions()
@@ -127,6 +188,23 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
+  // 刷新后验证 session 是否仍有效
+  useEffect(() => {
+    if (!savedSession) return;
+    getMessages(savedSession.sessionId)
+      .then((msgs) => {
+        setMessages(msgs);
+        saveMessages(msgs);
+      })
+      .catch(() => {
+        // session 已失效 → 回到表单页
+        clearSession();
+        setSessionId(null);
+        setViewState("form_editing");
+        setMessages([]);
+      });
+  }, []); // 仅在挂载时执行一次
+
   const handleChange = useCallback((name: string, value: any) => {
     setFormData((prev) => {
       const next = { ...prev, [name]: value };
@@ -135,6 +213,8 @@ export default function App() {
     });
   }, []);
 
+  // ===== 提交表单 → 创建 Session → 启动 SSE 问候 =====
+
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
     setError(null);
@@ -142,13 +222,83 @@ export default function App() {
       const result = await createSession(formData);
       setSessionId(result.session_id);
       setViewState("ai_dialogue");
+      saveSession({ sessionId: result.session_id, viewState: "ai_dialogue" });
       localStorage.removeItem(DRAFT_KEY);
+
+      // 清空历史消息，启动 AI 问候
+      setMessages([]);
+      setStreamingContent("");
+      setChatLoading(true);
+
+      startConversationStream(result.session_id, {
+        onChunk: (text) => setStreamingContent((prev) => prev + text),
+        onDone: () => {
+          setChatLoading(false);
+          // 刷新完整消息列表
+          getMessages(result.session_id).then((msgs) => {
+            setMessages(msgs);
+            saveMessages(msgs);
+          }).catch((e: unknown) => console.warn("getMessages (start) failed", e));
+          setStreamingContent("");
+        },
+        onError: (err) => {
+          setChatLoading(false);
+          setError(err);
+          setStreamingContent("");
+        },
+      });
     } catch (e: any) {
       setError(e?.response?.data?.detail || e.message || "提交失败");
     } finally {
       setSubmitting(false);
     }
   }, [formData]);
+
+  // ===== 发送消息 → 保存 → 接续 SSE 对话 =====
+
+  const handleSendMessage = useCallback(async (content: string) => {
+    if (!sessionId || chatLoading) return;
+
+    const userMsg: ChatMessage = {
+      role: "user",
+      content,
+      timestamp: new Date().toISOString(),
+    };
+
+    // 本地追加并持久化
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    saveMessages(updated);
+
+    // 保存到后端
+    try {
+      await sendMessage(sessionId, content);
+    } catch {
+      setError("发送失败");
+      return;
+    }
+
+    // 启动 SSE 接收 AI 回复
+    setChatLoading(true);
+    setStreamingContent("");
+
+    continueConversationStream(sessionId, content, {
+      onChunk: (text) => setStreamingContent((prev) => prev + text),
+      onDone: () => {
+        setChatLoading(false);
+        getMessages(sessionId).then((msgs) => {
+          setMessages(msgs);
+          saveMessages(msgs);
+        }).catch((e: unknown) => console.warn("getMessages (continue) failed", e));
+        setStreamingContent("");
+      },
+      onError: (err) => {
+        setChatLoading(false);
+        setError(err);
+        setStreamingContent("");
+      },
+    });
+  }, [sessionId, chatLoading, messages]);
 
   // ===== 加载中 =====
   if (loading) {
@@ -201,7 +351,12 @@ export default function App() {
       break;
 
     case "ai_dialogue":
-      content = <PlaceholderPage title="AI 对话澄清" sessionId={sessionId} />;
+      content = (
+        <div className="flex-1 flex flex-col h-full">
+          <MessageList messages={messages} streamingText={streamingContent} />
+          <ChatInput onSend={handleSendMessage} disabled={chatLoading} />
+        </div>
+      );
       break;
 
     case "generating_prd":
@@ -238,13 +393,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* 步骤进度条 */}
       <StepProgress current={viewState} />
 
-      {/* 主体内容 */}
       <div className="flex-1">{content}</div>
 
-      {/* 全局错误提示 */}
       {error && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg shadow">
           {error}
@@ -257,7 +409,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 提交中遮罩 */}
       {submitting && (
         <div className="fixed inset-0 bg-white/60 flex items-center justify-center z-50">
           <div className="flex items-center gap-2 text-primary-600 font-medium">
