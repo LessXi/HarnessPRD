@@ -12,12 +12,12 @@ SSE 事件格式：
 
 import json
 from datetime import datetime, timezone
-from typing import AsyncGenerator
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from api.schemas import MessageRequest, SummaryResponse, ConfirmResponse
+from api.sse_utils import SSE_HEADERS, make_sse_stream
 from core.state import ChatMessage, StateEnum
 from services.conversation_service import ConversationService
 from services.session_service import get_session, update_session
@@ -29,28 +29,6 @@ _conversation = ConversationService()
 # ========================================================================
 # SSE 常量 & 工具函数
 # ========================================================================
-
-SSE_HEADERS = {
-    "Cache-Control": "no-cache",
-    "X-Accel-Buffering": "no",
-    "Content-Type": "text/event-stream",
-}
-
-
-async def _make_sse_generator(stream: AsyncGenerator[str, None]) -> AsyncGenerator[str, None]:
-    """将 Service 层的流式生成器包装为标准 SSE 事件。
-
-    Yields:
-        SSE 格式的 data: 行，支持 chunk / done / error 三种事件。
-    """
-    try:
-        async for chunk in stream:
-            if chunk:
-                yield f"data: {json.dumps({'event': 'chunk', 'content': chunk})}\n\n"
-        yield f"data: {json.dumps({'event': 'done'})}\n\n"
-    except Exception as e:
-        yield f"data: {json.dumps({'event': 'error', 'content': str(e)})}\n\n"
-
 
 # ========================================================================
 # 消息
@@ -107,7 +85,7 @@ async def start_stream(session_id: str):
 
     stream = _conversation.start_conversation_stream(session)
     return StreamingResponse(
-        _make_sse_generator(stream),
+        make_sse_stream(stream),
         media_type="text/event-stream",
         headers=SSE_HEADERS,
     )
@@ -131,7 +109,7 @@ async def continue_stream(session_id: str, data: MessageRequest):
 
     stream = _conversation.continue_conversation_stream(session, data.content)
     return StreamingResponse(
-        _make_sse_generator(stream),
+        make_sse_stream(stream),
         media_type="text/event-stream",
         headers=SSE_HEADERS,
     )
@@ -163,7 +141,6 @@ async def confirm_summary(session_id: str):
         raise HTTPException(400, "请先生成需求摘要")
 
     session.summary_confirmed = True
-    session.current_state = StateEnum.GENERATING_PRD
     update_session(session)
     return {"status": "ok", "next_state": session.current_state.value}
 

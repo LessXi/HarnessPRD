@@ -186,3 +186,152 @@ export async function continueConversationStream(
     callbacks.onError(msg);
   }
 }
+
+// ========================================================================
+// 文档生成 SSE（两步：POST 触发 → GET 流式）
+// ========================================================================
+
+/**
+ * 流式生成 PRD 文档。
+ *
+ * 1. POST /api/sessions/{id}/documents/prd/generate  触发状态迁移
+ * 2. GET  /api/sessions/{id}/documents/prd/stream     SSE 流式接收
+ */
+export async function generatePrdStream(
+  sessionId: string,
+  callbacks: StreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  try {
+    // 触发生成
+    const triggerRes = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/prd/generate`,
+      { method: "POST", signal },
+    );
+    if (!triggerRes.ok) {
+      const body = await triggerRes.text().catch(() => "");
+      callbacks.onError(`PRD 生成失败 (${triggerRes.status}): ${body}`);
+      return;
+    }
+
+    // SSE 流
+    const streamRes = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/prd/stream`,
+      { signal },
+    );
+    if (!streamRes.ok) {
+      const body = await streamRes.text().catch(() => "");
+      callbacks.onError(`PRD 流失败 (${streamRes.status}): ${body}`);
+      return;
+    }
+    await readStream(streamRes, callbacks, signal);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "PRD 生成请求异常";
+    callbacks.onError(msg);
+  }
+}
+
+/**
+ * 流式生成接口文档。
+ *
+ * 1. POST /api/sessions/{id}/documents/api/generate
+ * 2. GET  /api/sessions/{id}/documents/api/stream
+ */
+export async function generateApiDocsStream(
+  sessionId: string,
+  callbacks: StreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  try {
+    const triggerRes = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/api/generate`,
+      { method: "POST", signal },
+    );
+    if (!triggerRes.ok) {
+      const body = await triggerRes.text().catch(() => "");
+      callbacks.onError(`接口文档生成失败 (${triggerRes.status}): ${body}`);
+      return;
+    }
+
+    const streamRes = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/api/stream`,
+      { signal },
+    );
+    if (!streamRes.ok) {
+      const body = await streamRes.text().catch(() => "");
+      callbacks.onError(`接口文档流失败 (${streamRes.status}): ${body}`);
+      return;
+    }
+    await readStream(streamRes, callbacks, signal);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "接口文档生成请求异常";
+    callbacks.onError(msg);
+  }
+}
+
+/**
+ * 流式生成提示词套件。
+ *
+ * 1. POST /api/sessions/{id}/documents/prompts/generate
+ * 2. GET  /api/sessions/{id}/documents/prompts/stream
+ */
+export async function generatePromptsStream(
+  sessionId: string,
+  callbacks: StreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  try {
+    const triggerRes = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/prompts/generate`,
+      { method: "POST", signal },
+    );
+    if (!triggerRes.ok) {
+      const body = await triggerRes.text().catch(() => "");
+      callbacks.onError(`提示词套件生成失败 (${triggerRes.status}): ${body}`);
+      return;
+    }
+
+    const streamRes = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/prompts/stream`,
+      { signal },
+    );
+    if (!streamRes.ok) {
+      const body = await streamRes.text().catch(() => "");
+      callbacks.onError(`提示词套件流失败 (${streamRes.status}): ${body}`);
+      return;
+    }
+    await readStream(streamRes, callbacks, signal);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "提示词套件生成请求异常";
+    callbacks.onError(msg);
+  }
+}
+
+/**
+ * 流式优化文档（Review→Rewrite）。
+ *
+ * POST /api/sessions/{id}/documents/{docType}/optimize-stream
+ * （单步 POST，直接返回 SSE 流）
+ */
+export async function optimizeDocumentStream(
+  sessionId: string,
+  docType: "prd" | "api" | "prompts",
+  callbacks: StreamCallbacks,
+  signal?: AbortSignal,
+): Promise<void> {
+  try {
+    const response = await fetch(
+      `${SSE_BASE}/sessions/${sessionId}/documents/${docType}/optimize-stream`,
+      { method: "POST", signal },
+    );
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      callbacks.onError(`文档优化失败 (${response.status}): ${body}`);
+      return;
+    }
+    await readStream(response, callbacks, signal);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "文档优化请求异常";
+    callbacks.onError(msg);
+  }
+}

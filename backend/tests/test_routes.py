@@ -317,7 +317,7 @@ class TestSummary:
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] == "ok"
-        assert data["next_state"] == "generating_prd"
+        assert data["next_state"] == "ai_dialogue"  # 确认后留在 ai_dialogue，生成 PRD 时才切状态
 
 
 class TestSkip:

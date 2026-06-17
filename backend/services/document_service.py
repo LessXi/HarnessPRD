@@ -1,4 +1,15 @@
-"""文档服务：文档生成 + Review→Rewrite 循环"""
+"""文档服务：PRD / 接口文档 / 提示词套件的流式生成与优化
+
+公开方法（4 个）：
+- generate_prd_stream         — 根据对话生成 PRD（astream 流式）
+- generate_api_docs_stream    — 根据 PRD 生成接口文档（astream 流式）
+- generate_prompts_stream     — 根据 PRD + 接口文档生成提示词套件（astream 流式）
+- optimize_document_stream    — 文档 Review→Rewrite 优化（astream 流式）
+
+内部引擎：
+- _generate_document_stream   — 通用文档生成（3 个公开方法共用）
+- run_review_rewrite          — Review→Rewrite 批量循环
+"""
 
 from typing import AsyncGenerator, Optional
 from datetime import datetime, timezone
@@ -32,6 +43,7 @@ def check_streaming_timeout(session: SessionData, doc_type: DocType) -> bool:
             return True
     return False
 
+
 _DOC_TYPE_MAP = {
     "prd": ("prd", StateEnum.GENERATING_PRD, StateEnum.REVIEWING_PRD, "backend/prompts/generate_prd.jinja2"),
     "api": ("api", StateEnum.GENERATING_API, StateEnum.REVIEWING_API, "backend/prompts/generate_api.jinja2"),
@@ -39,10 +51,101 @@ _DOC_TYPE_MAP = {
 }
 
 
-async def stream_generate_document(
+# ========================================================================
+# 公开方法（Clean Architecture — 语义化 API）
+# ========================================================================
+
+
+async def generate_prd_stream(session: SessionData) -> AsyncGenerator[str, None]:
+    """流式生成 PRD 文档。
+
+    context: form_data + requirements_summary
+    完成后 session 进入 GENERATING_PRD → REVIEWING_PRD 状态。
+    """
+    async for chunk in _generate_document_stream(session, "prd"):
+        yield chunk
+
+
+async def generate_api_docs_stream(session: SessionData) -> AsyncGenerator[str, None]:
+    """流式生成接口文档。
+
+    context: form_data + requirements_summary + prd_content
+    完成后 session 进入 GENERATING_API → REVIEWING_API 状态。
+    """
+    async for chunk in _generate_document_stream(session, "api"):
+        yield chunk
+
+
+async def generate_prompts_stream(session: SessionData) -> AsyncGenerator[str, None]:
+    """流式生成提示词套件。
+
+    context: form_data + requirements_summary + prd_content + api_content
+    完成后 session 进入 GENERATING_PROMPTS → REVIEWING_PROMPTS 状态。
+    """
+    async for chunk in _generate_document_stream(session, "prompts"):
+        yield chunk
+
+
+async def optimize_document_stream(
     session: SessionData, doc_type: DocType
 ) -> AsyncGenerator[str, None]:
-    """流式生成文档初稿，内容直接写入 session 的对应 DocumentState"""
+    """流式 Review→Rewrite 优化。
+
+    对指定文档类型执行审核 + 逐 round 流式输出改写内容。
+    最多 max_review_rounds 轮，审核通过后提前终止。
+    """
+    key, gen_state, review_state, _ = _DOC_TYPE_MAP[doc_type]
+    doc: DocumentState = getattr(session, key)
+    max_rounds = settings.max_review_rounds
+
+    while doc.current_round < max_rounds:
+        # --- Review ---
+        review_system_prompt = _build_review_prompt(session, doc_type)
+        review_result = await _call_llm_once(review_system_prompt)
+
+        has_issues = _has_issues(review_result)
+        if not has_issues:
+            doc.review_rounds.append(ReviewRound(
+                round_number=doc.current_round + 1,
+                review_content=review_result,
+                rewrite_content=None,
+            ))
+            break
+
+        # --- Rewrite（流式） ---
+        rewrite_prompt = _build_rewrite_prompt(session, doc_type, review_result)
+        rewrite_content = ""
+        async for chunk in stream_generate(rewrite_prompt):
+            rewrite_content += chunk
+            doc.content = rewrite_content
+            yield chunk  # 逐 token 输出改写内容
+
+        doc.current_round += 1
+        doc.review_rounds.append(ReviewRound(
+            round_number=doc.current_round,
+            review_content=review_result,
+            rewrite_content=rewrite_content,
+        ))
+
+        doc.streaming = False
+
+    session.current_state = review_state
+    session_store.update(session)
+
+
+# ========================================================================
+# 内部引擎
+# ========================================================================
+
+
+async def _generate_document_stream(
+    session: SessionData, doc_type: DocType
+) -> AsyncGenerator[str, None]:
+    """通用文档生成引擎（3 个公开方法共用）。
+
+    流程：加载 Prompt → astream 流式生成 → 写 session → 状态切换。
+    完成后自动触发 Review→Rewrite 循环（调用 run_review_rewrite）。
+    """
     key, gen_state, _, prompt_name = _DOC_TYPE_MAP[doc_type]
     doc: DocumentState = getattr(session, key)
 
@@ -72,49 +175,18 @@ async def stream_generate_document(
 
 
 async def run_review_rewrite(session: SessionData, doc_type: DocType) -> None:
-    """系统自动执行 Review→Rewrite 循环（最多 max_review_rounds 轮）
+    """系统自动执行 Review→Rewrite 循环（批量，非流式）。
 
     在 reviewing_X 状态被系统内部触发，不在 API 路由层暴露。
+    如需流式输出优化过程，请使用 optimize_document_stream。
     """
-    key, gen_state, review_state, _ = _DOC_TYPE_MAP[doc_type]
-    doc: DocumentState = getattr(session, key)
-    max_rounds = settings.max_review_rounds
+    async for _ in optimize_document_stream(session, doc_type):
+        pass  # 批量模式：丢弃流式输出，只关心最终结果
 
-    while doc.current_round < max_rounds:
-        # --- Review ---
-        review_system_prompt = _build_review_prompt(session, doc_type)
-        review_result = await _call_llm_once(review_system_prompt)
 
-        has_issues = _has_issues(review_result)
-        if not has_issues:
-            # 审核通过，无需改写
-            doc.review_rounds.append(ReviewRound(
-                round_number=doc.current_round + 1,
-                review_content=review_result,
-                rewrite_content=None,
-            ))
-            break
-
-        # --- Rewrite ---
-        rewrite_prompt = _build_rewrite_prompt(session, doc_type, review_result)
-        rewrite_content = ""
-        async for chunk in stream_generate(rewrite_prompt):
-            rewrite_content += chunk
-            doc.content = rewrite_content
-
-        doc.current_round += 1
-        doc.review_rounds.append(ReviewRound(
-            round_number=doc.current_round,
-            review_content=review_result,
-            rewrite_content=rewrite_content,
-        ))
-
-        # 重置 streaming 标志
-        doc.streaming = False
-
-    # 循环结束，确保状态为 reviewing_X
-    session.current_state = review_state
-    session_store.update(session)
+# ========================================================================
+# 内部工具函数
+# ========================================================================
 
 
 def _build_prompt_kwargs(session: SessionData, doc_type: DocType) -> dict:

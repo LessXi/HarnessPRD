@@ -2,10 +2,13 @@ import { useEffect, useState, useCallback } from "react";
 import FormStep from "@/components/FormStep";
 import MessageList from "@/components/MessageList";
 import ChatInput from "@/components/ChatInput";
+import DocumentReview from "@/components/DocumentReview";
 import {
   getQuestions, createSession,
   startConversationStream, continueConversationStream,
   sendMessage, getMessages,
+  generatePrdStream, generateApiDocsStream, generatePromptsStream,
+  optimizeDocumentStream,
 } from "@/services/api";
 import type { QuestionsConfig, ViewState, ChatMessage } from "@/types";
 import { STEPS, STEP_INDEX_MAP } from "@/types";
@@ -13,6 +16,11 @@ import { STEPS, STEP_INDEX_MAP } from "@/types";
 const DRAFT_KEY = "harnessprd:form-draft";
 const CHAT_KEY = "harnessprd:chat-messages";
 const SESSION_KEY = "harnessprd:session";
+const DOC_KEYS: Record<string, string> = {
+  prd: "harnessprd:prd",
+  api: "harnessprd:api",
+  prompts: "harnessprd:prompts",
+};
 
 interface SessionInfo {
   sessionId: string;
@@ -73,6 +81,9 @@ function saveSession(info: SessionInfo) {
 function clearSession() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(CHAT_KEY);
+  localStorage.removeItem(DOC_KEYS.prd);
+  localStorage.removeItem(DOC_KEYS.api);
+  localStorage.removeItem(DOC_KEYS.prompts);
 }
 
 // ===== 步骤进度条 =====
@@ -179,6 +190,11 @@ export default function App() {
   const [streamingContent, setStreamingContent] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
 
+  // 文档状态
+  const [prdContent, setPrdContent] = useState(() => localStorage.getItem(DOC_KEYS.prd) || "");
+  const [apiDocsContent, setApiDocsContent] = useState(() => localStorage.getItem(DOC_KEYS.api) || "");
+  const [promptsContent, setPromptsContent] = useState(() => localStorage.getItem(DOC_KEYS.prompts) || "");
+
   useEffect(() => {
     getQuestions()
       .then((q) => setQuestions(q))
@@ -204,6 +220,59 @@ export default function App() {
         setMessages([]);
       });
   }, []); // 仅在挂载时执行一次
+
+  // ===== 文档生成：viewState 进入 generating_* 自动触发 =====
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    if (viewState === "generating_prd") {
+      setStreamingContent("");
+      generatePrdStream(sessionId, {
+        onChunk: (text) => setStreamingContent((prev) => prev + text),
+        onDone: () => {
+          setStreamingContent((prev) => {
+            setPrdContent(prev);
+            localStorage.setItem(DOC_KEYS.prd, prev);
+            return "";
+          });
+          setViewState("reviewing_prd");
+          saveSession({ sessionId, viewState: "reviewing_prd" });
+        },
+        onError: (err) => setError(err),
+      });
+    } else if (viewState === "generating_api") {
+      setStreamingContent("");
+      generateApiDocsStream(sessionId, {
+        onChunk: (text) => setStreamingContent((prev) => prev + text),
+        onDone: () => {
+          setStreamingContent((prev) => {
+            setApiDocsContent(prev);
+            localStorage.setItem(DOC_KEYS.api, prev);
+            return "";
+          });
+          setViewState("reviewing_api");
+          saveSession({ sessionId, viewState: "reviewing_api" });
+        },
+        onError: (err) => setError(err),
+      });
+    } else if (viewState === "generating_prompts") {
+      setStreamingContent("");
+      generatePromptsStream(sessionId, {
+        onChunk: (text) => setStreamingContent((prev) => prev + text),
+        onDone: () => {
+          setStreamingContent((prev) => {
+            setPromptsContent(prev);
+            localStorage.setItem(DOC_KEYS.prompts, prev);
+            return "";
+          });
+          setViewState("reviewing_prompts");
+          saveSession({ sessionId, viewState: "reviewing_prompts" });
+        },
+        onError: (err) => setError(err),
+      });
+    }
+  }, [viewState, sessionId]);
 
   const handleChange = useCallback((name: string, value: any) => {
     setFormData((prev) => {
@@ -300,6 +369,41 @@ export default function App() {
     });
   }, [sessionId, chatLoading, messages]);
 
+  // ===== 文档操作 =====
+
+  const handleGenerateDoc = useCallback(() => {
+    if (!sessionId) return;
+    setViewState("generating_prd");
+    saveSession({ sessionId, viewState: "generating_prd" });
+  }, [sessionId]);
+
+  const handleOptimizeDoc = useCallback((docType: "prd" | "api" | "prompts") => {
+    if (!sessionId) return;
+    setStreamingContent("");
+    saveSession({ sessionId, viewState: viewState });
+    optimizeDocumentStream(sessionId, docType, {
+      onChunk: (text) => setStreamingContent((prev) => prev + text),
+      onDone: () => {
+        setStreamingContent((prev) => {
+          if (prev) {
+            if (docType === "prd") {
+              setPrdContent(prev);
+              localStorage.setItem(DOC_KEYS.prd, prev);
+            } else if (docType === "api") {
+              setApiDocsContent(prev);
+              localStorage.setItem(DOC_KEYS.api, prev);
+            } else {
+              setPromptsContent(prev);
+              localStorage.setItem(DOC_KEYS.prompts, prev);
+            }
+          }
+          return "";
+        });
+      },
+      onError: (err) => setError(err),
+    });
+  }, [sessionId]); // viewState 只用于快照保存，不参与分支逻辑
+
   // ===== 加载中 =====
   if (loading) {
     return (
@@ -353,6 +457,16 @@ export default function App() {
     case "ai_dialogue":
       content = (
         <div className="flex-1 flex flex-col h-full">
+          <div className="flex items-center justify-end px-4 py-2 border-b border-gray-100 bg-white shrink-0">
+            {messages.length > 0 && !chatLoading && (
+              <button
+                onClick={handleGenerateDoc}
+                className="text-xs px-3 py-1.5 rounded-lg bg-primary-500 text-white hover:bg-primary-600 font-medium transition-colors"
+              >
+                生成 PRD
+              </button>
+            )}
+          </div>
           <MessageList messages={messages} streamingText={streamingContent} />
           <ChatInput onSend={handleSendMessage} disabled={chatLoading} />
         </div>
@@ -360,31 +474,96 @@ export default function App() {
       break;
 
     case "generating_prd":
-      content = <PlaceholderPage title="正在生成 PRD…" />;
+      content = (
+        <DocumentReview
+          title="PRD"
+          content={prdContent}
+          streamingText={streamingContent || undefined}
+        />
+      );
       break;
 
     case "reviewing_prd":
-      content = <PlaceholderPage title="PRD 审阅" />;
+      content = (
+        <DocumentReview
+          title="PRD"
+          content={prdContent}
+          onOptimize={() => handleOptimizeDoc("prd")}
+          onConfirm={() => { setViewState("generating_api"); saveSession({ sessionId: sessionId!, viewState: "generating_api" }); }}
+        />
+      );
       break;
 
     case "generating_api":
-      content = <PlaceholderPage title="正在生成接口文档…" />;
+      content = (
+        <DocumentReview
+          title="接口文档"
+          content={apiDocsContent}
+          streamingText={streamingContent || undefined}
+        />
+      );
       break;
 
     case "reviewing_api":
-      content = <PlaceholderPage title="接口文档审阅" />;
+      content = (
+        <DocumentReview
+          title="接口文档"
+          content={apiDocsContent}
+          onOptimize={() => handleOptimizeDoc("api")}
+          onConfirm={() => { setViewState("generating_prompts"); saveSession({ sessionId: sessionId!, viewState: "generating_prompts" }); }}
+        />
+      );
       break;
 
     case "generating_prompts":
-      content = <PlaceholderPage title="正在生成提示词套件…" />;
+      content = (
+        <DocumentReview
+          title="提示词套件"
+          content={promptsContent}
+          streamingText={streamingContent || undefined}
+          confirmLabel="完成"
+        />
+      );
       break;
 
     case "reviewing_prompts":
-      content = <PlaceholderPage title="提示词套件审阅" />;
+      content = (
+        <DocumentReview
+          title="提示词套件"
+          content={promptsContent}
+          onOptimize={() => handleOptimizeDoc("prompts")}
+          onConfirm={() => { setViewState("completed"); saveSession({ sessionId: sessionId!, viewState: "completed" }); }}
+          confirmLabel="完成"
+        />
+      );
       break;
 
     case "completed":
-      content = <PlaceholderPage title="全部完成 🎉" />;
+      content = (
+        <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-3">
+              <p className="text-3xl">🎉</p>
+              <p className="text-lg font-medium text-gray-700">全部完成！</p>
+              <p className="text-sm text-gray-400">PRD、接口文档、提示词套件已生成</p>
+              <button
+                onClick={() => {
+                  clearSession();
+                  setSessionId(null);
+                  setViewState("form_editing");
+                  setMessages([]);
+                  setPrdContent("");
+                  setApiDocsContent("");
+                  setPromptsContent("");
+                }}
+                className="mt-2 text-sm text-primary-600 hover:underline"
+              >
+                开始新项目
+              </button>
+            </div>
+          </div>
+        </div>
+      );
       break;
 
     default:
