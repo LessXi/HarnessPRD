@@ -1,5 +1,5 @@
 export interface QuestionConfig {
-  name: string
+  id: string
   label: string
   type: 'text' | 'textarea' | 'select' | 'radio' | 'list'
   required?: boolean

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, create_model
 from enum import Enum
 
 
@@ -46,37 +46,24 @@ class DocumentState(BaseModel):
     confirmed: bool = False
 
 
-class FormData(BaseModel):
-    """表单数据，与 docs/form-data-structure.md 对齐"""
-    # base — required
-    product_name: str = Field(..., description="产品名称")
-    one_liner: str = Field(..., description="一句话定义")
-    problem_statement: str = Field(..., description="核心痛点")
-    target_users: str = Field(..., description="目标用户")
-    mvp_features: list[str] = Field(..., min_length=3, description="MVP 功能列表（至少 3 条）")
-    platform_type: str = Field(..., description="目标平台: web / mobile / wechat_miniprogram / desktop / multi")
-    needs_auth: str = Field(..., description="是否需要登录: yes / no / unsure")
-    needs_database: str = Field(..., description="是否需要数据库: yes / no / unsure")
-    page_count: str = Field(..., description="页面数量: 1-3 / 4-10 / 10+ / unsure")
+# ========== 动态表单数据模型 ==========
+# FormData 由 questions_config.json 动态生成，字段增减只需修改 JSON
 
-    # base — optional
-    visual_style: str = Field(default="", description="视觉风格: minimal / creative / enterprise / unsure")
-    competitors: str = Field(default="", description="竞品")
+def _build_form_data_model():
+    from core.field_registry import get_all_fields, is_list_field
+    fields = {}
+    for f in get_all_fields():
+        fid = f["id"]
+        required = f.get("required", False)
+        if is_list_field(fid):
+            fields[fid] = (list[str], Field(..., min_length=3))
+        elif required:
+            fields[fid] = (str, ...)
+        else:
+            fields[fid] = (str, Field(default=""))
+    return create_model("FormData", **fields)
 
-    # advanced — optional
-    tech_stack_preference: str = Field(default="", description="技术栈偏好")
-    feature_priority: str = Field(default="", description="功能优先级策略: user_defined / ai_suggest / iterate")
-    doc_depth: str = Field(default="", description="文档详细程度: brief / standard / detailed")
-    ai_temperature: str = Field(default="", description="AI 输出风格: conservative / balanced / creative")
-    timeline_expectation: str = Field(default="", description="时间预期: 1-2_months / 3-6_months / 6+_months / unsure")
-    additional_context: str = Field(default="", description="额外上下文")
-
-    @field_validator("mvp_features")
-    @classmethod
-    def check_mvp_count(cls, v: list[str]) -> list[str]:
-        if len(v) < 3:
-            raise ValueError("至少需要 3 个 MVP 功能")
-        return v
+FormData = _build_form_data_model()
 
 
 class SessionData(BaseModel):
@@ -144,7 +131,7 @@ class SessionStore:
         )
         result = []
         for s in sorted_sessions[:limit]:
-            product_name = s.form_data.product_name if s.form_data else "(未命名)"
+            product_name = getattr(s.form_data, "product_name", "(未命名)") if s.form_data else "(未命名)"
             result.append({
                 "session_id": s.session_id,
                 "product_name": product_name,

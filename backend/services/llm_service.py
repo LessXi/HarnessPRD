@@ -47,6 +47,14 @@ def _build_llm():
             api_key=settings.deepseek_api_key,
             streaming=True,
         )
+    elif provider == "mimo":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=settings.mimo_model,
+            api_key=settings.mimo_api_key,
+            base_url=settings.mimo_base_url,
+            streaming=True,
+        )
     else:
         raise ValueError(f"不支持的 LLM provider: {provider}")
 

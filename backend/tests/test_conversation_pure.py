@@ -24,7 +24,7 @@ class TestFormatFormData:
         assert "Python + React" in text
         assert "3-6_months" in text
         # 验证所有必填字段都有输出
-        for keyword in ["产品名称", "一句话定义", "核心痛点", "目标用户", "MVP 功能清单"]:
+        for keyword in ["产品名称", "一句话定义", "解决的问题", "目标用户", "MVP 核心功能"]:
             assert keyword in text, f"缺少关键字段: {keyword}"
 
     def test_without_form_data(self):
@@ -37,41 +37,41 @@ class TestFormatFormData:
 
 
 class TestBuildSystemPrompt:
-    """_build_system_prompt — 系统提示词构建"""
+    """_build_system_prompt — 统一的系统提示词构建"""
 
-    def test_icebreak_only(self, mock_session):
-        """full=False 时仅包含阶段1（破冰）"""
-        prompt = _build_system_prompt(mock_session, full=False)
+    def test_contains_role_definition(self, mock_session):
+        """提示词包含产品经理角色定义"""
+        prompt = _build_system_prompt(mock_session)
         assert isinstance(prompt, str)
-        assert len(prompt) > 100
-        # 应该包含 icebreak 阶段的角色定义
-        assert "产品经理" in prompt
-        # 不应包含后续阶段的标记
-        assert "破冰" in prompt or "场景还原" in prompt
+        assert len(prompt) > 200
+        assert "产品经理" in prompt or "产品合伙人" in prompt
 
-    def test_full_stages(self, mock_session):
-        """full=True 时包含全部 5 阶段"""
-        prompt = _build_system_prompt(mock_session, full=True)
-        assert isinstance(prompt, str)
-        assert len(prompt) > 500
-        # 应该包含多阶段指令
-        assert "阶段" in prompt
-        # 包含完整的用户产品信息
-        assert "智能简历助手" in prompt
-
-    def test_full_system_contains_form_data(self, mock_session):
-        """full 模式下包含格式化表单数据"""
-        prompt = _build_system_prompt(mock_session, full=True)
+    def test_contains_form_data(self, mock_session):
+        """提示词包含完整的表单数据"""
+        prompt = _build_system_prompt(mock_session)
         assert "智能简历助手" in prompt
         assert "一键简历解析" in prompt
 
+    def test_contains_topic_map(self, mock_session):
+        """提示词包含 5 个话题方向（但不作为脚本）"""
+        prompt = _build_system_prompt(mock_session)
+        assert "使用场景" in prompt
+        assert "功能边界" in prompt or "核心功能" in prompt
+        assert "行为原则" in prompt
+        assert "倾听优先" in prompt
+
+    def test_contains_skip_logic(self, mock_session):
+        """提示词包含跳过对话的兜底逻辑"""
+        prompt = _build_system_prompt(mock_session)
+        assert "跳过" in prompt
+
 
 class TestBuildLcMessages:
-    """_build_lc_messages — LangChain 消息链构建"""
+    """_build_lc_messages — LangChain 消息链构建（不再需要 full_system 参数）"""
 
     def test_first_message(self, mock_session):
         """无历史消息时返回 [System, Human]"""
-        messages = _build_lc_messages(mock_session, "你好", full_system=False)
+        messages = _build_lc_messages(mock_session, "你好")
         assert len(messages) == 2
         assert isinstance(messages[0], SystemMessage)
         assert isinstance(messages[1], HumanMessage)
@@ -80,7 +80,7 @@ class TestBuildLcMessages:
     def test_with_history(self, mock_session_with_history):
         """有历史消息时返回 [System, AI, Human, AI, Human]（mock 首条为 AI 问候）"""
         msg = "我想先做 Web 端"
-        messages = _build_lc_messages(mock_session_with_history, msg, full_system=True)
+        messages = _build_lc_messages(mock_session_with_history, msg)
         # System + 3 chat_messages + 1 new = 5
         assert len(messages) == 5
         assert isinstance(messages[0], SystemMessage)
@@ -93,7 +93,7 @@ class TestBuildLcMessages:
 
     def test_empty_user_message(self, mock_session):
         """空消息时不应添加 HumanMessage"""
-        messages = _build_lc_messages(mock_session, "", full_system=False)
+        messages = _build_lc_messages(mock_session, "")
         assert len(messages) == 1
         assert isinstance(messages[0], SystemMessage)
 

@@ -19,13 +19,13 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
     for (const q of allQuestions) {
       if (!q.required) continue;
 
-      const val = formData[q.name];
+      const val = formData[q.id];
       if (q.type === "list") {
         if (!Array.isArray(val) || val.length < 3 || val.some((v) => !v.trim())) {
-          newErrors[q.name] = `至少需要 3 项，且每项不能为空`;
+          newErrors[q.id] = `至少需要 3 项，且每项不能为空`;
         }
       } else if (!val || (typeof val === "string" && !val.trim())) {
-        newErrors[q.name] = `${q.label}为必填项`;
+        newErrors[q.id] = `${q.label}为必填项`;
       }
     }
 
@@ -58,8 +58,8 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
   }
 
   function renderField(q: QuestionsConfig["base_questions"][number]) {
-    const val = formData[q.name] ?? "";
-    const error = errors[q.name];
+    const val = formData[q.id] ?? "";
+    const error = errors[q.id];
 
     const baseInputClass =
       "w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition-colors " +
@@ -76,7 +76,7 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
             type="text"
             className={baseInputClass}
             value={val as string}
-            onChange={(e) => onChange(q.name, e.target.value)}
+            onChange={(e) => onChange(q.id, e.target.value)}
             placeholder={`请输入${q.label}`}
           />
         );
@@ -87,7 +87,7 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
           <textarea
             className={baseInputClass + " min-h-[80px] resize-y"}
             value={val as string}
-            onChange={(e) => onChange(q.name, e.target.value)}
+            onChange={(e) => onChange(q.id, e.target.value)}
             placeholder={`请输入${q.label}`}
             rows={3}
           />
@@ -99,7 +99,7 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
           <select
             className={baseInputClass}
             value={val as string}
-            onChange={(e) => onChange(q.name, e.target.value)}
+            onChange={(e) => onChange(q.id, e.target.value)}
           >
             <option value="">-- 请选择 --</option>
             {q.options?.map((opt) => (
@@ -125,10 +125,10 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
               >
                 <input
                   type="radio"
-                  name={q.name}
+                  name={q.id}
                   value={opt.value}
                   checked={val === opt.value}
-                  onChange={(e) => onChange(q.name, e.target.value)}
+                  onChange={(e) => onChange(q.id, e.target.value)}
                   className="sr-only"
                 />
                 {opt.label}
@@ -140,13 +140,13 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
 
       case "list":
         {
-          const items: string[] = Array.isArray(formData[q.name])
-            ? formData[q.name]
+          const items: string[] = Array.isArray(formData[q.id])
+            ? formData[q.id]
             : ["", "", ""];
           input = (
             <div className="space-y-2">
               {items.map((item: string, idx: number) => (
-                <div key={`${q.name}-${idx}`} className="flex items-center gap-2">
+                <div key={`${q.id}-${idx}`} className="flex items-center gap-2">
                   <span className="text-xs text-gray-400 w-5 text-right">
                     {idx + 1}.
                   </span>
@@ -154,13 +154,13 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
                     type="text"
                     className={baseInputClass + " flex-1"}
                     value={item}
-                    onChange={(e) => updateListItem(q.name, idx, e.target.value)}
+                    onChange={(e) => updateListItem(q.id, idx, e.target.value)}
                     placeholder={`功能 ${idx + 1}`}
                   />
                   {items.length > 3 && (
                     <button
                       type="button"
-                      onClick={() => removeListItem(q.name, idx)}
+                      onClick={() => removeListItem(q.id, idx)}
                       className="shrink-0 text-gray-400 hover:text-red-500 transition-colors p-1"
                       aria-label="删除"
                     >
@@ -171,7 +171,7 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
               ))}
               <button
                 type="button"
-                onClick={() => addListItem(q.name)}
+                onClick={() => addListItem(q.id)}
                 className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               >
                 + 添加功能
@@ -186,7 +186,7 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
     }
 
     return (
-      <div key={q.name} className="space-y-1.5">
+      <div key={q.id} className="space-y-1.5">
         {/* 标签 */}
         <label className="text-sm font-medium text-gray-700">
           {q.label}

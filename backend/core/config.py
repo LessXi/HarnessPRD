@@ -54,7 +54,7 @@ class Settings(BaseSettings):
 
     # ========== LLM 提供方 ==========
     # API key 和模型名必须从 .env 提供，代码中不设默认值
-    llm_provider: str = "openai"  # openai | anthropic | deepseek
+    llm_provider: str = "openai"  # openai | anthropic | deepseek | mimo
 
     openai_api_key: str = ""
     openai_model: str = ""
@@ -64,6 +64,10 @@ class Settings(BaseSettings):
 
     deepseek_api_key: str = ""
     deepseek_model: str = ""
+
+    mimo_api_key: str = ""
+    mimo_model: str = ""
+    mimo_base_url: str = ""
 
     # ========== 文档生成参数 ==========
     max_review_rounds: int = 3
@@ -75,7 +79,7 @@ class Settings(BaseSettings):
     @field_validator("llm_provider")
     @classmethod
     def check_provider(cls, v: str) -> str:
-        allowed = {"openai", "anthropic", "deepseek"}
+        allowed = {"openai", "anthropic", "deepseek", "mimo"}
         if v not in allowed:
             raise ValueError(f"LLM_PROVIDER 必须是 {allowed} 之一，当前值: {v}")
         return v
@@ -95,6 +99,7 @@ class Settings(BaseSettings):
             "openai": ("openai_api_key", "OPENAI_API_KEY"),
             "anthropic": ("anthropic_api_key", "ANTHROPIC_API_KEY"),
             "deepseek": ("deepseek_api_key", "DEEPSEEK_API_KEY"),
+            "mimo": ("mimo_api_key", "MIMO_API_KEY"),
         }
         field_name, env_key = key_map[provider]
         if not getattr(self, field_name):
