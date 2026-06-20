@@ -1,9 +1,9 @@
-"""测试共用的 mock 会话和 fixture"""
+"""测试共用的 mock 数据和 fixture"""
 
 import pytest
 from datetime import datetime, timezone
 
-from core.state import ChatMessage, FormData, SessionData, session_store
+from core.state import ChatMessage, FormData
 
 
 @pytest.fixture
@@ -28,26 +28,16 @@ def mock_form_data() -> FormData:
 
 
 @pytest.fixture
-def mock_session(mock_form_data: FormData) -> SessionData:
-    """返回创建好的 mock 会话（已进入 AI_DIALOGUE 状态）"""
-    return session_store.create(mock_form_data)
+def mock_form_dict(mock_form_data: FormData) -> dict:
+    """返回表单数据的字典形式，供新无状态 API 使用"""
+    return mock_form_data.model_dump()
 
 
 @pytest.fixture
-def mock_session_with_history(mock_form_data: FormData) -> SessionData:
-    """返回带 2 轮对话历史的 mock 会话"""
-    session = session_store.create(mock_form_data)
-    session.chat_messages = [
-        ChatMessage(role="assistant", content="你好！我是你的产品顾问，请说说你的想法。", timestamp=datetime.now(timezone.utc)),
-        ChatMessage(role="user", content="我想做一个简历工具", timestamp=datetime.now(timezone.utc)),
-        ChatMessage(role="assistant", content="好的，能具体说说你的目标用户是谁吗？", timestamp=datetime.now(timezone.utc)),
+def mock_history() -> list[dict]:
+    """返回带 2 轮对话历史的 mock 数据"""
+    return [
+        {"role": "assistant", "content": "你好！我是你的产品顾问，请说说你的想法。", "timestamp": datetime.now(timezone.utc).isoformat()},
+        {"role": "user", "content": "我想做一个简历工具", "timestamp": datetime.now(timezone.utc).isoformat()},
+        {"role": "assistant", "content": "好的，能具体说说你的目标用户是谁吗？", "timestamp": datetime.now(timezone.utc).isoformat()},
     ]
-    session_store.update(session)
-    return session
-
-
-@pytest.fixture(autouse=True)
-def _clean_store():
-    """每个测试前清空 session_store"""
-    session_store._sessions.clear()
-    yield

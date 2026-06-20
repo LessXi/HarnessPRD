@@ -1,4 +1,5 @@
 """Service 层纯函数测试（无需 LLM 调用）"""
+import copy
 import pytest
 from core.field_registry import get_all_fields, get_field_ids, is_list_field
 from services.session_service import _validate_form
@@ -37,33 +38,30 @@ class TestFieldRegistry:
 
 
 class TestValidateForm:
-    """session_service._validate_form — 表单校验"""
+    """session_service._validate_form — 表单校验（新签名：接受 dict）"""
 
-    def test_valid_form(self, mock_form_data):
+    def test_valid_form(self, mock_form_dict):
         """有效表单不应抛出异常"""
-        _validate_form(mock_form_data)
+        _validate_form(mock_form_dict)
 
-    def test_missing_required_field(self, mock_form_data):
+    def test_missing_required_field(self, mock_form_dict):
         """必填字段为空时抛出 ValueError"""
-        import copy
-        data = copy.deepcopy(mock_form_data)
-        data.product_name = ""
+        data = copy.deepcopy(mock_form_dict)
+        data["product_name"] = ""
         with pytest.raises(ValueError, match="产品名称"):
             _validate_form(data)
 
-    def test_invalid_select_value(self, mock_form_data):
+    def test_invalid_select_value(self, mock_form_dict):
         """select 字段传入非允许值时抛出 ValueError"""
-        import copy
-        data = copy.deepcopy(mock_form_data)
-        data.platform_type = "invalid_platform"
+        data = copy.deepcopy(mock_form_dict)
+        data["platform_type"] = "invalid_platform"
         with pytest.raises(ValueError, match="目标平台"):
             _validate_form(data)
 
-    def test_invalid_radio_value(self, mock_form_data):
+    def test_invalid_radio_value(self, mock_form_dict):
         """radio 字段传入非允许值时抛出 ValueError"""
-        import copy
-        data = copy.deepcopy(mock_form_data)
-        data.needs_auth = "maybe"
+        data = copy.deepcopy(mock_form_dict)
+        data["needs_auth"] = "maybe"
         with pytest.raises(ValueError, match="用户登录"):
             _validate_form(data)
 
@@ -93,38 +91,56 @@ class TestHasIssues:
 
 
 class TestBuildPromptKwargs:
-    """document_service._build_prompt_kwargs — Prompt 上下文构造"""
+    """document_service._build_prompt_kwargs — Prompt 上下文构造（新无状态签名）"""
 
-    def test_prd_kwargs(self, mock_session):
+    def test_prd_kwargs(self, mock_form_dict):
         """PRD 只需要 form_data + requirements_summary"""
-        kwargs = _build_prompt_kwargs(mock_session, "prd")
-        assert "form_data" in kwargs
-        assert "requirements_summary" in kwargs
+        kwargs = _build_prompt_kwargs(
+            mock_form_dict, "需求摘要",
+            doc_type="prd",
+        )
+        assert kwargs["form_data"] == mock_form_dict
+        assert kwargs["requirements_summary"] == "需求摘要"
         assert "prd_content" not in kwargs
         assert "api_content" not in kwargs
 
-    def test_api_kwargs(self, mock_session):
+    def test_api_kwargs(self, mock_form_dict):
         """API 文档需要 form_data + summary + prd_content"""
-        mock_session.prd.content = "测试 PRD 内容"
-        kwargs = _build_prompt_kwargs(mock_session, "api")
-        assert "form_data" in kwargs
-        assert "requirements_summary" in kwargs
-        assert kwargs.get("prd_content") == "测试 PRD 内容"
+        kwargs = _build_prompt_kwargs(
+            mock_form_dict, "需求摘要",
+            doc_type="api",
+            prd_content="测试 PRD 内容",
+        )
+        assert kwargs["form_data"] == mock_form_dict
+        assert kwargs["requirements_summary"] == "需求摘要"
+        assert kwargs["prd_content"] == "测试 PRD 内容"
         assert "api_content" not in kwargs
 
-    def test_prompts_kwargs(self, mock_session):
+    def test_prompts_kwargs(self, mock_form_dict):
         """提示词套件需要 form_data + summary + prd_content + api_content"""
-        mock_session.prd.content = "测试 PRD 内容"
-        mock_session.api.content = "测试 API 内容"
-        kwargs = _build_prompt_kwargs(mock_session, "prompts")
-        assert kwargs.get("prd_content") == "测试 PRD 内容"
-        assert kwargs.get("api_content") == "测试 API 内容"
+        kwargs = _build_prompt_kwargs(
+            mock_form_dict, "需求摘要",
+            doc_type="prompts",
+            prd_content="测试 PRD 内容",
+            api_content="测试 API 内容",
+        )
+        assert kwargs["prd_content"] == "测试 PRD 内容"
+        assert kwargs["api_content"] == "测试 API 内容"
 
-    def test_kwargs_no_form_data(self):
-        """form_data 为 None 时返回空字典"""
-        from unittest.mock import MagicMock
-        session = MagicMock()
-        session.form_data = None
-        session.requirements_summary = ""
-        kwargs = _build_prompt_kwargs(session, "prd")
+    def test_kwargs_empty_form_data(self):
+        """空 form_data 仍正常工作"""
+        kwargs = _build_prompt_kwargs(
+            {}, "摘要",
+            doc_type="prd",
+        )
         assert kwargs["form_data"] == {}
+        assert kwargs["requirements_summary"] == "摘要"
+
+    def test_previous_content(self, mock_form_dict):
+        """previous_content 字段被正确传递"""
+        kwargs = _build_prompt_kwargs(
+            mock_form_dict, "摘要",
+            doc_type="prd",
+            previous_content="已生成的内容",
+        )
+        assert kwargs["previous_content"] == "已生成的内容"

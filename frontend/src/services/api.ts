@@ -1,5 +1,12 @@
 import axios from "axios";
-import type { QuestionsConfig, StreamCallbacks } from "@/types";
+import type {
+  QuestionsConfig,
+  ChatRequest,
+  SummaryRequest,
+  DocumentRequest,
+  OptimizeRequest,
+  StreamCallbacks,
+} from "@/types";
 
 const api = axios.create({
   baseURL: "/api",
@@ -10,28 +17,14 @@ const api = axios.create({
 // ========================================================================
 
 export async function getQuestions(): Promise<QuestionsConfig> {
-  const { data } = await api.get<QuestionsConfig>("/sessions/questions");
+  const { data } = await api.get<QuestionsConfig>("/questions");
   return data;
 }
 
-export async function createSession(
-  formData: Record<string, any>
-): Promise<{ session_id: string; current_state: string }> {
-  const { data } = await api.post("/sessions", formData);
-  return data;
-}
-
-/** 发送用户消息（非流式，追加到对话历史） */
-export async function sendMessage(
-  sessionId: string,
-  content: string
-): Promise<void> {
-  await api.post(`/sessions/${sessionId}/messages`, { content });
-}
-
-/** 获取对话历史 */
-export async function getMessages(sessionId: string): Promise<any[]> {
-  const { data } = await api.get(`/sessions/${sessionId}/messages`);
+export async function generateSummary(
+  req: SummaryRequest,
+): Promise<{ summary: string }> {
+  const { data } = await api.post("/summary/generate", req);
   return data;
 }
 
@@ -39,7 +32,6 @@ export async function getMessages(sessionId: string): Promise<any[]> {
 // SSE 流式 API（fetch — 浏览器原生 ReadableStream）
 // ========================================================================
 
-/** 与 axios 实例共享 base URL，一处修改两处生效 */
 const SSE_BASE = api.defaults.baseURL!;
 
 /**
@@ -47,14 +39,8 @@ const SSE_BASE = api.defaults.baseURL!;
  *
  * 后端 SSE 格式：
  *   data: {"event":"chunk","content":"..."}
- *   data: {"event":"done"}
+ *   data: {"event":"done","assistant_content":"..."}
  *   data: {"event":"error","content":"..."}
- *
- * 解析后分别回调 onChunk / onDone / onError。
- *
- * @param response  fetch 返回的 Response 对象
- * @param callbacks  onChunk / onDone / onError 回调
- * @param signal     可选的 AbortSignal，用于中断读取
  */
 export async function readStream(
   response: Response,
@@ -81,19 +67,15 @@ export async function readStream(
       const { done, value } = await reader.read();
       if (done) break;
 
-      // 解码二进制块并追加到缓冲区
       buffer += decoder.decode(value, { stream: true });
 
-      // 按行分割处理
       const lines = buffer.split("\n");
-      // 最后一个元素可能是不完整的行，保留到下次
       buffer = lines.pop() ?? "";
 
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed || !trimmed.startsWith("data: ")) continue;
 
-        // 提取 data: 后的 JSON
         const jsonStr = trimmed.slice(6);
         if (!jsonStr) continue;
 
@@ -106,7 +88,7 @@ export async function readStream(
               onChunk(parsed.content ?? "");
               break;
             case "done":
-              onDone();
+              onDone(parsed);
               break;
             case "error":
               onError(parsed.content ?? "未知 SSE 错误");
@@ -123,207 +105,88 @@ export async function readStream(
   }
 }
 
-/**
- * SSE 流式发起对话：AI 主动破冰问候。
- * POST /api/sessions/{id}/start-stream
- *
- * @param sessionId  会话 ID
- * @param callbacks  onChunk / onDone / onError
- * @param signal     可选 AbortSignal
- */
-export async function startConversationStream(
-  sessionId: string,
-  callbacks: StreamCallbacks,
-  signal?: AbortSignal,
-): Promise<void> {
-  try {
-    const response = await fetch(`${SSE_BASE}/sessions/${sessionId}/start-stream`, {
-      method: "POST",
-      signal,
-    });
-    if (!response.ok) {
-      const body = await response.text().catch(() => "");
-      callbacks.onError(`start-stream 失败 (${response.status}): ${body}`);
-      return;
-    }
-    await readStream(response, callbacks, signal);
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "start-stream 请求异常";
-    callbacks.onError(msg);
-  }
-}
+// ========================================================================
+// 对话 SSE
+// ========================================================================
 
 /**
- * SSE 流式接续对话：AI 回复用户消息。
- * POST /api/sessions/{id}/continue-stream
- *
- * @param sessionId  会话 ID
- * @param content    用户消息内容
- * @param callbacks  onChunk / onDone / onError
- * @param signal     可选 AbortSignal
+ * SSE 流式对话（合并 start/continue）。
+ * POST /api/chat/stream
  */
-export async function continueConversationStream(
-  sessionId: string,
-  content: string,
+export async function chatStream(
+  req: ChatRequest,
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
   try {
-    const response = await fetch(`${SSE_BASE}/sessions/${sessionId}/continue-stream`, {
+    const response = await fetch(`${SSE_BASE}/chat/stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify(req),
       signal,
     });
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      callbacks.onError(`continue-stream 失败 (${response.status}): ${body}`);
+      callbacks.onError(`chat/stream 失败 (${response.status}): ${body}`);
       return;
     }
     await readStream(response, callbacks, signal);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "continue-stream 请求异常";
+    const msg = err instanceof Error ? err.message : "chat/stream 请求异常";
     callbacks.onError(msg);
   }
 }
 
 // ========================================================================
-// 文档生成 SSE（两步：POST 触发 → GET 流式）
+// 文档生成 SSE
 // ========================================================================
 
 /**
- * 流式生成 PRD 文档。
- *
- * 1. POST /api/sessions/{id}/documents/prd/generate  触发状态迁移
- * 2. GET  /api/sessions/{id}/documents/prd/stream     SSE 流式接收
+ * 流式生成文档。
+ * POST /api/documents/{docType}/stream
  */
-export async function generatePrdStream(
-  sessionId: string,
+export async function generateDocumentStream(
+  docType: "prd" | "api" | "prompts",
+  req: DocumentRequest,
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
   try {
-    // 触发生成
-    const triggerRes = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/prd/generate`,
-      { method: "POST", signal },
-    );
-    if (!triggerRes.ok) {
-      const body = await triggerRes.text().catch(() => "");
-      callbacks.onError(`PRD 生成失败 (${triggerRes.status}): ${body}`);
+    const response = await fetch(`${SSE_BASE}/documents/${docType}/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+      signal,
+    });
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      callbacks.onError(`文档生成失败 (${response.status}): ${body}`);
       return;
     }
-
-    // SSE 流
-    const streamRes = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/prd/stream`,
-      { signal },
-    );
-    if (!streamRes.ok) {
-      const body = await streamRes.text().catch(() => "");
-      callbacks.onError(`PRD 流失败 (${streamRes.status}): ${body}`);
-      return;
-    }
-    await readStream(streamRes, callbacks, signal);
+    await readStream(response, callbacks, signal);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "PRD 生成请求异常";
-    callbacks.onError(msg);
-  }
-}
-
-/**
- * 流式生成接口文档。
- *
- * 1. POST /api/sessions/{id}/documents/api/generate
- * 2. GET  /api/sessions/{id}/documents/api/stream
- */
-export async function generateApiDocsStream(
-  sessionId: string,
-  callbacks: StreamCallbacks,
-  signal?: AbortSignal,
-): Promise<void> {
-  try {
-    const triggerRes = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/api/generate`,
-      { method: "POST", signal },
-    );
-    if (!triggerRes.ok) {
-      const body = await triggerRes.text().catch(() => "");
-      callbacks.onError(`接口文档生成失败 (${triggerRes.status}): ${body}`);
-      return;
-    }
-
-    const streamRes = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/api/stream`,
-      { signal },
-    );
-    if (!streamRes.ok) {
-      const body = await streamRes.text().catch(() => "");
-      callbacks.onError(`接口文档流失败 (${streamRes.status}): ${body}`);
-      return;
-    }
-    await readStream(streamRes, callbacks, signal);
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "接口文档生成请求异常";
-    callbacks.onError(msg);
-  }
-}
-
-/**
- * 流式生成提示词套件。
- *
- * 1. POST /api/sessions/{id}/documents/prompts/generate
- * 2. GET  /api/sessions/{id}/documents/prompts/stream
- */
-export async function generatePromptsStream(
-  sessionId: string,
-  callbacks: StreamCallbacks,
-  signal?: AbortSignal,
-): Promise<void> {
-  try {
-    const triggerRes = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/prompts/generate`,
-      { method: "POST", signal },
-    );
-    if (!triggerRes.ok) {
-      const body = await triggerRes.text().catch(() => "");
-      callbacks.onError(`提示词套件生成失败 (${triggerRes.status}): ${body}`);
-      return;
-    }
-
-    const streamRes = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/prompts/stream`,
-      { signal },
-    );
-    if (!streamRes.ok) {
-      const body = await streamRes.text().catch(() => "");
-      callbacks.onError(`提示词套件流失败 (${streamRes.status}): ${body}`);
-      return;
-    }
-    await readStream(streamRes, callbacks, signal);
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "提示词套件生成请求异常";
+    const msg = err instanceof Error ? err.message : "文档生成请求异常";
     callbacks.onError(msg);
   }
 }
 
 /**
  * 流式优化文档（Review→Rewrite）。
- *
- * POST /api/sessions/{id}/documents/{docType}/optimize-stream
- * （单步 POST，直接返回 SSE 流）
+ * POST /api/documents/{docType}/optimize
  */
 export async function optimizeDocumentStream(
-  sessionId: string,
   docType: "prd" | "api" | "prompts",
+  req: OptimizeRequest,
   callbacks: StreamCallbacks,
   signal?: AbortSignal,
 ): Promise<void> {
   try {
-    const response = await fetch(
-      `${SSE_BASE}/sessions/${sessionId}/documents/${docType}/optimize-stream`,
-      { method: "POST", signal },
-    );
+    const response = await fetch(`${SSE_BASE}/documents/${docType}/optimize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req),
+      signal,
+    });
     if (!response.ok) {
       const body = await response.text().catch(() => "");
       callbacks.onError(`文档优化失败 (${response.status}): ${body}`);
@@ -333,5 +196,43 @@ export async function optimizeDocumentStream(
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "文档优化请求异常";
     callbacks.onError(msg);
+  }
+}
+
+// ========================================================================
+// 下载
+// ========================================================================
+
+/**
+ * 下载文档为 .md 文件。
+ * POST /api/documents/{docType}/download
+ */
+export async function downloadDocument(
+  docType: "prd" | "api" | "prompts",
+  content: string,
+): Promise<void> {
+  try {
+    const response = await fetch(`${SSE_BASE}/documents/${docType}/download`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`下载失败 (${response.status}): ${body}`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${docType}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "下载请求异常";
+    throw new Error(msg);
   }
 }

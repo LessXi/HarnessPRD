@@ -1,13 +1,14 @@
 # HarnessPRD API 端点清单
 
-> 版本 2.0 · 2026-06-16
+> 版本 3.0 · 2026-06-20
 >
-> 基于代码实际路由校对，与 `backend/api/` 下路由定义保持一致
+> 基于 stateless 后端架构，共 8 个端点。
 >
 > **SSE 事件格式**（所有 SSE 端点统一）：
 > ```
 > data: {"event":"chunk","content":"<逐 token 文本>"}
-> data: {"event":"done"}
+> data: {"event":"done","assistant_content":"<完整回复>"}   // 聊天端点含 assistant_content
+> data: {"event":"done"}                                     // 文档端点无 assistant_content
 > data: {"event":"error","content":"<错误信息>"}
 > ```
 
@@ -15,65 +16,174 @@
 
 ---
 
-## 模块 1：会话管理
+## 端点列表
 
-| # | 方法 | 路径 | 状态转换 | 说明 |
-|---|------|------|---------|------|
-| 1 | `POST` | `/api/sessions` | `form_editing → ai_dialogue` | 提交表单 → 创建 Session |
-| 2 | `GET` | `/api/sessions` | — | 获取最近会话列表 |
-| 3 | `GET` | `/api/sessions/{id}` | — | 获取完整 SessionData（刷新恢复用） |
-| 4 | `GET` | `/api/sessions/questions` | — | 返回表单配置（步骤一动态渲染用） |
+| # | 方法 | 路径 | 说明 |
+|---|------|------|------|
+| 1 | `GET` | `/api/questions` | 返回表单配置（步骤一动态渲染用） |
+| 2 | `POST` | `/api/chat/stream` | SSE 聊天流式端点。Body: `{session_id, form_data, history}` |
+| 3 | `POST` | `/api/summary/generate` | 生成结构化需求摘要。Body: `{session_id, form_data, history}` |
+| 4 | `POST` | `/api/documents/{type}/stream` | SSE 文档生成端点。`type`: `prd` / `api` / `prompts`。Body: `{session_id, form_data, requirements_summary, previous_content?, prd_content?, api_content?}` |
+| 5 | `POST` | `/api/documents/{type}/optimize` | SSE 审阅→改写端点。Body: `{session_id, content, form_data, requirements_summary, prd_content?, api_content?}` |
+| 6 | `POST` | `/api/documents/{type}/download` | 下载 `.md` 文件。Body: `{content}` |
+| 7 | `GET` | `/` | 根路径，返回 API 基础信息 |
+| 8 | `GET` | `/health` | 健康检查 |
 
-## 模块 2：AI 对话
+---
 
-| # | 方法 | 路径 | 状态转换 | 说明 |
-|---|------|------|---------|------|
-| 5 | `POST` | `/api/sessions/{id}/messages` | 自环（`ai_dialogue`） | 发送用户消息 |
-| 6 | `POST` | `/api/sessions/{id}/start-stream` | 自环 | SSE 端点：AI 主动破冰问候 |
-| 7 | `POST` | `/api/sessions/{id}/continue-stream` | 自环 | SSE 端点：AI 接续回复 |
-| 8 | `GET` | `/api/sessions/{id}/messages` | — | 获取对话历史 |
-| 9 | `POST` | `/api/sessions/{id}/summary/generate` | 自环 | 触发需求摘要生成 |
-| 10 | `POST` | `/api/sessions/{id}/summary/confirm` | `ai_dialogue → generating_prd` | 确认摘要 + 进入生成 |
-| 11 | `POST` | `/api/sessions/{id}/summary/reject` | 自环 | 拒绝摘要 + 继续补充 |
-| 12 | `POST` | `/api/sessions/{id}/dialogues/skip` | `ai_dialogue → generating_prd` | 跳过对话兜底分支 |
+## 端点详述
 
-## 模块 3：文档生成
+### 1. `GET /api/questions`
 
-### 3a. PRD
+返回表单配置，供步骤一动态渲染。无参数。
 
-| # | 方法 | 路径 | 状态转换 | 说明 |
-|---|------|------|---------|------|
-| 13 | `POST` | `/api/sessions/{id}/documents/prd/generate` | → `generating_prd` | 启动 PRD 生成 |
-| 14 | `GET` | `/api/sessions/{id}/documents/prd/stream` | `generating_prd → reviewing_prd` | SSE 端点 |
-| 15 | `GET` | `/api/sessions/{id}/documents/prd` | — | 获取 PRD 内容 |
-| 16 | `GET` | `/api/sessions/{id}/documents/prd/review-rounds` | — | 审核轮次历史 |
-| 17 | `PUT` | `/api/sessions/{id}/documents/prd/content` | 自环 | 保存用户编辑 |
-| 18 | `GET` | `/api/sessions/{id}/documents/prd/download` | — | 下载 `.md` |
-| 19 | `POST` | `/api/sessions/{id}/documents/prd/confirm` | `reviewing_prd → generating_api` | 确认 PRD 完成 |
+**响应示例**：
+```json
+{
+  "fields": [
+    {
+      "key": "product_name",
+      "label": "产品名称",
+      "type": "text",
+      "required": true,
+      "max_length": 100
+    }
+  ]
+}
+```
 
-### 3b. 接口文档
+### 2. `POST /api/chat/stream`
 
-| # | 方法 | 路径 | 状态转换 | 说明 |
-|---|------|------|---------|------|
-| 20 | `POST` | `/api/sessions/{id}/documents/api/generate` | → `generating_api` | 启动接口文档生成 |
-| 21 | `GET` | `/api/sessions/{id}/documents/api/stream` | `generating_api → reviewing_api` | SSE 端点 |
-| 22 | `GET` | `/api/sessions/{id}/documents/api` | — | 获取接口文档内容 |
-| 23 | `GET` | `/api/sessions/{id}/documents/api/review-rounds` | — | 审核轮次历史 |
-| 24 | `PUT` | `/api/sessions/{id}/documents/api/content` | 自环 | 保存用户编辑 |
-| 25 | `GET` | `/api/sessions/{id}/documents/api/download` | — | 下载 `.md` |
-| 26 | `POST` | `/api/sessions/{id}/documents/api/confirm` | `reviewing_api → generating_prompts` | 确认接口文档完成 |
+SSE 流式聊天。前端发送完整上下文，后端无状态回复。
 
-### 3c. 提示词套件
+**Request Body**：
+```json
+{
+  "session_id": "uuid-v4",
+  "form_data": { "product_name": "..." },
+  "history": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ]
+}
+```
 
-| # | 方法 | 路径 | 状态转换 | 说明 |
-|---|------|------|---------|------|
-| 27 | `POST` | `/api/sessions/{id}/documents/prompts/generate` | → `generating_prompts` | 启动提示词套件生成 |
-| 28 | `GET` | `/api/sessions/{id}/documents/prompts/stream` | `generating_prompts → reviewing_prompts` | SSE 端点 |
-| 29 | `GET` | `/api/sessions/{id}/documents/prompts` | — | 获取提示词套件 |
-| 30 | `GET` | `/api/sessions/{id}/documents/prompts/review-rounds` | — | 审核轮次历史 |
-| 31 | `PUT` | `/api/sessions/{id}/documents/prompts/content` | 自环 | 保存用户编辑 |
-| 32 | `GET` | `/api/sessions/{id}/documents/prompts/download` | — | 下载 `.md` |
-| 33 | `POST` | `/api/sessions/{id}/documents/prompts/confirm` | `reviewing_prompts → completed` | 确认全部完成 |
+**SSE 事件**：
+- `chunk`：逐 token 输出 AI 回复
+- `done`：回复完成。`assistant_content` 包含完整回复文本
+- `error`：出错时推送
+
+### 3. `POST /api/summary/generate`
+
+非流式端点。基于对话历史生成结构化需求摘要。
+
+**Request Body**：
+```json
+{
+  "session_id": "uuid-v4",
+  "form_data": { "product_name": "..." },
+  "history": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ]
+}
+```
+
+**Response**：
+```json
+{
+  "summary": "## 需求摘要\n\n### 目标用户\n..."
+}
+```
+
+### 4. `POST /api/documents/{type}/stream`
+
+SSE 流式文档生成。`type` 为 `prd` / `api` / `prompts`。
+
+**Request Body**：
+```json
+{
+  "session_id": "uuid-v4",
+  "form_data": { "product_name": "..." },
+  "requirements_summary": "## 需求摘要...",
+  "previous_content": "",
+  "prd_content": "...",
+  "api_content": "..."
+}
+```
+
+| 字段 | 适用场景 |
+|------|---------|
+| `previous_content` | 恢复已生成内容（用于刷新恢复或 Rewrite 续写） |
+| `prd_content` | 生成 `api` / `prompts` 时传入已确认的 PRD |
+| `api_content` | 生成 `prompts` 时传入已确认的接口文档 |
+
+**SSE 事件**：
+- `chunk`：逐 token 输出文档内容
+- `done`：生成完成（无 `assistant_content`）
+- `error`：出错时推送
+
+### 5. `POST /api/documents/{type}/optimize`
+
+SSE 流式审阅→改写。系统自动执行 Review→Rewrite 循环。
+
+**Request Body**：
+```json
+{
+  "session_id": "uuid-v4",
+  "content": "当前文档全文...",
+  "form_data": { "product_name": "..." },
+  "requirements_summary": "## 需求摘要...",
+  "prd_content": "...",
+  "api_content": "..."
+}
+```
+
+**SSE 事件**：
+- `chunk`：逐 token 输出审核或改写结果
+- `done`：优化完成（无 `assistant_content`）
+- `error`：出错时推送
+
+### 6. `POST /api/documents/{type}/download`
+
+下载 `.md` 文件。`type` 为 `prd` / `api` / `prompts`。
+
+**Request Body**：
+```json
+{
+  "content": "# 文档全文..."
+}
+```
+
+**Response**：`Content-Type: text/markdown`，返回 `.md` 文件流。
+
+### 7. `GET /`
+
+**Response**：
+```json
+{
+  "name": "HarnessPRD API",
+  "version": "3.0",
+  "endpoints": [
+    "/api/questions",
+    "/api/chat/stream",
+    "/api/summary/generate",
+    "/api/documents/{type}/stream",
+    "/api/documents/{type}/optimize",
+    "/api/documents/{type}/download",
+    "/health"
+  ]
+}
+```
+
+### 8. `GET /health`
+
+**Response**：
+```json
+{
+  "status": "ok"
+}
+```
 
 ---
 
@@ -81,8 +191,7 @@
 
 | 维度 | 数值 |
 |------|------|
-| 总接口 | 33 个 |
-| HTTP 端点 | 30 个 |
-| SSE 端点 | 5 个 |
-| 触发状态转换 | 9 个 |
-| 只读查询 | 14 个 |
+| 总端点 | 8 个 |
+| HTTP 端点 | 5 个 |
+| SSE 端点 | 3 个（chat/stream, documents/stream, documents/optimize） |
+| 无状态 | 全部：每次请求携带完整上下文 |

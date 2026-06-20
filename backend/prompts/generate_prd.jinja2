@@ -39,6 +39,15 @@ doc_depth = {{ form_data.doc_depth }}
 
 {% include "docs/prd-template.md" %}
 
+{% if previous_content %}
+## 已有内容（请续写）
+以下是已经生成的内容，请从断点处继续生成，**不要重复已有内容**：
+
+{{ previous_content }}
+
+请从以上内容的末尾处继续生成剩余章节。
+{% endif %}
+
 # 质量要求
 1. **信息完整**：每个章节的内容必须充实，不能只写标题不写内容
 2. **不编造**：信息不足时标注 [需补充]，不凭空捏造产品细节

@@ -155,3 +155,15 @@ __pycache__/
 
 # Codegraph code intelligence (auto-generated)
 .codegraph/
+
+# OpenCode
+.opencode/
+
+# Playwright MCP
+.playwright-mcp/
+
+# Graphify output
+graphify-out/
+
+# Test screenshots
+*.png
