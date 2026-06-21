@@ -30,7 +30,7 @@ class SkillLoader:
     """
 
     def __init__(self, skills_dir: str) -> None:
-        self.skills_dir = skills_dir
+        self.skills_dir = os.path.abspath(skills_dir)
         self._cache: dict[str, SkillSchema] = {}
         self.load_all()
 

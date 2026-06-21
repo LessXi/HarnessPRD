@@ -3,7 +3,7 @@ import copy
 import pytest
 from core.field_registry import get_all_fields, get_field_ids, is_list_field
 from services.session_service import _validate_form
-from services.document_service import _has_issues, _build_prompt_kwargs
+from services.document_service import _build_prompt_kwargs
 
 
 class TestFieldRegistry:
@@ -65,29 +65,6 @@ class TestValidateForm:
         with pytest.raises(ValueError, match="用户登录"):
             _validate_form(data)
 
-
-class TestHasIssues:
-    """document_service._has_issues — 审核结果判断"""
-
-    def test_passed(self):
-        """包含"审核通过"返回 False"""
-        assert _has_issues("一切正常，审核通过") is False
-
-    def test_passed_with_extra(self):
-        """包含"审核通过"但有其他内容仍返回 False"""
-        assert _has_issues("审核通过\n建议改进：无") is False
-
-    def test_failed_with_issues(self):
-        """不包含"审核通过"返回 True"""
-        assert _has_issues("问题1：缺少用户场景描述") is True
-
-    def test_failed_empty(self):
-        """空字符串返回 True"""
-        assert _has_issues("") is True
-
-    def test_failed_with_review_keyword(self):
-        """包含"审核不通过"等近似字符串"""
-        assert _has_issues("审核不通过，需要修改") is True
 
 
 class TestBuildPromptKwargs:

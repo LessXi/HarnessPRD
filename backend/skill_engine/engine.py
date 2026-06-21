@@ -68,13 +68,19 @@ class SkillEngine:
         """执行 skill 主循环。
 
         主循环遍历 ``skill.steps``，每轮注入运行时上下文（``current_content``、
-        ``review_result``、``iteration``）后渲染提示词，按 step type 分发：
+        ``review_result``、``base_prompt``、``iteration``）后渲染提示词，
+        按 step type 分发：
 
         - ``generate`` / ``rewrite``: 调用 ``stream_generate`` 流式 yield chunk
         - ``review``: 调用 ``_call_llm_once`` 非流式获取审阅文本，
           解析并通过 ``review_result`` 事件返回结果；
           通过则 yield ``done`` 并返回，不通过将完整文本存入 ``review_result``
           供下一 rewrite 步骤使用
+
+        支持从 ``context["current_content"]`` 传入已有内容。
+        若已提供现有内容，自动跳过 generate 步骤（用于 optimize 场景）。
+        generate 步骤渲染后的 prompt 自动保存为 ``base_prompt``，
+        供 rewrite 步骤中的 ``{{ base_prompt }}`` 模板变量引用。
 
         Args:
             skill: 待执行的 skill 定义。
@@ -83,8 +89,11 @@ class SkillEngine:
         Yields:
             SSEEvent: ``chunk`` / ``review_result`` / ``done`` 事件。
         """
-        current_content = ""
+        current_content = context.get("current_content", "")
         review_result = ""
+        base_prompt = ""
+        # 单次标记：仅在首轮首步时跳过 generate（optimize 场景从外部传入内容）
+        _skip_first_generate = bool(current_content)
 
         for round_num in range(skill.max_iterations):
             for step in skill.steps:
@@ -92,12 +101,17 @@ class SkillEngine:
                     **context,
                     "current_content": current_content,
                     "review_result": review_result,
+                    "base_prompt": base_prompt,
                     "iteration": round_num,
                 }
                 prompt = render_skill_prompt(step, step_context)
 
                 if step.type == "generate":
+                    if _skip_first_generate:
+                        _skip_first_generate = False
+                        continue
                     current_content = ""
+                    base_prompt = prompt
                     try:
                         async for token in self._llm.stream_generate(prompt):
                             yield SSEEvent(event="chunk", content=token)

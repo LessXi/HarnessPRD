@@ -23,10 +23,20 @@ client = TestClient(app)
 
 # ---------- Mock LLM helpers ----------
 
-async def _fake_stream(*args, **kwargs):
-    """模拟 LLM 流式返回 3 个 chunk"""
+from skill_engine.models import SSEEvent
+
+
+async def _fake_chat_stream(*args, **kwargs):
+    """模拟对话流式返回 3 个字符串 chunk（conversation 端点使用）。"""
     for chunk in ["Hello", " World", "!"]:
         yield chunk
+
+
+async def _fake_doc_stream(*args, **kwargs):
+    """模拟文档流式返回 3 个 SSEEvent chunk + done（documents 端点使用）。"""
+    for chunk in ["Hello", " World", "!"]:
+        yield SSEEvent(event="chunk", content=chunk)
+    yield SSEEvent(event="done", content="Hello World!")
 
 
 # ---------- Tests ----------
@@ -66,7 +76,7 @@ class TestQuestions:
 class TestChatStream:
     """对话 SSE 端点"""
 
-    @patch("api.conversation.chat_stream", side_effect=_fake_stream)
+    @patch("api.conversation.chat_stream", side_effect=_fake_chat_stream)
     def test_chat_stream_returns_sse(self, mock_stream):
         """POST /api/chat/stream 返回 SSE 流"""
         resp = client.post("/api/chat/stream", json={
@@ -122,7 +132,7 @@ class TestSummaryGenerate:
 class TestDocuments:
     """文档生成端点"""
 
-    @patch("api.documents.generate_document_stream", side_effect=_fake_stream)
+    @patch("api.documents.generate_document_stream", side_effect=_fake_doc_stream)
     def test_prd_stream_returns_sse(self, mock_stream):
         """POST /api/documents/prd/stream 返回 SSE 流"""
         resp = client.post("/api/documents/prd/stream", json={
@@ -142,7 +152,7 @@ class TestDocuments:
         })
         assert resp.status_code == 400
 
-    @patch("api.documents.optimize_document_stream", side_effect=_fake_stream)
+    @patch("api.documents.optimize_document_stream", side_effect=_fake_doc_stream)
     def test_optimize_returns_sse(self, mock_stream):
         """POST /api/documents/prd/optimize 返回 SSE 流"""
         resp = client.post("/api/documents/prd/optimize", json={
