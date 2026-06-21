@@ -2,6 +2,8 @@
 comet_change: skill-driven-doc-gen
 role: technical-design
 canonical_spec: openspec
+archived-with: 2026-06-21-skill-driven-doc-gen
+status: final
 ---
 
 # Skill-Driven Document Generation — Technical Design
@@ -97,6 +99,8 @@ async def execute(skill: SkillSchema, context: dict) -> AsyncGenerator[SSEEvent]
 ## Skill 文件格式
 
 ```markdown
+archived-with: 2026-06-21-skill-driven-doc-gen
+status: final
 ---
 name: prd-generate
 description: 生成 PRD 文档
@@ -124,6 +128,8 @@ steps:
       原文档：{{ current_content }}
       审核意见：{{ review_result }}
       请修改后输出完整文档...
+archived-with: 2026-06-21-skill-driven-doc-gen
+status: final
 ---
 
 ## 上下文变量

@@ -2,6 +2,7 @@
 change: skill-driven-doc-gen
 design-doc: docs/superpowers/specs/2026-06-21-skill-driven-doc-gen-design.md
 base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 # 实施计划：Skill-Driven Document Generation
@@ -28,6 +29,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 ## 任务组
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 1：Skill Engine 数据模型 (P0)
@@ -57,6 +59,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：S（30 分钟）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 2：Skill Parser (P0)
@@ -90,6 +93,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：M（2 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 3：Skill Engine 执行器 (P0)
@@ -145,6 +149,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：L（4 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 4：Skill Loader 热加载 (P0)
@@ -174,6 +179,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：M（1.5 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 5：Skill 文件编写 (P0)
@@ -214,6 +220,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：L（3 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 6：后端集成 (P0)
@@ -286,6 +293,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：L（4 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 7：验证与回归 (P1)
@@ -330,6 +338,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：M（2 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 8：清理与收尾 (P1)
@@ -366,6 +375,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：S（30 分钟）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ### 任务 9：可选增强 (P2)
@@ -399,6 +409,7 @@ base-ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 
 **工作量**：S（1 小时）
 
+archived-with: 2026-06-21-skill-driven-doc-gen
 ---
 
 ## 工作量汇总
