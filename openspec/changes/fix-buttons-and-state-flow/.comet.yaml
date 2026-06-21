@@ -11,12 +11,12 @@ verify_mode: full
 auto_transition: true
 base_ref: 6a23cdecdac27cccc35b0060f84323204d5ba376
 build_command: npm --prefix=frontend run build
-verify_command: npx --prefix=frontend vitest run
+verify_command: npm --prefix=frontend test
 design_doc: docs/superpowers/specs/2026-06-21-fix-buttons-and-state-flow-design.md
 plan: docs/superpowers/plans/2026-06-21-fix-buttons-and-state-flow.md
 verify_result: pending
 verification_report: docs/superpowers/reports/2026-06-22-fix-buttons-and-state-flow-verify.md
-branch_status: pending
+branch_status: handled
 created_at: 2026-06-21
 verified_at: null
 archived: false
