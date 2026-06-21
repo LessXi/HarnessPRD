@@ -703,14 +703,14 @@ export default function App() {
       const missing: string[] = [];
       if (!fd.product_name?.trim()) missing.push("产品名称");
       if (!fd.one_liner?.trim()) missing.push("一句话定义");
-      if (!fd.problem?.trim()) missing.push("解决的问题");
+      if (!fd.problem_statement?.trim()) missing.push("解决的问题");
       if (!fd.target_users?.trim()) missing.push("目标用户");
       if (!Array.isArray(fd.mvp_features) || fd.mvp_features.length < 3 || fd.mvp_features.some((v: string) => !v?.trim())) {
         missing.push("MVP 核心功能（至少3项）");
       }
-      if (!fd.platform || fd.platform === "-- 请选择 --") missing.push("目标平台");
+      if (!fd.platform) missing.push("目标平台");
       if (!fd.needs_auth) missing.push("用户登录");
-      if (!fd.needs_storage) missing.push("数据存储");
+      if (!fd.needs_database) missing.push("数据存储");
       if (!fd.page_count) missing.push("页面数量");
 
       if (missing.length > 0) {
