@@ -1,5 +1,5 @@
 workflow: full
-phase: build
+phase: archive
 context_compression: off
 build_mode: subagent-driven-development
 build_pause: null
@@ -14,11 +14,11 @@ design_doc: docs/superpowers/specs/2026-06-21-skill-driven-doc-gen-design.md
 plan: docs/superpowers/plans/2026-06-21-skill-driven-doc-gen.md
 build_command: pytest backend/tests -q
 verify_command: pytest backend/tests -q
-verify_result: fail
+verify_result: pass
 verification_report: docs/superpowers/reports/2026-06-21-skill-driven-doc-gen-verify.md
 branch_status: handled
 created_at: 2026-06-21
-verified_at: null
+verified_at: 2026-06-21
 archived: false
 handoff_context: openspec/changes/skill-driven-doc-gen/.comet/handoff/design-context.json
 handoff_hash: 394653e359e50103fe89b3f49af079ac40a9a34a7240eaa58a294d3ea710e73d
