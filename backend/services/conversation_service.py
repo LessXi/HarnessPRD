@@ -10,6 +10,7 @@ from loguru import logger
 
 from core.error_classifier import classify_error
 from core.field_registry import get_all_fields, is_list_field
+from core.state import FormData
 from services.llm_service import load_prompt, get_llm
 
 
@@ -18,18 +19,21 @@ from services.llm_service import load_prompt, get_llm
 # ========================================================================
 
 
-def _form_to_kwargs(form_data: dict[str, Any]) -> dict[str, Any]:
-    """将表单数据字典转为模板需要的上下文。
+def _form_to_kwargs(form_data: FormData) -> dict[str, Any]:
+    """将强类型 FormData 转为模板需要的上下文。
 
     既保留单个字段 key（{{ product_name }} 等向后兼容），
     也提供 form_fields 列表供模板迭代渲染，实现数据驱动。
     """
+    from typing import Any
+
     kwargs: dict[str, Any] = {}
     form_fields: list[dict] = []
+    data_dict = form_data.model_dump()
     for field in get_all_fields():
         fid = field["id"]
         label = field.get("label", fid)
-        value = form_data.get(fid, "")
+        value = data_dict.get(fid, "")
         if is_list_field(fid) and isinstance(value, list):
             value = ", ".join(value)
         kwargs[fid] = value or ""
@@ -39,7 +43,7 @@ def _form_to_kwargs(form_data: dict[str, Any]) -> dict[str, Any]:
     return kwargs
 
 
-def _build_system_prompt(form_data: dict[str, Any]) -> str:
+def _build_system_prompt(form_data: FormData) -> str:
     """构建统一的系统 Prompt。"""
     kwargs = _form_to_kwargs(form_data)
     return load_prompt("backend/prompts/chat_system.jinja2", **kwargs)
@@ -68,7 +72,7 @@ def _build_lc_messages(
 
 
 async def chat_stream(
-    form_data: dict[str, Any],
+    form_data: FormData,
     history: list[dict[str, str]],
     user_message: str,
     *,
@@ -99,7 +103,7 @@ async def chat_stream(
 
 
 async def generate_summary(
-    form_data: dict[str, Any],
+    form_data: FormData,
     history: list[dict[str, str]],
     *,
     session_id: str = "",
