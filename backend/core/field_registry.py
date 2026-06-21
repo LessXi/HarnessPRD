@@ -57,33 +57,39 @@ def _build_schema_from_questions() -> dict:
     cfg = _load()
     properties = {}
     required = []
-    for q in cfg["base_questions"] + cfg["advanced_questions"]:
-        fid = q["id"]
-        prop: dict[str, Any] = {
-            "x-ui": {
-                "label": q.get("label", fid),
-                "widget": q["type"],
-                "group": "advanced",
-                "required": q.get("required", False),
+
+    def _process(q_list: list, group: str) -> None:
+        for q in q_list:
+            fid = q["id"]
+            prop: dict[str, Any] = {
+                "x-ui": {
+                    "label": q.get("label", fid),
+                    "widget": q["type"],
+                    "group": group,
+                    "required": q.get("required", False),
+                }
             }
-        }
-        if fid in {"product_name", "one_liner", "problem_statement", "target_users"}:
-            prop["x-ui"]["group"] = "base"
-        if "options" in q:
-            prop["type"] = "string"
-            prop["enum"] = [o["value"] for o in q["options"]]
-        elif q["type"] == "list":
-            prop["type"] = "array"
-            prop["items"] = {"type": "string"}
-            prop["minItems"] = 3
-            prop["x-ui"]["group"] = "base"
-        else:
-            prop["type"] = "string"
-        if not q.get("required"):
-            prop["default"] = ""
-        properties[fid] = prop
-        if q.get("required"):
-            required.append(fid)
+            if "options" in q:
+                prop["type"] = "string"
+                prop["enum"] = [o["value"] for o in q["options"]]
+            elif q["type"] == "list":
+                prop["type"] = "array"
+                prop["items"] = {"type": "string"}
+                prop["minItems"] = 3
+            else:
+                prop["type"] = "string"
+                # 降级路径为 required text/textarea 添加 minLength 约束
+                if q.get("required"):
+                    prop["minLength"] = 1
+            if not q.get("required"):
+                prop["default"] = ""
+            properties[fid] = prop
+            if q.get("required"):
+                required.append(fid)
+
+    _process(cfg["base_questions"], "base")
+    _process(cfg["advanced_questions"], "advanced")
+
     return {
         "$schema": "https://json-schema.org/draft-07/schema#",
         "type": "object",

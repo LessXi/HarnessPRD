@@ -52,7 +52,10 @@ def _build_form_data_model():
         # ── array → list[str] ──
         if json_type == "array":
             min_items = prop.get("minItems", 1)
-            fields[name] = (list[str], Field(default_factory=list, min_length=min_items))
+            if is_required:
+                fields[name] = (list[str], Field(min_length=min_items))
+            else:
+                fields[name] = (list[str], Field(default_factory=list, min_length=min_items))
             continue
 
         # ── enum → Literal[val1, val2, ...] ──
