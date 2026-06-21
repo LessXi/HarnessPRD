@@ -34,6 +34,8 @@
 - **WHEN** 用户取消回退
 - **THEN** 保持当前状态不变
 
+## ADDED Requirements
+
 ### Requirement: CompletionPromptBar 返回行为
 系统 SHALL 使 CompletionPromptBar 的「返回」按钮也触发统一回退逻辑。
 

@@ -1,5 +1,5 @@
 workflow: full
-phase: verify
+phase: archive
 context_compression: off
 build_mode: subagent-driven-development
 build_pause: null
@@ -14,11 +14,11 @@ build_command: npm --prefix=frontend run build
 verify_command: npm --prefix=frontend test
 design_doc: docs/superpowers/specs/2026-06-21-fix-buttons-and-state-flow-design.md
 plan: docs/superpowers/plans/2026-06-21-fix-buttons-and-state-flow.md
-verify_result: pending
+verify_result: pass
 verification_report: docs/superpowers/reports/2026-06-22-fix-buttons-and-state-flow-verify.md
 branch_status: handled
 created_at: 2026-06-21
-verified_at: null
+verified_at: 2026-06-21
 archived: false
 handoff_context: openspec/changes/fix-buttons-and-state-flow/.comet/handoff/design-context.json
 handoff_hash: fe31e14fac47b7785ecb5eef6129fd37d5dbdb873e36237013363bef17a5117b
