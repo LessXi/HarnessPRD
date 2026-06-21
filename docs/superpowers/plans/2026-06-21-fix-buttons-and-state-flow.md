@@ -2,6 +2,7 @@
 change: fix-buttons-and-state-flow
 design-doc: docs/superpowers/specs/2026-06-21-fix-buttons-and-state-flow-design.md
 base-ref: 6a23cdecdac27cccc35b0060f84323204d5ba376
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 # 实施计划：按钮去重 & 状态机修复
@@ -33,6 +34,7 @@ base-ref: 6a23cdecdac27cccc35b0060f84323204d5ba376
 6. 任务 7（Debug 埋点，可与上述任务并行注入，最后移除）
 7. 任务 8（最终验证）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 1：类型定义与数据迁移 (P0)
@@ -68,6 +70,7 @@ return { ...createDefaultProject(), ...cleanData };
 
 **工作量**：S（20 分钟）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 2：Sidebar 按钮清理 (P0)
@@ -95,6 +98,7 @@ return { ...createDefaultProject(), ...cleanData };
 
 **工作量**：S（30 分钟）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 3：统一回退机制 (P0)
@@ -150,6 +154,7 @@ const handleGoBack = useCallback((targetState: ViewState) => {
 
 **工作量**：M（1.5 小时）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 4：停止生成功能 (P0)
@@ -179,6 +184,7 @@ const handleGoBack = useCallback((targetState: ViewState) => {
 
 **工作量**：S（40 分钟）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 5：显示框修复 (P0)
@@ -203,6 +209,7 @@ const handleGoBack = useCallback((targetState: ViewState) => {
 
 **工作量**：XS（10 分钟）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 6：按钮一致性收尾 (P1)
@@ -229,6 +236,7 @@ const handleGoBack = useCallback((targetState: ViewState) => {
 
 **工作量**：S（20 分钟）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 7：Debug 埋点接入 (P1)
@@ -261,6 +269,7 @@ const handleGoBack = useCallback((targetState: ViewState) => {
 
 **工作量**：S（20 分钟）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ### 任务 8：回归验证 (P0)
@@ -291,6 +300,7 @@ const handleGoBack = useCallback((targetState: ViewState) => {
 
 **工作量**：M（1 小时）
 
+archived-with: 2026-06-21-fix-buttons-and-state-flow
 ---
 
 ## 工作量汇总

@@ -2,6 +2,8 @@
 comet_change: fix-buttons-and-state-flow
 role: technical-design
 canonical_spec: openspec
+archived-with: 2026-06-21-fix-buttons-and-state-flow
+status: final
 ---
 
 # 按钮重复 & 状态机修复 — 技术设计

@@ -19,6 +19,6 @@ verification_report: docs/superpowers/reports/2026-06-22-fix-buttons-and-state-f
 branch_status: handled
 created_at: 2026-06-21
 verified_at: 2026-06-21
-archived: false
+archived: true
 handoff_context: openspec/changes/fix-buttons-and-state-flow/.comet/handoff/design-context.json
 handoff_hash: fe31e14fac47b7785ecb5eef6129fd37d5dbdb873e36237013363bef17a5117b

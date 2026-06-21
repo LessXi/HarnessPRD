@@ -30,15 +30,19 @@ TBD - created by archiving change ux-optimization-flow-closure. Update Purpose a
 
 #### Scenario: 导航组按钮
 - **WHEN** 用户查看导航组
-- **THEN** 显示"返回上一步"和"下一步"按钮
+- **THEN** 显示「返回上一步」和「下一步」按钮
 
-#### Scenario: 主要操作按钮
-- **WHEN** 用户查看主要操作组
-- **THEN** 显示当前阶段的核心操作按钮（如"生成摘要"、"确认PRD"）
+#### Scenario: 审阅状态下无操作按钮
+- **WHEN** 当前 viewState 为 `reviewing_prd` / `reviewing_api` / `reviewing_prompts`
+- **THEN** 侧边栏不显示主要操作组和次要操作组按钮（确认、AI 优化、编辑等操作归 DocumentReview 独管）
 
-#### Scenario: 次要操作按钮
-- **WHEN** 用户查看次要操作组
-- **THEN** 显示辅助操作按钮（如"编辑"、"下载"、"复制"）
+#### Scenario: ai_dialogue 状态下操作按钮
+- **WHEN** 当前 viewState 为 `ai_dialogue`
+- **THEN** 侧边栏显示「生成 PRD」（主要操作）和「生成摘要」（次要操作）
+
+#### Scenario: completed 状态下操作按钮
+- **WHEN** 当前 viewState 为 `completed`
+- **THEN** 侧边栏显示「开始新项目」（主要操作）
 
 ### Requirement: 文档信息显示
 系统 SHALL 在侧边栏显示当前文档的信息，包括字数、大小、复杂度。
@@ -46,11 +50,4 @@ TBD - created by archiving change ux-optimization-flow-closure. Update Purpose a
 #### Scenario: 文档信息更新
 - **WHEN** 文档内容发生变化
 - **THEN** 文档信息自动更新显示
-
-### Requirement: 设置区域
-系统 SHALL 在侧边栏底部显示设置区域，包含自动推进开关。
-
-#### Scenario: 自动推进开关
-- **WHEN** 用户切换自动推进开关
-- **THEN** 保存设置到 localStorage，后续流程使用新设置
 
