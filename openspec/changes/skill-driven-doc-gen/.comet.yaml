@@ -7,7 +7,7 @@ subagent_dispatch: confirmed
 tdd_mode: tdd
 review_mode: thorough
 isolation: worktree
-verify_mode: null
+verify_mode: full
 auto_transition: true
 base_ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 design_doc: docs/superpowers/specs/2026-06-21-skill-driven-doc-gen-design.md
