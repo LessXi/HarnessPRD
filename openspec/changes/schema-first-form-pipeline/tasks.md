@@ -3,7 +3,7 @@
 - [x] 1.1 创建 `product_schema.json`：将 `questions_config.json` 17 个字段转为 JSON Schema Draft-07 格式，添加 `x-ui` 元数据，定义 `x-meta.schema_version`
 - [x] 1.2 重构 `field_registry.py`：优先读取 `product_schema.json`，降级读 `questions_config.json`；新增 `get_schema()` 返回完整 Schema 对象；Schema 加载成功/失败时通过 logger.bind(event=...) 记录
 - [x] 1.3 重构 `state.py` `_build_form_data_model()`：从 `product_schema.json` 构建 `FormData` Pydantic 模型，支持 JSON Schema 约束（type/enum/minLength/minItems）
-- [ ] 1.4 改造 `api/schemas.py` 4 个 Request 模型：`ChatRequest`、`SummaryRequest`、`DocumentRequest`、`OptimizeRequest` 的 `form_data` 字段从 `dict[str, Any]` → `FormData`；Pydantic 校验失败（422）时 logger.bind(event="validation_failed").warning() 记录详情
+- [x] 1.4 改造 `api/schemas.py` 4 个 Request 模型：`ChatRequest`、`SummaryRequest`、`DocumentRequest`、`OptimizeRequest` 的 `form_data` 字段从 `dict[str, Any]` → `FormData`；Pydantic 校验失败（422）时 logger.bind(event="validation_failed").warning() 记录详情
 - [ ] 1.5 适配 `conversation_service.py`：`chat_stream()` 和 `generate_summary()` 的 `form_data` 参数类型适配 `FormData`；`_form_to_kwargs()` 改为接收强类型对象
 - [ ] 1.6 标记 `session_service._validate_form()` 为 deprecated，验证 API 层 Pydantic 校验已覆盖其职责
 - [ ] 1.7 后端单元测试 — `test_form_data_model.py`：验证 `FormData` 模型正确拒绝不合法 form_data（缺必填/枚举越界/数组不足），正确接受合法数据；验证 `_validate_form()` 已标记 deprecated 且不被调用

@@ -424,7 +424,7 @@ git commit -m "feat: FormData built from product_schema.json via get_schema()"
 - Modifies: `ChatRequest.form_data`, `SummaryRequest.form_data`, `DocumentRequest.form_data`, `OptimizeRequest.form_data` — `dict[str, Any]` → `FormData`
 - Consumes: `FormData` from `backend.core.state`
 
-- [ ] **Step 1: 修改 api/schemas.py**
+- [x] **Step 1: 修改 api/schemas.py**
 
 ```python
 """统一的请求/响应 Pydantic 模型。
@@ -488,14 +488,14 @@ class SummaryResponse(BaseModel):
     summary: str
 ```
 
-- [ ] **Step 2: 验证导入无误**
+- [x] **Step 2: 验证导入无误**
 
 ```powershell
 python -c "from backend.api.schemas import ChatRequest, SummaryRequest, DocumentRequest, OptimizeRequest; print('OK')"
 ```
 Expected: `OK`
 
-- [ ] **Step 3: 验证 422 校验生效（非法枚举值）**
+- [x] **Step 3: 验证 422 校验生效（非法枚举值）**
 
 ```powershell
 python -c "
@@ -507,7 +507,7 @@ ChatRequest(form_data=FormData(**data))
 ```
 Expected: ValidationError (platform_type 非法)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/api/schemas.py
