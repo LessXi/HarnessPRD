@@ -2,6 +2,8 @@
 comet_change: schema-first-form-pipeline
 role: technical-design
 canonical_spec: openspec
+archived-with: 2026-06-21-schema-first-form-pipeline
+status: final
 ---
 
 # Schema-First 表单管道设计
