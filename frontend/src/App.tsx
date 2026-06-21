@@ -548,16 +548,10 @@ export default function App() {
     
     const nextDocType = nextDocTypeMap[docType];
     if (nextDocType) {
-      if (project.autoAdvance) {
-        // 自动推进：直接生成下一个文档
-        setTimeout(() => handleGenerateDoc(nextDocType), 200);
-      } else {
-        // 手动推进：显示提示栏
-        setPendingNextDocType(nextDocType);
-        setShowCompletionPrompt(true);
-      }
+      setPendingNextDocType(nextDocType);
+      setShowCompletionPrompt(true);
     }
-  }, [updateProject, handleGenerateDoc, project.autoAdvance]);
+  }, [updateProject]);
 
   // ======================================================================
   // 提示栏回调
@@ -605,11 +599,61 @@ export default function App() {
     }
   }, [pendingNextDocType, switchView]);
 
+  const handleGoBack = useCallback((targetState: ViewState) => {
+    const currentIdx = STEP_INDEX_MAP[project.viewState];
+    const targetIdx = STEP_INDEX_MAP[targetState];
+    if (targetIdx >= currentIdx) return;
+
+    // 计算受影响步骤（targetState 之后的所有步骤）
+    const affectedSteps = STEPS.filter((_, i) => i > targetIdx);
+    // 找出其中已确认的文档
+    const affectedDocs = affectedSteps
+      .map(s => DOC_TYPE_MAP[s.id])
+      .filter(Boolean)
+      .filter(docType => project[docType].confirmed);
+
+    if (affectedDocs.length === 0) {
+      switchView(targetState);
+      return;
+    }
+
+    // 显示确认对话框
+    const affectedLabels = affectedDocs.map(d => DOC_TYPE_LABEL[d]).join('、');
+    setConfirmDialog({
+      isOpen: true,
+      title: '确认回退',
+      message: `回退到「${STEPS[targetIdx]?.label || targetState}」将重置以下文档的确认状态：${affectedLabels}`,
+      onConfirm: () => {
+        updateProject(prev => {
+          const next = { ...prev };
+          for (const docType of affectedDocs) {
+            next[docType] = { ...next[docType], confirmed: false };
+          }
+          next.pendingUpdates = [...new Set([...prev.pendingUpdates, ...affectedSteps.map(s => s.id as ViewState)])];
+          next.completedSteps = prev.completedSteps.filter(
+            s => STEP_INDEX_MAP[s] <= targetIdx
+          );
+          next.viewState = targetState;
+          return next;
+        });
+        setShowCompletionPrompt(false);
+      },
+    });
+  }, [project, switchView, updateProject]);
+
   const handleBack = useCallback(() => {
-    // 返回上一个阶段
+    const currentIdx = STEP_INDEX_MAP[project.viewState];
+    // 找到上一个稳定状态（非 generating_*）
+    for (let i = currentIdx - 1; i >= 0; i--) {
+      const stepId = STEPS[i].id;
+      if (!stepId.startsWith('generating_')) {
+        handleGoBack(stepId as ViewState);
+        return;
+      }
+    }
     setShowCompletionPrompt(false);
     setPendingNextDocType(null);
-  }, []);
+  }, [project.viewState, handleGoBack]);
 
   // ======================================================================
   // 重置项目
@@ -692,9 +736,27 @@ export default function App() {
   // 导航与回退（必须在 early return 之前定义，遵守 Hooks 规则）
   // ======================================================================
 
+  const DOC_TYPE_MAP: Record<string, "prd" | "api" | "prompts"> = {
+    reviewing_prd: "prd",
+    reviewing_api: "api",
+    reviewing_prompts: "prompts",
+  };
+
+  const DOC_TYPE_LABEL: Record<string, string> = {
+    prd: "PRD",
+    api: "接口文档",
+    prompts: "提示词",
+  };
+
   const handleNavigate = useCallback((targetViewState: ViewState) => {
     if (!isValidStateTransition(project.viewState, targetViewState, project.completedSteps)) {
       setError(`无法从 ${project.viewState} 转换到 ${targetViewState}`);
+      return;
+    }
+
+    // 后向导航：使用统一回退机制
+    if (STEP_INDEX_MAP[targetViewState] < STEP_INDEX_MAP[project.viewState]) {
+      handleGoBack(targetViewState);
       return;
     }
 
@@ -724,53 +786,8 @@ export default function App() {
   }, [project.viewState, project.completedSteps, project.form_data, switchView]);
 
   const handleRollback = useCallback((targetStep: ViewState) => {
-    if (!project.completedSteps.includes(targetStep)) {
-      setError(`步骤 ${targetStep} 尚未完成，无法回退`);
-      return;
-    }
-
-    const currentIdx = STEP_INDEX_MAP[project.viewState];
-    const targetIdx = STEP_INDEX_MAP[targetStep];
-    if (targetIdx >= currentIdx) {
-      setError(`无法回退到 ${targetStep}，它不在当前步骤之前`);
-      return;
-    }
-
-    const targetLabel = STEPS[targetIdx]?.label || targetStep;
-    const currentLabel = STEPS[currentIdx]?.label || project.viewState;
-    // 列出所有受影响的后续步骤
-    const affectedLabels: string[] = [];
-    for (let i = targetIdx + 1; i <= currentIdx; i++) {
-      const label = STEPS[i]?.label;
-      if (label) affectedLabels.push(label);
-    }
-    const affectedText = affectedLabels.join("、");
-    const confirmMessage = `返回${targetLabel}阶段将标记${affectedText}为待更新，确定吗？`;
-
-    setConfirmDialog({
-      isOpen: true,
-      title: "确认回退",
-      message: confirmMessage,
-      onConfirm: () => {
-        const pendingUpdates: ViewState[] = [];
-        for (let i = targetIdx + 1; i <= currentIdx; i++) {
-          const stepId = STEPS[i]?.id as ViewState;
-          if (stepId && !pendingUpdates.includes(stepId)) {
-            pendingUpdates.push(stepId);
-          }
-        }
-        updateProject((prev) => ({
-          ...prev,
-          viewState: targetStep,
-          pendingUpdates: [...new Set([...prev.pendingUpdates, ...pendingUpdates])],
-        }));
-      },
-    });
-  }, [project.viewState, project.completedSteps, updateProject]);
-
-  const handleAutoAdvanceChange = useCallback((autoAdvance: boolean) => {
-    updateProject(prev => ({ ...prev, autoAdvance }));
-  }, [updateProject]);
+    handleGoBack(targetStep);
+  }, [handleGoBack]);
 
   // ======================================================================
   // Render
@@ -934,18 +951,6 @@ export default function App() {
       );
   }
 
-  const DOC_TYPE_MAP: Record<string, "prd" | "api" | "prompts"> = {
-    reviewing_prd: "prd",
-    reviewing_api: "api",
-    reviewing_prompts: "prompts",
-  };
-
-  const DOC_TYPE_LABEL: Record<string, string> = {
-    prd: "PRD",
-    api: "接口文档",
-    prompts: "提示词",
-  };
-
   const primaryActions: PrimaryAction[] = [];
   if (viewState === 'ai_dialogue') {
     if (project.messages.length > 0 && !chatLoading) {
@@ -1011,7 +1016,6 @@ export default function App() {
           onRollback={handleRollback}
           primaryActions={primaryActions}
           secondaryActions={secondaryActions}
-          onAutoAdvanceChange={handleAutoAdvanceChange}
         />
       </div>
       
