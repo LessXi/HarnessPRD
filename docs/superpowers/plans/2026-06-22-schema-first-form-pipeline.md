@@ -687,7 +687,7 @@ git commit -m "feat: conversation_service accepts FormData typed form_data"
 **Files:**
 - Modify: `backend/services/session_service.py`
 
-- [ ] **Step 1: 添加 deprecated 注释 + warning 日志**
+- [x] **Step 1: 添加 deprecated 注释 + warning 日志**
 
 ```python
 """会话服务：仅保留表单校验和问题配置加载
@@ -748,14 +748,14 @@ def _validate_form(data: dict) -> None:
         raise ValueError("MVP 功能至少需要 3 条")
 ```
 
-- [ ] **Step 2: 确认代码中无新调用点**
+- [x] **Step 2: 确认代码中无新调用点**
 
 ```powershell
 cd backend; rg "_validate_form" --include="*.py" --no-heading | Select-String -NotMatch "deprecated"
 ```
 Expected: 仅 session_service.py 自身定义 和 test_services.py 测试（后者可保留，测试 deprecated 函数仍工作）。
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/services/session_service.py
