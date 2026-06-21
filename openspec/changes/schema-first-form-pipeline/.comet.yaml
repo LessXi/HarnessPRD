@@ -6,7 +6,6 @@ build_pause: null
 subagent_dispatch: confirmed
 tdd_mode: tdd
 review_mode: thorough
-build_command: "python -m pytest tests/ -q"
 isolation: branch
 verify_mode: null
 auto_transition: true
