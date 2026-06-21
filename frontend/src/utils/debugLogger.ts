@@ -33,6 +33,10 @@ class DebugLogger {
   log(level: LogLevel, source: string, data: Record<string, unknown>): void {
     if (!this.enabled) return;
     this.buffer.push({ timestamp: Date.now(), level, source, data });
+    // 防止瞬时峰值超出 MAX_BUFFER（后端不可达时截断旧日志）
+    if (this.buffer.length > this.MAX_BUFFER) {
+      this.buffer = this.buffer.slice(-this.BATCH_SIZE);
+    }
     if (this.buffer.length >= this.BATCH_SIZE) this.flush();
     this.scheduleFlush();
   }

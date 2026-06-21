@@ -13,6 +13,8 @@ from api.documents import router as documents_router
 from api.debug import router as debug_router
 from core.config import settings
 from core.logging_config import InterceptHandler, setup_logging
+from middleware.correlation import correlation_middleware
+from middleware.request_logging import request_logging_middleware
 
 app = FastAPI(
     title=settings.app_name,
@@ -36,11 +38,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ---------- 请求链中间件（correlation → logging） ----------
+app.middleware("http")(correlation_middleware)
+app.middleware("http")(request_logging_middleware)
+
 # ---------- 挂载路由 ----------
 app.include_router(sessions_router)
 app.include_router(conversation_router)
 app.include_router(documents_router)
-app.include_router(debug_router)
+# Debug API 仅在开发/调试模式下可用（settings.debug 对应 uvicorn --reload）
+if settings.debug:
+    app.include_router(debug_router)
 
 
 @app.get("/")

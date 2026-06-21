@@ -65,7 +65,7 @@ def classify_error(exception: Exception) -> ErrorCategory:
 
 
 def _message_indicates_rate_limit(message: str) -> bool:
-    return "rate" in message or "429" in message
+    return "rate limit" in message or "429" in message
 
 
 def _message_indicates_timeout(message: str) -> bool:
@@ -77,5 +77,5 @@ def _message_indicates_content_filter(message: str) -> bool:
 
 
 def _message_indicates_auth(message: str) -> bool:
-    keywords = ("auth", "401", "403", "key")
+    keywords = ("401", "403", "unauthorized", "authentication", "invalid api key")
     return any(kw in message for kw in keywords)

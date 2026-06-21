@@ -25,18 +25,19 @@ router = APIRouter(prefix="/api/debug", tags=["debug"])
 
 
 class LogEntry(BaseModel):
-    """单条前端日志记录"""
+    """单条前端日志记录（session_id 由批次顶层提供，无需每条目重复）"""
 
     timestamp: float
     level: str = "info"
     source: str
     data: dict = {}
-    session_id: str
+    session_id: str = ""  # 可选，优先使用批次顶层 session_id
 
 
 class BatchLogRequest(BaseModel):
     """批量日志请求体"""
 
+    session_id: str = ""  # 批次顶层 session_id，兼容前端和 LogEntry 两种格式
     logs: List[LogEntry]
 
 
@@ -115,8 +116,10 @@ debug_store = DebugStore()
 @router.post("/log")
 async def receive_frontend_logs(batch: BatchLogRequest):
     """接收前端批量日志并存入内存 store。"""
+    batch_sid = batch.session_id
     for entry in batch.logs:
-        debug_store.add_log(entry.session_id, entry.model_dump())
+        sid = batch_sid or entry.session_id  # 优先批次顶层，兼容两种格式
+        debug_store.add_log(sid, entry.model_dump())
     logger.debug("Received {n} frontend log entries", n=len(batch.logs))
     return {"received": len(batch.logs)}
 
