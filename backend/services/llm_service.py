@@ -4,8 +4,10 @@ from pathlib import Path
 from typing import AsyncGenerator, Optional
 
 from jinja2 import Environment, FileSystemLoader, Template
+from loguru import logger
 
 from core.config import settings
+from core.error_classifier import classify_error
 
 # ---------- Jinja2 环境 ----------
 _PROMPT_DIR = Path(__file__).resolve().parent.parent.parent  # 项目根目录
@@ -18,7 +20,16 @@ _jinja_env = Environment(
 def load_prompt(name: str, **kwargs) -> str:
     """加载 Jinja2 模板并渲染（路径相对项目根目录，如 prompts/generate_prd.jinja2）"""
     template: Template = _jinja_env.get_template(name)
-    return template.render(**kwargs)
+    prompt_text = template.render(**kwargs)
+    max_len = settings.prompt_log_max_length
+    logger.bind(event="prompt_rendered").debug(
+        "Prompt rendered: {template} ({len} chars{truncated})",
+        template=name,
+        prompt_text=prompt_text[:max_len],
+        len=len(prompt_text),
+        truncated=", truncated" if len(prompt_text) > max_len else "",
+    )
+    return prompt_text
 
 
 # ---------- LLM 工厂 ----------
@@ -68,7 +79,13 @@ def get_llm():
 
 # ---------- 流式调用 ----------
 
-async def stream_chat(system_prompt: str, user_message: str) -> AsyncGenerator[str, None]:
+async def stream_chat(
+    system_prompt: str,
+    user_message: str,
+    *,
+    session_id: str = "",
+    doc_type: str = "",
+) -> AsyncGenerator[str, None]:
     """流式对话：按 token yield"""
     llm = get_llm()
     from langchain.schema import HumanMessage, SystemMessage
@@ -76,18 +93,43 @@ async def stream_chat(system_prompt: str, user_message: str) -> AsyncGenerator[s
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_message),
     ]
-    async for chunk in llm.astream(messages):
-        content = chunk.content if hasattr(chunk, "content") else str(chunk)
-        if content:
-            yield content
+    config = {}
+    if session_id:
+        config = {"metadata": {"session_id": session_id, "doc_type": doc_type}}
+    logger.bind(event="llm_call_start").info("LLM stream started ({doc})", doc=doc_type)
+    try:
+        async for chunk in llm.astream(messages, config=config):
+            content = chunk.content if hasattr(chunk, "content") else str(chunk)
+            if content:
+                yield content
+    except Exception as e:
+        category = classify_error(e)
+        logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+        raise
+    logger.bind(event="llm_call_complete").info("LLM stream completed")
 
 
-async def stream_generate(system_prompt: str) -> AsyncGenerator[str, None]:
+async def stream_generate(
+    system_prompt: str,
+    *,
+    session_id: str = "",
+    doc_type: str = "",
+) -> AsyncGenerator[str, None]:
     """流式生成：按 token yield，不带 user message（仅 system prompt）"""
     llm = get_llm()
     from langchain.schema import SystemMessage
     messages = [SystemMessage(content=system_prompt)]
-    async for chunk in llm.astream(messages):
-        content = chunk.content if hasattr(chunk, "content") else str(chunk)
-        if content:
-            yield content
+    config = {}
+    if session_id:
+        config = {"metadata": {"session_id": session_id, "doc_type": doc_type}}
+    logger.bind(event="llm_call_start").info("LLM stream started ({doc})", doc=doc_type)
+    try:
+        async for chunk in llm.astream(messages, config=config):
+            content = chunk.content if hasattr(chunk, "content") else str(chunk)
+            if content:
+                yield content
+    except Exception as e:
+        category = classify_error(e)
+        logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+        raise
+    logger.bind(event="llm_call_complete").info("LLM stream completed")

@@ -10,7 +10,7 @@ SSE 事件格式：
 import json
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from api.schemas import ChatRequest, SummaryRequest, SummaryResponse
@@ -23,13 +23,13 @@ router = APIRouter(tags=["conversation"])
 
 
 @router.post("/api/chat/stream")
-async def chat_stream_endpoint(data: ChatRequest):
+async def chat_stream_endpoint(request: Request, data: ChatRequest):
     """SSE 端点：流式对话（合并 start/continue）。
 
     - history 为空 + 无额外 user_message → AI 破冰问候
     - history 非空 → AI 接续回复（user_message 应为 history 最后一条）
     """
-    session_id = data.session_id or "unknown"
+    session_id = getattr(request.state, "correlation_id", data.session_id or "unknown")
     logger.info(f"[{session_id}] chat/stream request, history_len={len(data.history)}")
 
     # 从 history 最后一条提取 user_message（如果有的话）
@@ -46,6 +46,7 @@ async def chat_stream_endpoint(data: ChatRequest):
                 form_data=data.form_data,
                 history=history_for_service,
                 user_message=user_message,
+                session_id=session_id,
             ):
                 full_response += chunk
                 yield f"data: {json.dumps({'event': 'chunk', 'content': chunk})}\n\n"
@@ -64,13 +65,14 @@ async def chat_stream_endpoint(data: ChatRequest):
 
 
 @router.post("/api/summary/generate", response_model=SummaryResponse)
-async def generate_summary_endpoint(data: SummaryRequest):
+async def generate_summary_endpoint(request: Request, data: SummaryRequest):
     """需求摘要生成（非流式）。"""
-    session_id = data.session_id or "unknown"
+    session_id = getattr(request.state, "correlation_id", data.session_id or "unknown")
     logger.info(f"[{session_id}] summary/generate request")
 
     summary = await generate_summary(
         form_data=data.form_data,
         history=data.history,
+        session_id=session_id,
     )
     return {"summary": summary}

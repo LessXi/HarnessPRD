@@ -18,10 +18,10 @@
 
 ## 4. LangSmith 集成与 Prompt 追踪 (P0)
 
-- [ ] 4.1 在 `backend/core/config.py` 或 `main.py` 的 startup 事件中根据 `LANGCHAIN_TRACING_V2` 调用 `langsmith.tracing_v2_enabled()` 开启/关闭追踪
-- [ ] 4.2 修改 `backend/services/llm_service.py`：在 `stream_chat`、`stream_generate` 和 `get_llm` 调用链中注入 LangSmith metadata（`run_name`、`tags`、`metadata.session_id`、`metadata.doc_type`）— 通过 `langsmith.run_helpers.trace()` 或 `RunnableConfig`
-- [ ] 4.3 修改 `backend/services/llm_service.py` 的 `load_prompt()`：在 `LOG_LEVEL=DEBUG` 时通过 loguru 记录渲染后的 prompt 文本（截断 `PROMPT_LOG_MAX_LENGTH`），写入 NDJSON
-- [ ] 4.4 修改 `backend/services/conversation_service.py` 和 `backend/services/document_service.py`：在所有 LLM 调用点（`chat_stream`、`generate_summary`、`generate_document_stream`、`optimize_document_stream`、`_call_llm_once`）添加结构化日志（`logger.bind(corr_id=...)`），记录调用的 doc_type/phase，异常时调用 `classify_error()` 分类
+- [x] 4.1 在 `backend/core/config.py` 或 `main.py` 的 startup 事件中根据 `LANGCHAIN_TRACING_V2` 调用 `langsmith.tracing_v2_enabled()` 开启/关闭追踪
+- [x] 4.2 修改 `backend/services/llm_service.py`：在 `stream_chat`、`stream_generate` 和 `get_llm` 调用链中注入 LangSmith metadata（`run_name`、`tags`、`metadata.session_id`、`metadata.doc_type`）— 通过 `langsmith.run_helpers.trace()` 或 `RunnableConfig`
+- [x] 4.3 修改 `backend/services/llm_service.py` 的 `load_prompt()`：在 `LOG_LEVEL=DEBUG` 时通过 loguru 记录渲染后的 prompt 文本（截断 `PROMPT_LOG_MAX_LENGTH`），写入 NDJSON
+- [x] 4.4 修改 `backend/services/conversation_service.py` 和 `backend/services/document_service.py`：在所有 LLM 调用点（`chat_stream`、`generate_summary`、`generate_document_stream`、`optimize_document_stream`、`_call_llm_once`）添加结构化日志（`logger.bind(corr_id=...)`），记录调用的 doc_type/phase，异常时调用 `classify_error()` 分类
 
 ## 5. 启动配置校验 (P1)
 

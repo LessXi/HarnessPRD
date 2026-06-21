@@ -6,7 +6,9 @@
 from typing import Any, AsyncGenerator
 
 from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from loguru import logger
 
+from core.error_classifier import classify_error
 from core.field_registry import get_all_fields, is_list_field
 from services.llm_service import load_prompt, get_llm
 
@@ -69,6 +71,8 @@ async def chat_stream(
     form_data: dict[str, Any],
     history: list[dict[str, str]],
     user_message: str,
+    *,
+    session_id: str = "",
 ) -> AsyncGenerator[str, None]:
     """流式对话：接收完整上下文，逐 token yield AI 回复。
 
@@ -79,15 +83,26 @@ async def chat_stream(
     messages = _build_lc_messages(system, history, user_message)
 
     llm = get_llm()
-    async for chunk in llm.astream(messages):
-        content: str = chunk.content if isinstance(chunk.content, str) else str(chunk.content)
-        if content:
-            yield content
+    config = {}
+    if session_id:
+        config = {"metadata": {"session_id": session_id, "doc_type": "chat"}}
+    logger.bind(event="chat_started").info("Chat stream started")
+    try:
+        async for chunk in llm.astream(messages, config=config):
+            content: str = chunk.content if isinstance(chunk.content, str) else str(chunk.content)
+            if content:
+                yield content
+    except Exception as e:
+        category = classify_error(e)
+        logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+        raise
 
 
 async def generate_summary(
     form_data: dict[str, Any],
     history: list[dict[str, str]],
+    *,
+    session_id: str = "",
 ) -> str:
     """生成结构化需求摘要（非流式）。"""
     kwargs = _form_to_kwargs(form_data)
@@ -101,9 +116,18 @@ async def generate_summary(
     summary_prompt = load_prompt("backend/prompts/chat_summary.jinja2", **kwargs)
 
     llm = get_llm()
-    result = await llm.ainvoke([
-        SystemMessage(content=summary_prompt),
-        HumanMessage(content="请根据以上信息生成需求摘要"),
-    ])
+    config = {}
+    if session_id:
+        config = {"metadata": {"session_id": session_id, "doc_type": "summary"}}
+    logger.bind(event="summary_started").info("Summary generation started")
+    try:
+        result = await llm.ainvoke([
+            SystemMessage(content=summary_prompt),
+            HumanMessage(content="请根据以上信息生成需求摘要"),
+        ], config=config)
+    except Exception as e:
+        category = classify_error(e)
+        logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+        raise
 
     return result.content if isinstance(result.content, str) else str(result.content)

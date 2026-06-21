@@ -5,6 +5,9 @@
 
 from typing import Any, AsyncGenerator
 
+from loguru import logger
+
+from core.error_classifier import classify_error
 from services.llm_service import load_prompt, stream_generate
 
 
@@ -30,6 +33,7 @@ async def generate_document_stream(
     previous_content: str = "",
     prd_content: str = "",
     api_content: str = "",
+    session_id: str = "",
 ) -> AsyncGenerator[str, None]:
     """流式生成文档。
 
@@ -40,6 +44,7 @@ async def generate_document_stream(
         previous_content: 已有内容（续写场景）
         prd_content: PRD 内容（api/prompts 生成时需要）
         api_content: 接口文档内容（prompts 生成时需要）
+        session_id: 会话 ID（用于 LangSmith metadata 追踪）
     """
     prompt_kwargs = _build_prompt_kwargs(
         form_data, requirements_summary,
@@ -52,8 +57,15 @@ async def generate_document_stream(
     prompt_name = _DOC_TEMPLATES[doc_type]
     system_prompt = load_prompt(prompt_name, **prompt_kwargs)
 
-    async for chunk in stream_generate(system_prompt):
-        yield chunk
+    logger.bind(event="doc_generation_start").info("Generating {doc_type}", doc_type=doc_type)
+    try:
+        async for chunk in stream_generate(system_prompt, session_id=session_id, doc_type=doc_type):
+            yield chunk
+    except Exception as e:
+        category = classify_error(e)
+        logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+        raise
+    logger.bind(event="doc_generation_complete").info("Generated {doc_type}", doc_type=doc_type)
 
 
 async def optimize_document_stream(
@@ -64,6 +76,7 @@ async def optimize_document_stream(
     *,
     prd_content: str = "",
     api_content: str = "",
+    session_id: str = "",
 ) -> AsyncGenerator[str, None]:
     """流式 Review→Rewrite 优化。
 
@@ -76,9 +89,11 @@ async def optimize_document_stream(
     current_content = content
 
     for round_num in range(max_rounds):
+        logger.bind(event="doc_optimization_round").info("Round {round}", round=round_num + 1)
+
         # --- Review ---
         review_prompt = _build_review_prompt(doc_type, current_content)
-        review_result = await _call_llm_once(review_prompt)
+        review_result = await _call_llm_once(review_prompt, session_id=session_id, doc_type=f"{doc_type}_review")
 
         has_issues = _has_issues(review_result)
         if not has_issues:
@@ -96,9 +111,14 @@ async def optimize_document_stream(
         )
 
         rewritten = ""
-        async for chunk in stream_generate(rewrite_prompt):
-            rewritten += chunk
-            yield chunk
+        try:
+            async for chunk in stream_generate(rewrite_prompt, session_id=session_id, doc_type=f"{doc_type}_rewrite"):
+                rewritten += chunk
+                yield chunk
+        except Exception as e:
+            category = classify_error(e)
+            logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+            raise
 
         current_content = rewritten
 
@@ -173,11 +193,26 @@ def _has_issues(review_result: str) -> bool:
     return "审核通过" not in review_result
 
 
-async def _call_llm_once(system_prompt: str) -> str:
+async def _call_llm_once(
+    system_prompt: str,
+    *,
+    session_id: str = "",
+    doc_type: str = "",
+) -> str:
     """非流式 LLM 调用（用于 Review）。"""
     from langchain.schema import SystemMessage
     from services.llm_service import get_llm
 
     llm = get_llm()
-    result = await llm.ainvoke([SystemMessage(content=system_prompt)])
+    config = {}
+    if session_id:
+        config = {"metadata": {"session_id": session_id, "doc_type": doc_type}}
+    logger.bind(event="llm_call_start").info("LLM call started ({doc})", doc=doc_type)
+    try:
+        result = await llm.ainvoke([SystemMessage(content=system_prompt)], config=config)
+    except Exception as e:
+        category = classify_error(e)
+        logger.bind(event="llm_error").error("LLM call failed: {error} [{cat}]", error=str(e), cat=category.value)
+        raise
+    logger.bind(event="llm_call_complete").info("LLM call completed")
     return result.content if isinstance(result.content, str) else str(result.content)
