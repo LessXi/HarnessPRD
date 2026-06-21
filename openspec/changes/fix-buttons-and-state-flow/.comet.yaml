@@ -10,8 +10,8 @@ isolation: branch
 verify_mode: null
 auto_transition: true
 base_ref: 6a23cdecdac27cccc35b0060f84323204d5ba376
-build_command: cd frontend && npm run build
-verify_command: cd frontend && npx vitest run
+build_command: npm --prefix=frontend run build
+verify_command: npx --prefix=frontend vitest run
 design_doc: docs/superpowers/specs/2026-06-21-fix-buttons-and-state-flow-design.md
 plan: docs/superpowers/plans/2026-06-21-fix-buttons-and-state-flow.md
 verify_result: pending
