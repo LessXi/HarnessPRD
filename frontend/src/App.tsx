@@ -203,6 +203,7 @@ export default function App() {
 
   // 切换 viewState 并持久化
   const switchView = useCallback((newView: ViewState) => {
+    updateProject((prev) => {
       debugLogger.log('info', 'state:transition', {
         from: prev.viewState,
         to: newView,
@@ -360,6 +361,7 @@ export default function App() {
     docType: "prd" | "api" | "prompts",
     previousContent?: string,
   ) => {
+    const viewStateMap = {
       prd: "generating_prd" as ViewState,
       api: "generating_api" as ViewState,
       prompts: "generating_prompts" as ViewState,
@@ -541,6 +543,7 @@ export default function App() {
     
     const nextDocType = nextDocTypeMap[docType];
     if (nextDocType) {
+      setPendingNextDocType(nextDocType);
       setShowCompletionPrompt(true);
     }
   }, [updateProject]);
@@ -604,6 +607,7 @@ export default function App() {
   };
 
   const handleGoBack = useCallback((targetState: ViewState) => {
+    const currentIdx = STEP_INDEX_MAP[project.viewState];
     const targetIdx = STEP_INDEX_MAP[targetState];
     if (targetIdx >= currentIdx) return;
 
@@ -668,6 +672,7 @@ export default function App() {
   const handleStopGeneration = useCallback(() => {
     abortedIntentionallyRef.current = true;
     abortController?.abort();
+    setAbortController(null);
     setStreamingContent('');
     const preGenState = getPreGenState(project.viewState);
     handleGoBack(preGenState);
