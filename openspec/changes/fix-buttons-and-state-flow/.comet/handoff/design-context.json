@@ -1,0 +1,18 @@
+{
+  "change": "fix-buttons-and-state-flow",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "fe31e14fac47b7785ecb5eef6129fd37d5dbdb873e36237013363bef17a5117b",
+  "files": [
+    { "path": "openspec/changes/fix-buttons-and-state-flow/proposal.md", "sha256": "388c89ae7410d6ae626176221317a1040c6f8e900f11761e3fc04b18c46f4bd5" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/design.md", "sha256": "1ed8203d3fa5bb609f5c286e0687b060f5b9f9275b6d8dbdfd03b51fe29483eb" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/tasks.md", "sha256": "985d0bf7c19f370bde9768c3c71677abba6d5ac39c10db23fe61c34d793c9a93" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/specs/auto-advance/spec.md", "sha256": "26ea0dcc7593f515930d63f2ce9aa0760eedebb052207bff9fe7dbdb0eed0b83" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/specs/sidebar-navigation/spec.md", "sha256": "25cf3d817c4a25352972db21e23a4b52ab5fedf29a3613e725c4daf19ea562c0" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/specs/step-rollback/spec.md", "sha256": "61245aa17cc155fae538dc70118555bbb8ccefdc362d31150d4f80cdf3135aea" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/specs/stop-generation/spec.md", "sha256": "c97a27a3f929add09c50e894f4ab9aed45dd809742716b434abedf29b95fb530" },
+    { "path": "openspec/changes/fix-buttons-and-state-flow/specs/view-state/spec.md", "sha256": "c727092cd3599b6bd9d50f8fac414d8d1eff886e2a534ef2eb3077844474e0b7" }
+  ]
+}

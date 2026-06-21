@@ -213,7 +213,7 @@ const DocumentReview = React.memo(function DocumentReview({
       </div>
 
       {/* 内容区 */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
         {editing ? (
           <div className="space-y-3">
             <textarea
