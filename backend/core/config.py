@@ -76,6 +76,13 @@ class Settings(BaseSettings):
     # ========== Session ==========
     max_sessions: int = 100
 
+    # ========== 可观测性 ==========
+    langchain_tracing_v2: bool = False
+    langchain_api_key: str = ""
+    langchain_project: str = "HarnessPRD"
+    log_level: str = "INFO"
+    prompt_log_max_length: int = 2000
+
     @field_validator("llm_provider")
     @classmethod
     def check_provider(cls, v: str) -> str:
@@ -90,6 +97,20 @@ class Settings(BaseSettings):
         if v < 1 or v > 10:
             raise ValueError(f"MAX_REVIEW_ROUNDS 应在 1-10 之间，当前值: {v}")
         return v
+
+    @field_validator("log_level")
+    @classmethod
+    def validate_log_level(cls, v: str) -> str:
+        v_upper = v.upper()
+        if v_upper not in {"DEBUG", "INFO", "WARNING", "ERROR"}:
+            raise ValueError(f"Invalid LOG_LEVEL: {v}. Must be DEBUG, INFO, WARNING, or ERROR")
+        return v_upper
+
+    @model_validator(mode="after")
+    def check_langsmith_config(self) -> "Settings":
+        if self.langchain_tracing_v2 and not self.langchain_api_key:
+            logging.warning("LANGCHAIN_TRACING_V2=true but LANGCHAIN_API_KEY is not set")
+        return self
 
     @model_validator(mode="after")
     def check_llm_config(self):
