@@ -1,25 +1,81 @@
 """HarnessPRD — FastAPI 应用入口"""
 
 import logging
+import os
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
+from core.config import settings
+
+# ---------- LangSmith 环境变量（必须在任何 langchain import 之前设置）----------
+# LangChain 在首次 import 时读取 LANGCHAIN_TRACING_V2 环境变量，
+# 因此必须在所有含 langchain 的模块（api.*, services.*）导入前完成设置。
+if settings.langchain_tracing_v2:
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_API_KEY"] = settings.langchain_api_key
+    os.environ["LANGCHAIN_PROJECT"] = settings.langchain_project
+
 from api.sessions import router as sessions_router
 from api.conversation import router as conversation_router
 from api.documents import router as documents_router
 from api.debug import router as debug_router
-from core.config import settings
 from core.logging_config import InterceptHandler, setup_logging
 from middleware.correlation import correlation_middleware
 from middleware.request_logging import request_logging_middleware
+
+# ---------- 启动校验 ----------
+
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+
+async def validate_debug_config() -> None:
+    """启动时校验 Debug/可观测性配置（非阻塞，失败仅 WARNING）。"""
+    # 1. LangSmith API 可达性检查
+    if settings.langchain_tracing_v2 and settings.langchain_api_key:
+        import httpx
+        try:
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.get("https://api.smith.langchain.com")
+                if resp.status_code < 500:
+                    logger.bind(event="startup_check").info("LangSmith API reachable")
+                else:
+                    logger.bind(event="startup_check").warning(
+                        "LangSmith API returned {status}", status=resp.status_code
+                    )
+        except Exception as e:
+            logger.bind(event="startup_check").warning(
+                "LangSmith API unreachable: {error}", error=str(e)
+            )
+
+    # 2. 日志目录可写检查
+    log_dir = Path(__file__).resolve().parent / "logs"
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        test_file = log_dir / ".write_test"
+        test_file.write_text("ok", encoding="utf-8")
+        test_file.unlink()
+    except Exception as e:
+        logger.bind(event="startup_check").warning(
+            "Log directory not writable: {error}", error=str(e)
+        )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期：启动时校验 debug 配置，关闭时无需清理。"""
+    await validate_debug_config()
+    yield
+
 
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description="AI-driven conversational requirements workbench",
+    lifespan=lifespan,
 )
 
 # ---------- 初始化 loguru 日志系统（替换默认 logging） ----------
