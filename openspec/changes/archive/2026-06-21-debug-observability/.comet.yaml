@@ -1,5 +1,5 @@
 workflow: full
-phase: build
+phase: archive
 context_compression: off
 build_command: python -m pytest backend/tests/ -v
 verify_command: python -m pytest backend/tests/ -v
@@ -14,11 +14,11 @@ auto_transition: true
 base_ref: 9dbd1e8bad66407ffd8306dba856b89dd1ceffd2
 design_doc: docs/superpowers/specs/2026-06-21-debug-observability-design.md
 plan: docs/superpowers/plans/2026-06-21-debug-observability.md
-verify_result: pending
-verification_report: null
+verify_result: pass
+verification_report: docs/superpowers/reports/2026-06-21-debug-observability-verify.md
 branch_status: handled
 created_at: 2026-06-21
-verified_at: null
-archived: false
+verified_at: 2026-06-21
+archived: true
 handoff_context: openspec/changes/debug-observability/.comet/handoff/design-context.json
 handoff_hash: b57e5abe7cc690f9ade583c06103594e3624c6227b621cae1ea0618df21afffe
