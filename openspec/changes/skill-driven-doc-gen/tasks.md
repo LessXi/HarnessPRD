@@ -50,19 +50,19 @@
 - [x] 7.1 编写集成测试：用 mock form_data 分别测试三种文档的完整生成流程
 - [x] 7.2 对比新旧输出：skill 驱动的输出质量不低于原 Jinja2 模板输出
 - [x] 7.3 验证 SSE 事件格式：chunk/done/error/review_result 事件格式正确，前端可正常消费
-- [ ] 7.4 验证热加载：修改 skill 文件内容后 reload，新请求使用新 prompt
+- [x] 7.4 验证热加载：修改 skill 文件内容后 reload，新请求使用新 prompt
 
 ## 8. 清理与收尾 (P1)
 
-- [ ] 8.1 删除 `backend/prompts/generate_prd.jinja2`
-- [ ] 8.2 删除 `backend/prompts/generate_api.jinja2`
-- [ ] 8.3 删除 `backend/prompts/generate_prompts.jinja2`
-- [ ] 8.4 删除 `backend/prompts/doc_review.jinja2`
-- [ ] 8.5 删除 `backend/prompts/doc_rewrite.jinja2`
-- [ ] 8.6 更新 `AGENTS.md` — 反映新的 skill 引擎架构
+- [x] 8.1 删除 `backend/prompts/generate_prd.jinja2`
+- [x] 8.2 删除 `backend/prompts/generate_api.jinja2`
+- [x] 8.3 删除 `backend/prompts/generate_prompts.jinja2`
+- [x] 8.4 删除 `backend/prompts/doc_review.jinja2`
+- [x] 8.5 删除 `backend/prompts/doc_rewrite.jinja2`
+- [x] 8.6 更新 `AGENTS.md` — 反映新的 skill 引擎架构
 
 ## 9. 可选增强 (P2)
 
-- [ ] 9.1 新增 `GET /api/skills` — 列出已加载的 skill 名称和版本
-- [ ] 9.2 新增 `POST /api/skills/reload` — 手动触发热加载
-- [ ] 9.3 前端在文档生成页面显示当前使用的 skill 名称（纯展示）
+- [x] 9.1 新增 `GET /api/skills` — 列出已加载的 skill 名称和版本
+- [x] 9.2 新增 `POST /api/skills/reload` — 手动触发热加载
+- [x] 9.3 前端在文档生成页面显示当前使用的 skill 名称（纯展示）

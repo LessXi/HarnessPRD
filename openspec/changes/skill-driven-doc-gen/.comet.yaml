@@ -1,5 +1,5 @@
 workflow: full
-phase: build
+phase: verify
 context_compression: off
 build_mode: subagent-driven-development
 build_pause: null
@@ -12,6 +12,8 @@ auto_transition: true
 base_ref: 621c4c14226bf9d5cfc1c8267dfbdd7605d514e2
 design_doc: docs/superpowers/specs/2026-06-21-skill-driven-doc-gen-design.md
 plan: docs/superpowers/plans/2026-06-21-skill-driven-doc-gen.md
+build_command: pytest backend/tests -q
+verify_command: pytest backend/tests -q
 verify_result: pending
 verification_report: null
 branch_status: pending
