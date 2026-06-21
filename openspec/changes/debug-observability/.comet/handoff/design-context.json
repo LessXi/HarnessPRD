@@ -1,0 +1,17 @@
+{
+  "change": "debug-observability",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "b57e5abe7cc690f9ade583c06103594e3624c6227b621cae1ea0618df21afffe",
+  "files": [
+    { "path": "openspec/changes/debug-observability/proposal.md", "sha256": "4349ffc9e6006d29288a67464f03046da25ee75a5e110013f2df6c60937695a8" },
+    { "path": "openspec/changes/debug-observability/design.md", "sha256": "e0e8b998e8e30d7cb509c27cdf74f1e35d4f78527b5e10e76229d1f317410672" },
+    { "path": "openspec/changes/debug-observability/tasks.md", "sha256": "115e003ad008554a94f72d58e42010944b872395234a3bbc011e7e8b63fec392" },
+    { "path": "openspec/changes/debug-observability/specs/debug-api/spec.md", "sha256": "0870df8245de086e60a5332857279df4ac36e7a55fb55ace44773177bfe17bf9" },
+    { "path": "openspec/changes/debug-observability/specs/frontend-debug-logging/spec.md", "sha256": "d71306371ee195821c03438aa62cc97f5a189ffd4d71a5da7cbd1f52ded4333d" },
+    { "path": "openspec/changes/debug-observability/specs/llm-observability/spec.md", "sha256": "20c2538861b1a66ca79ebc57ab4efc1eed10d3ca293eeccad6b382a955810236" },
+    { "path": "openspec/changes/debug-observability/specs/structured-logging/spec.md", "sha256": "545c6c47b89730e537e1e54729fb1d0e7460b74ec2a14dad15a596df8651ce18" }
+  ]
+}
