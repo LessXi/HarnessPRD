@@ -48,8 +48,8 @@
 
 ## 9. E2E 验证 (P2)
 
-- [ ] 9.1 验证 LangSmith trace：启动后端，调用一次 `/api/chat/stream`，确认 LangSmith dashboard 中出现 trace 且 metadata 含 session_id
-- [ ] 9.2 验证 NDJSON 日志：检查 `backend/logs/app_{date}.ndjson` 包含请求日志、LLM 调用日志、错误分类日志
-- [ ] 9.3 验证前端上报：打开前端 → 填写表单 → 对话 → 生成文档，确认 `GET /api/debug/session/{id}` 返回完整诊断数据
-- [ ] 9.4 验证动态调级：`POST /api/debug/log-level {"level":"DEBUG"}`，确认终端日志即变为 DEBUG 级别
-- [ ] 9.5 验证关闭 LangSmith：设置 `LANGCHAIN_TRACING_V2=false`，重启后端，确认 LLM 调用正常且无 LangSmith 报错
+- [x] 9.1 验证 LangSmith trace：启动后端，调用一次 `/api/chat/stream`，确认 LangSmith dashboard 中出现 trace 且 metadata 含 session_id
+- [x] 9.2 验证 NDJSON 日志：检查 `backend/logs/app_{date}.ndjson` 包含请求日志、LLM 调用日志、错误分类日志
+- [x] 9.3 验证前端上报：打开前端 → 填写表单 → 对话 → 生成文档，确认 `GET /api/debug/session/{id}` 返回完整诊断数据
+- [x] 9.4 验证动态调级：`POST /api/debug/log-level {"level":"DEBUG"}`，确认终端日志即变为 DEBUG 级别
+- [x] 9.5 验证关闭 LangSmith：设置 `LANGCHAIN_TRACING_V2=false`，重启后端，确认 LLM 调用正常且无 LangSmith 报错
