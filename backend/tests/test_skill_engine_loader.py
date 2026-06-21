@@ -86,15 +86,15 @@ class TestSkillLoaderInit:
         loader = SkillLoader(str(tmp_path))
         assert len(loader._cache) == 1
 
-    def test_parse_error_skill_raises(self, tmp_path: Path):
-        """无效 skill 文件 → parse_skill_file 抛出 SkillParseError"""
+    def test_parse_error_skill_skipped(self, tmp_path: Path):
+        """无效 skill 文件 → 记录警告并跳过，不阻塞整体加载"""
         (tmp_path / "bad.md").write_text("纯文本无 frontmatter\n", encoding="utf-8")
 
         from skill_engine.loader import SkillLoader
-        from skill_engine.models import SkillParseError
 
-        with pytest.raises(SkillParseError):
-            SkillLoader(str(tmp_path))
+        loader = SkillLoader(str(tmp_path))
+        # 坏文件被跳过，缓存为空
+        assert len(loader._cache) == 0
 
 
 class TestSkillLoaderGet:

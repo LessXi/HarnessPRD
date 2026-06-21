@@ -12,6 +12,7 @@ from typing import Optional
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
+from loguru import logger
 from pydantic import ValidationError
 
 from skill_engine.models import SkillParseError, SkillSchema, StepSchema
@@ -71,8 +72,14 @@ def parse_skill_file(filepath: str) -> SkillSchema:
     try:
         content = Path(filepath).read_text(encoding="utf-8")
     except FileNotFoundError as e:
+        logger.bind(event="skill_parse_error").warning(
+            "Skill 文件不存在: {filepath}", filepath=filepath
+        )
         raise SkillParseError(f"文件不存在: {filepath}") from e
     except OSError as e:
+        logger.bind(event="skill_parse_error").warning(
+            "读取 Skill 文件失败: {filepath} — {error}", filepath=filepath, error=str(e)
+        )
         raise SkillParseError(f"读取文件失败: {filepath} — {e}") from e
 
     # 2) 提取 YAML frontmatter
@@ -82,15 +89,24 @@ def parse_skill_file(filepath: str) -> SkillSchema:
     try:
         data = yaml.safe_load(yaml_str)
     except yaml.YAMLError as e:
+        logger.bind(event="skill_parse_error").warning(
+            "Skill YAML 格式错误: {filepath} — {error}", filepath=filepath, error=str(e)
+        )
         raise SkillParseError(f"YAML 格式错误: {e}") from e
 
     if not isinstance(data, dict):
+        logger.bind(event="skill_parse_error").warning(
+            "Skill YAML frontmatter 非字典格式: {filepath}", filepath=filepath
+        )
         raise SkillParseError("YAML frontmatter 必须为字典格式")
 
     # 4) Pydantic 校验 → SkillSchema
     try:
         return SkillSchema(**data)
     except ValidationError as e:
+        logger.bind(event="skill_parse_error").warning(
+            "Skill 数据校验失败: {filepath} — {error}", filepath=filepath, error=str(e)
+        )
         raise SkillParseError(f"Skill 数据校验失败: {e}") from e
 
 

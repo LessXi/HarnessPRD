@@ -8,13 +8,12 @@
 """
 
 import glob
-import logging
 import os
+
+from loguru import logger
 
 from skill_engine.models import SkillNotFoundError, SkillSchema
 from skill_engine.parser import parse_skill_file
-
-logger = logging.getLogger(__name__)
 
 
 class SkillLoader:
@@ -50,15 +49,17 @@ class SkillLoader:
             try:
                 skill = parse_skill_file(filepath)
                 new_cache[skill.name] = skill
-                logger.debug("Loaded skill: %s from %s", skill.name, filepath)
             except Exception:
-                logger.exception("Failed to parse skill file: %s", filepath)
-                raise
+                logger.bind(event="skill_parse_error").warning(
+                    "Skill 文件解析失败，跳过: {filepath}", filepath=filepath
+                )
+                # 单个 skill 解析失败不阻塞整体
+                continue
         self._cache = new_cache
-        logger.info(
-            "SkillLoader loaded %d skill(s) from %s",
-            len(new_cache),
-            self.skills_dir,
+        logger.bind(event="skill_loader_scan").info(
+            "SkillLoader 扫描完成: {count} skill(s) 从 {dir}",
+            count=len(new_cache),
+            dir=self.skills_dir,
         )
 
     def get(self, name: str) -> SkillSchema:
@@ -80,6 +81,7 @@ class SkillLoader:
 
     def reload(self) -> None:
         """运行时热加载：重新扫描目录，原子替换缓存。"""
+        logger.bind(event="skill_loader_reload").info("热加载触发: {dir}", dir=self.skills_dir)
         self.load_all()
 
     def list_skills(self) -> list[str]:

@@ -15,14 +15,14 @@
 """
 
 import json
-import logging
 import re
 from typing import Any, AsyncGenerator, Protocol
 
+from loguru import logger
+
+from core.error_classifier import classify_error
 from skill_engine.models import SSEEvent, SkillSchema
 from skill_engine.parser import render_skill_prompt
-
-logger = logging.getLogger(__name__)
 
 
 class LLMServiceProtocol(Protocol):
@@ -97,8 +97,20 @@ class SkillEngine:
         session_id = context.get("session_id", "")
         doc_type = context.get("doc_type", "")
 
+        logger.bind(event="skill_execution_start").info(
+            "开始执行 skill: {name} (doc_type={doc_type})",
+            name=skill.name,
+            doc_type=doc_type,
+        )
+
         for round_num in range(skill.max_iterations):
             for step in skill.steps:
+                logger.bind(event="skill_step_start").info(
+                    "执行步骤: {step_id} (type={step_type}, round={round})",
+                    step_id=step.id,
+                    step_type=step.type,
+                    round=round_num,
+                )
                 step_context: dict[str, Any] = {
                     **context,
                     "current_content": current_content,
@@ -111,6 +123,9 @@ class SkillEngine:
                 if step.type == "generate":
                     if _skip_first_generate:
                         _skip_first_generate = False
+                        logger.bind(event="skill_step_complete").info(
+                            "跳过 generate 步骤（已有内容）: {step_id}", step_id=step.id
+                        )
                         continue
                     current_content = ""
                     base_prompt = prompt
@@ -119,16 +134,31 @@ class SkillEngine:
                             yield SSEEvent(event="chunk", content=token)
                             current_content += token
                     except Exception as e:
+                        category = classify_error(e)
+                        logger.bind(event="llm_error").error(
+                            "LLM 调用失败 (generate): {error} [{category}]",
+                            error=str(e),
+                            category=category.value,
+                        )
                         yield SSEEvent(
                             event="error",
                             content=f"LLM 调用失败: {e}",
                         )
                         return
+                    logger.bind(event="skill_step_complete").info(
+                        "完成步骤: {step_id} ({length} 字符)", step_id=step.id, length=len(current_content)
+                    )
 
                 elif step.type == "review":
                     try:
                         full = await self._call_llm_once(prompt, session_id=session_id, doc_type=doc_type)
                     except Exception as e:
+                        category = classify_error(e)
+                        logger.bind(event="llm_error").error(
+                            "LLM 调用失败 (review): {error} [{category}]",
+                            error=str(e),
+                            category=category.value,
+                        )
                         yield SSEEvent(
                             event="error",
                             content=f"LLM 调用失败: {e}",
@@ -142,6 +172,9 @@ class SkillEngine:
                         content=full,
                         passed=passed,
                         issues=issues,
+                    )
+                    logger.bind(event="skill_step_complete").info(
+                        "完成审核步骤: {step_id} (passed={passed})", step_id=step.id, passed=passed
                     )
                     if passed:
                         yield SSEEvent(
@@ -157,11 +190,20 @@ class SkillEngine:
                             yield SSEEvent(event="chunk", content=token)
                             current_content += token
                     except Exception as e:
+                        category = classify_error(e)
+                        logger.bind(event="llm_error").error(
+                            "LLM 调用失败 (rewrite): {error} [{category}]",
+                            error=str(e),
+                            category=category.value,
+                        )
                         yield SSEEvent(
                             event="error",
                             content=f"LLM 调用失败: {e}",
                         )
                         return
+                    logger.bind(event="skill_step_complete").info(
+                        "完成改写步骤: {step_id} ({length} 字符)", step_id=step.id, length=len(current_content)
+                    )
 
         # 达到 max_iterations 后强制结束
         yield SSEEvent(event="done", content=current_content)
