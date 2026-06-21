@@ -31,20 +31,61 @@ class DocumentState(BaseModel):
 
 
 # ========== 动态表单数据模型 ==========
-# FormData 由 questions_config.json 动态生成，字段增减只需修改 JSON
+# FormData 由 product_schema.json 动态生成，字段增减只需修改 JSON 文件。
+# 类型映射：string→str, array→list[str], number→float, integer→int
+# enum 字段使用 Literal 类型约束；required 列表控制必填/选填。
 
 def _build_form_data_model():
-    from core.field_registry import get_all_fields, is_list_field
+    from typing import Literal
+    from core.field_registry import get_schema
+
+    schema = get_schema()
+    properties = schema.get("properties", {})
+    required_set = set(schema.get("required", []))
     fields = {}
-    for f in get_all_fields():
-        fid = f["id"]
-        required = f.get("required", False)
-        if is_list_field(fid):
-            fields[fid] = (list[str], Field(..., min_length=3))
-        elif required:
-            fields[fid] = (str, ...)
-        else:
-            fields[fid] = (str, Field(default=""))
+
+    for name, prop in properties.items():
+        json_type = prop.get("type")
+        enum_vals = prop.get("enum")
+        is_required = name in required_set
+
+        # ── array → list[str] ──
+        if json_type == "array":
+            min_items = prop.get("minItems", 1)
+            fields[name] = (list[str], Field(default_factory=list, min_length=min_items))
+            continue
+
+        # ── enum → Literal[val1, val2, ...] ──
+        if enum_vals:
+            literal_type = Literal.__getitem__(tuple(enum_vals))
+            if is_required:
+                fields[name] = (literal_type, ...)
+            else:
+                fields[name] = (literal_type, Field(default=prop.get("default")))
+            continue
+
+        # ── string → str ──
+        if json_type == "string":
+            if is_required:
+                fields[name] = (str, ...)
+            else:
+                default = prop.get("default", "")
+                fields[name] = (str, Field(default=default))
+            continue
+
+        # ── number → float / integer → int (future-proof) ──
+        if json_type in ("number", "integer"):
+            py_type = float if json_type == "number" else int
+            if is_required:
+                fields[name] = (py_type, ...)
+            else:
+                fields[name] = (py_type, Field(default=prop.get("default", 0)))
+            continue
+
+        # ── fallback ──
+        fields[name] = (str, Field(default=""))
+
     return create_model("FormData", **fields)
+
 
 FormData = _build_form_data_model()
