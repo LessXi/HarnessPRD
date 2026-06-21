@@ -27,12 +27,17 @@ from core.config import settings
 logger.configure(extra={"corr_id": ""})
 
 
-def setup_logging() -> None:
+def setup_logging(level: str | None = None) -> None:
     """配置 loguru 双 sink（终端彩色 + NDJSON 文件）。
 
     调用前会先 ``logger.remove()`` 清空默认 handler，
     防止 uvicorn reload 导致重复注册。
+
+    Args:
+        level: 可选的日志级别覆盖。未提供时使用 ``settings.log_level``。
     """
+    level = (level or settings.log_level).upper()
+
     # 清空默认 handler，防止 uvicorn reload 重复
     logger.remove()
 
@@ -46,7 +51,7 @@ def setup_logging() -> None:
     logger.add(
         sys.stderr,
         format=console_format,
-        level=settings.log_level.upper(),
+        level=level,
         colorize=True,
     )
 

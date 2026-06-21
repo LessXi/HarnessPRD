@@ -188,3 +188,72 @@ class TestOldRoutesRemoved:
     def test_old_session_start_404(self):
         resp = client.post("/api/sessions/test-001/start-stream")
         assert resp.status_code == 404
+
+
+class TestDebug:
+    """Debug API 端点冒烟测试"""
+
+    def test_receive_logs(self):
+        """POST /api/debug/log 接收批量日志"""
+        resp = client.post("/api/debug/log", json={
+            "logs": [
+                {
+                    "timestamp": 1718000000.0,
+                    "level": "info",
+                    "source": "frontend::ChatPage",
+                    "data": {"action": "click", "target": "confirm-btn"},
+                    "session_id": "test-debug-001",
+                },
+                {
+                    "timestamp": 1718000001.0,
+                    "level": "warn",
+                    "source": "frontend::ApiService",
+                    "data": {"retry_count": 2},
+                    "session_id": "test-debug-001",
+                },
+            ],
+        })
+        assert resp.status_code == 200
+        assert resp.json()["received"] == 2
+
+    def test_get_session_found(self):
+        """GET /api/debug/session/{id} 返回 session 日志"""
+        # 先写入一条日志
+        client.post("/api/debug/log", json={
+            "logs": [{
+                "timestamp": 1718000000.0,
+                "level": "info",
+                "source": "test",
+                "data": {"msg": "hello"},
+                "session_id": "test-get-session",
+            }],
+        })
+        resp = client.get("/api/debug/session/test-get-session")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["session_id"] == "test-get-session"
+        assert data["count"] >= 1
+        assert "logs" in data
+        assert "total_size_bytes" in data
+
+    def test_get_session_not_found_404(self):
+        """不存在的 session 返回 404"""
+        resp = client.get("/api/debug/session/non-existent")
+        assert resp.status_code == 404
+
+    def test_set_log_level_valid(self):
+        """POST /api/debug/log-level 切换合法级别"""
+        resp = client.post("/api/debug/log-level", json={"level": "DEBUG"})
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["current"] == "DEBUG"
+        assert "previous" in data
+
+        # 恢复
+        client.post("/api/debug/log-level", json={"level": "INFO"})
+
+    def test_set_log_level_invalid_400(self):
+        """非法级别返回 400"""
+        resp = client.post("/api/debug/log-level", json={"level": "TRACE"})
+        assert resp.status_code == 400
+        assert "Invalid" in resp.json()["detail"]

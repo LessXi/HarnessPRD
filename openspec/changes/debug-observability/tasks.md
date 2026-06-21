@@ -25,15 +25,15 @@
 
 ## 5. 启动配置校验 (P1)
 
-- [ ] 5.1 在 `backend/main.py` 的 startup 事件中实现 `validate_debug_config()`：检查 LangSmith API key 非空（若 tracing 开启）、ping `api.smith.langchain.com`（5s 超时）、检查 `backend/logs/` 目录可写
-- [ ] 5.2 失败场景输出 WARNING 日志，不阻塞启动
+- [x] 5.1 在 `backend/main.py` 的 startup 事件中实现 `validate_debug_config()`：检查 LangSmith API key 非空（若 tracing 开启）、ping `api.smith.langchain.com`（5s 超时）、检查 `backend/logs/` 目录可写
+- [x] 5.2 失败场景输出 WARNING 日志，不阻塞启动
 
 ## 6. Debug API 端点 (P1)
 
-- [ ] 6.1 创建 `backend/api/debug.py`：定义 Pydantic 请求模型（`LogEntry`、`BatchLogRequest`、`LogLevelRequest`），实现 `POST /api/debug/log` 接收前端批量日志并存入内存 `debug_store: OrderedDict`
-- [ ] 6.2 实现 `GET /api/debug/session/{session_id}`，聚合该 session 下的 `requests`、`llm_calls`、`sse_events`、`frontend_logs`、`errors` 返回 JSON
-- [ ] 6.3 实现 `POST /api/debug/log-level`，接收 `{"level": "..."}`，调用 `logger.remove()` + `logger.add()` 动态调整级别
-- [ ] 6.4 在 `backend/main.py` 注册 `debug_router`，挂载到 `/api/debug` 前缀
+- [x] 6.1 创建 `backend/api/debug.py`：定义 Pydantic 请求模型（`LogEntry`、`BatchLogRequest`、`LogLevelRequest`），实现 `POST /api/debug/log` 接收前端批量日志并存入内存 `debug_store: OrderedDict`
+- [x] 6.2 实现 GET `GET /api/debug/session/{session_id}`，聚合该 session 下的 `requests`、`llm_calls`、`sse_events`、`frontend_logs`、`errors` 返回 JSON
+- [x] 6.3 实现 POST `POST /api/debug/log-level`，接收 `{"level": "..."}`，调用 `logger.remove()` + `logger.add()` 动态调整级别
+- [x] 6.4 在 `backend/main.py` 注册 `debug_router`，挂载到 `/api/debug` 前缀
 
 ## 7. 前端 debugLogger 工具 (P1)
 

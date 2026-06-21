@@ -10,6 +10,7 @@ from loguru import logger
 from api.sessions import router as sessions_router
 from api.conversation import router as conversation_router
 from api.documents import router as documents_router
+from api.debug import router as debug_router
 from core.config import settings
 from core.logging_config import InterceptHandler, setup_logging
 
@@ -39,6 +40,7 @@ app.add_middleware(
 app.include_router(sessions_router)
 app.include_router(conversation_router)
 app.include_router(documents_router)
+app.include_router(debug_router)
 
 
 @app.get("/")
