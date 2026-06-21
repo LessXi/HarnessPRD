@@ -37,14 +37,14 @@
 
 ## 7. 前端 debugLogger 工具 (P1)
 
-- [ ] 7.1 创建 `frontend/src/utils/debugLogger.ts`：单例 `debugLogger`，维护内存 buffer（max 100 条），`log(source, data)` 方法，5 秒定时器 + buffer 满 50 条时批量 POST `/api/debug/log`（body: `{session_id, logs}`）
-- [ ] 7.2 实现 `pagehide`/`beforeunload` 事件监听，使用 `navigator.sendBeacon()` flush 剩余日志
-- [ ] 7.3 实现 `isEnabled()` 检查（读取 localStorage 或 env var 中的 `VITE_DEBUG_ENABLED`），关闭时所有 `log()` 调用为 no-op
+- [x] 7.1 创建 `frontend/src/utils/debugLogger.ts`：单例 `debugLogger`，维护内存 buffer（max 100 条），`log(source, data)` 方法，5 秒定时器 + buffer 满 50 条时批量 POST `/api/debug/log`（body: `{session_id, logs}`）
+- [x] 7.2 实现 `pagehide`/`beforeunload` 事件监听，使用 `navigator.sendBeacon()` flush 剩余日志
+- [x] 7.3 实现 `isEnabled()` 检查（读取 localStorage 或 env var 中的 `VITE_DEBUG_ENABLED`），关闭时所有 `log()` 调用为 no-op
 
 ## 8. 前端日志集成 (P1)
 
-- [ ] 8.1 修改 `frontend/src/utils/api.ts` 的 `readStream()`：在 chunk/done/error 事件处理中调用 `debugLogger.log("sse:readStream", {event_type, chunk_count?, ...})`
-- [ ] 8.2 修改 `frontend/src/store/useProjectStore.ts`：在 `viewState` 变更处调用 `debugLogger.log("state:transition", {from, to, trigger})`
+- [x] 8.1 修改 `frontend/src/utils/api.ts` 的 `readStream()`：在 chunk/done/error 事件处理中调用 `debugLogger.log("sse:readStream", {event_type, chunk_count?, ...})`
+- [x] 8.2 修改 `frontend/src/store/useProjectStore.ts`：在 `viewState` 变更处调用 `debugLogger.log("state:transition", {from, to, trigger})`
 
 ## 9. E2E 验证 (P2)
 

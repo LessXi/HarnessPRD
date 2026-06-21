@@ -7,6 +7,7 @@ import type {
   OptimizeRequest,
   StreamCallbacks,
 } from "@/types";
+import { debugLogger } from "@/utils/debugLogger";
 
 const api = axios.create({
   baseURL: "/api",
@@ -56,6 +57,7 @@ export async function readStream(
 
   const decoder = new TextDecoder();
   let buffer = "";
+  let chunkCount = 0;
 
   // 解析 buffer 中的完整 SSE 行，返回剩余不完整行
   const processLines = (buf: string): string => {
@@ -75,12 +77,16 @@ export async function readStream(
 
         switch (event) {
           case "chunk":
+            chunkCount++;
+            debugLogger.log('info', 'sse:readStream', { event_type: 'chunk', chunk_index: chunkCount });
             onChunk(parsed.content ?? "");
             break;
           case "done":
+            debugLogger.log('info', 'sse:readStream', { event_type: 'done', total_chunks: chunkCount });
             onDone(parsed);
             break;
           case "error":
+            debugLogger.log('error', 'sse:readStream', { event_type: 'sse_error', error: parsed.content });
             onError(parsed.content ?? "未知 SSE 错误");
             break;
         }
@@ -113,6 +119,7 @@ export async function readStream(
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "SSE 流读取异常";
+    debugLogger.log('error', 'sse:readStream', { event_type: 'stream_error', error: msg });
     onError(msg);
   }
 }

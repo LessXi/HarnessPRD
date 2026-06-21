@@ -23,6 +23,7 @@ import type {
   DocumentState,
 } from "@/types";
 import { STEPS, STEP_INDEX_MAP, createEmptyProjectState, createEmptyDocumentState, isValidStateTransition } from "@/types";
+import { debugLogger } from "@/utils/debugLogger";
 
 const PROJECT_KEY = "harnessprd:project";
 
@@ -173,6 +174,13 @@ export default function App() {
     streamingContentRef.current = streamingContent;
   }, [streamingContent]);
 
+  // 初始化调试日志会话 ID（从已持久化的 project 中读取）
+  useEffect(() => {
+    if (project.session_id) {
+      debugLogger.setSessionId(project.session_id);
+    }
+  }, []);
+
   // 加载表单配置
   useEffect(() => {
     getQuestions()
@@ -191,8 +199,15 @@ export default function App() {
   }, []);
 
   // 切换 viewState 并持久化
-  const switchView = useCallback((viewState: ViewState) => {
-    updateProject((prev) => ({ ...prev, viewState }));
+  const switchView = useCallback((newView: ViewState) => {
+    updateProject((prev) => {
+      debugLogger.log('info', 'state:transition', {
+        from: prev.viewState,
+        to: newView,
+        trigger: 'user_action',
+      });
+      return { ...prev, viewState: newView };
+    });
   }, [updateProject]);
 
   // ======================================================================
@@ -204,6 +219,7 @@ export default function App() {
     setError(null);
 
     const sessionId = crypto.randomUUID();
+    debugLogger.setSessionId(sessionId);
 
     updateProject((prev) => ({
       ...prev,
