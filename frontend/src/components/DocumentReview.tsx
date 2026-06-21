@@ -22,13 +22,15 @@ export interface DocumentReviewProps {
   onEdit?: (content: string) => void;
   /** 底部确认按钮 */
   onConfirm?: () => void;
+  /** 停止生成（generating_* 状态中断 SSE） */
+  onStop?: () => void;
   /** 确认按钮文字，默认 "确认并继续" */
   confirmLabel?: string;
 }
 
 const DocumentReview = React.memo(function DocumentReview({
   title, docType, content, streamingText, optimizing = false,
-  onOptimize, onResume, onEdit, onConfirm, confirmLabel = "确认并继续",
+  onOptimize, onResume, onEdit, onConfirm, onStop, confirmLabel = "确认并继续",
 }: DocumentReviewProps) {
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(content);
@@ -185,6 +187,15 @@ const DocumentReview = React.memo(function DocumentReview({
               }`}
             >
               {downloading ? "下载中…" : "下载"}
+            </button>
+          )}
+          {/* 停止生成 */}
+          {onStop && isStreaming && !optimizing && (
+            <button
+              onClick={onStop}
+              className="text-xs px-3 py-1.5 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+            >
+              停止生成
             </button>
           )}
           {/* 继续生成 */}

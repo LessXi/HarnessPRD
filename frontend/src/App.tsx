@@ -655,6 +655,21 @@ export default function App() {
     setPendingNextDocType(null);
   }, [project.viewState, handleGoBack]);
 
+  const getPreGenState = (vs: ViewState): ViewState => {
+    if (vs === 'generating_prd') return 'ai_dialogue';
+    if (vs === 'generating_api') return 'reviewing_prd';
+    if (vs === 'generating_prompts') return 'reviewing_api';
+    return vs;
+  };
+
+  const handleStopGeneration = useCallback(() => {
+    abortController?.abort();
+    setAbortController(null);
+    setStreamingContent('');
+    const preGenState = getPreGenState(project.viewState);
+    handleGoBack(preGenState);
+  }, [abortController, project.viewState, handleGoBack]);
+
   // ======================================================================
   // 重置项目
   // ======================================================================
@@ -868,7 +883,7 @@ export default function App() {
       break;
 
     case "generating_prd":
-      content = <DocumentReview title="PRD" docType="prd" content={project.prd.content} streamingText={streamingContent || undefined} />;
+      content = <DocumentReview title="PRD" docType="prd" content={project.prd.content} streamingText={streamingContent || undefined} onStop={handleStopGeneration} />;
       break;
 
     case "reviewing_prd":
@@ -887,7 +902,7 @@ export default function App() {
       break;
 
     case "generating_api":
-      content = <DocumentReview title="接口文档" docType="api" content={project.api.content} streamingText={streamingContent || undefined} />;
+      content = <DocumentReview title="接口文档" docType="api" content={project.api.content} streamingText={streamingContent || undefined} onStop={handleStopGeneration} />;
       break;
 
     case "reviewing_api":
@@ -906,7 +921,7 @@ export default function App() {
       break;
 
     case "generating_prompts":
-      content = <DocumentReview title="提示词套件" docType="prompts" content={project.prompts.content} streamingText={streamingContent || undefined} confirmLabel="完成" />;
+      content = <DocumentReview title="提示词套件" docType="prompts" content={project.prompts.content} streamingText={streamingContent || undefined} confirmLabel="完成" onStop={handleStopGeneration} />;
       break;
 
     case "reviewing_prompts":

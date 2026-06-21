@@ -24,10 +24,10 @@
 
 ## 4. 停止生成功能 (App.tsx + DocumentReview.tsx)
 
-- [ ] 4.1 在 `generateDocumentStream` 调用处添加 `AbortController`，保存引用 [P0]
-- [ ] 4.2 实现 `handleStopGeneration()`：调用 `AbortController.abort()` → 调用 `handleGoBack` 回退到生成前状态 [P0]
-- [ ] 4.3 在 DocumentReview 工具栏添加「停止生成」按钮，仅在 `isStreaming && !isReviewing` 时显示 [P0]
-- [ ] 4.4 `generating_*` 状态下向 DocumentReview 传递 `onStop` prop [P0]
+- [x] 4.1 在 `generateDocumentStream` 调用处添加 `AbortController`，保存引用 [P0]
+- [x] 4.2 实现 `handleStopGeneration()`：调用 `AbortController.abort()` → 调用 `handleGoBack` 回退到生成前状态 [P0]
+- [x] 4.3 在 DocumentReview 工具栏添加「停止生成」按钮，仅在 `isStreaming && !isReviewing` 时显示 [P0]
+- [x] 4.4 `generating_*` 状态下向 DocumentReview 传递 `onStop` prop [P0]
 
 ## 5. 显示框修复 (DocumentReview.tsx)
 
