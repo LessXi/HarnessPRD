@@ -328,7 +328,7 @@ git commit -m "feat: field_registry reads product_schema.json with fallback"
 - Modifies: `_build_form_data_model()` — 从 `get_schema()` 构建，而非 `get_all_fields()`
 - Produces: `FormData` — 字段类型、必填/选填、约束均从 Schema 派生
 
-- [ ] **Step 1: 重写 _build_form_data_model()**
+- [x] **Step 1: 重写 _build_form_data_model()**
 
 ```python
 """数据模型定义（无状态架构）"""
@@ -385,28 +385,28 @@ def _build_form_data_model():
 FormData = _build_form_data_model()
 ```
 
-- [ ] **Step 2: 验证 FormData 字段数 = 17**
+- [x] **Step 2: 验证 FormData 字段数 = 17**
 
 ```powershell
 python -c "from backend.core.state import FormData; print(len(FormData.model_fields))"
 ```
 Expected: `17`
 
-- [ ] **Step 3: 验证必填字段约束生效**
+- [x] **Step 3: 验证必填字段约束生效**
 
 ```powershell
 python -c "from backend.core.state import FormData; f=FormData(); print('FAIL: no error')" 2>&1
 ```
 Expected: ValidationError (缺少必填字段)
 
-- [ ] **Step 4: 验证合法数据通过**
+- [x] **Step 4: 验证合法数据通过**
 
 ```powershell
 python -c "from backend.core.state import FormData; f=FormData(product_name='X',one_liner='Y',problem_statement='Z',target_users='U',mvp_features=['a','b','c'],platform_type='web',needs_auth='yes',needs_database='yes',page_count='1-3'); print(f.product_name)"
 ```
 Expected: `X`
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/core/state.py
