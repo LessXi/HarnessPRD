@@ -1,5 +1,9 @@
-"""会话服务：仅保留表单校验和问题配置加载"""
+"""会话服务：仅保留表单校验和问题配置加载
 
+   _validate_form() 已废弃：API 层 Pydantic 校验已覆盖表单校验职责。
+"""
+
+import warnings
 from pathlib import Path
 import json
 
@@ -15,7 +19,17 @@ def _load_questions() -> list[dict]:
 
 
 def _validate_form(data: dict) -> None:
-    """根据 questions_config.json 校验表单数据"""
+    """根据 questions_config.json 校验表单数据
+
+    .. deprecated::
+        API 层 Pydantic 校验（FormData 模型 + FastAPI 422）已覆盖表单校验。
+        此函数保留用于向后兼容，新代码不应调用。
+    """
+    warnings.warn(
+        "_validate_form() is deprecated. Use Pydantic FormData validation instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     questions = _load_questions()
 
     for q in questions:
