@@ -2,25 +2,25 @@
 
 ## 1. Skill Engine 数据模型 (P0)
 
-- [ ] 1.1 创建 `backend/skill_engine/__init__.py` 模块入口
-- [ ] 1.2 创建 `backend/skill_engine/models.py` — Pydantic 数据模型（SkillSchema、StepSchema、SSEEvent 等）
-- [ ] 1.3 编写数据模型单元测试（合法/非法 skill 解析验证）
+- [x] 1.1 创建 `backend/skill_engine/__init__.py` 模块入口
+- [x] 1.2 创建 `backend/skill_engine/models.py` — Pydantic 数据模型（SkillSchema、StepSchema、SSEEvent 等）
+- [x] 1.3 编写数据模型单元测试（合法/非法 skill 解析验证）
 
 ## 2. Skill Parser (P0)
 
-- [ ] 2.1 创建 `backend/skill_engine/parser.py` — 解析 .md 文件，分离 YAML frontmatter 和 Markdown body
-- [ ] 2.2 实现 PyYAML 解析 + Pydantic 校验，非法 skill 抛出 SkillParseError
-- [ ] 2.3 实现 `{{ variable }}` 模板变量替换逻辑（支持嵌套路径如 `form_data.product_name`）
-- [ ] 2.4 编写 parser 单元测试（合法文件、缺字段、YAML 格式错误、模板替换）
+- [x] 2.1 创建 `backend/skill_engine/parser.py` — 解析 .md 文件，分离 YAML frontmatter 和 Markdown body
+- [x] 2.2 实现 PyYAML 解析 + Pydantic 校验，非法 skill 抛出 SkillParseError
+- [x] 2.3 实现 `{{ variable }}` 模板变量替换逻辑（支持嵌套路径如 `form_data.product_name`）
+- [x] 2.4 编写 parser 单元测试（合法文件、缺字段、YAML 格式错误、模板替换）
 
 ## 3. Skill Engine 执行器 (P0)
 
-- [ ] 3.1 创建 `backend/skill_engine/engine.py` — `SkillEngine` 类，`async execute(skill, context) -> AsyncGenerator[SSEEvent]`
-- [ ] 3.2 实现 `generate` 步骤：流式调用 `llm_service.stream_generate()` → yield chunk 事件
-- [ ] 3.3 实现 `review` 步骤：非流式调用 `llm_service._call_llm_once()` → 判断 pass_condition → yield review_result 事件
-- [ ] 3.4 实现 `rewrite` 步骤：流式调用（输入原文 + 审核意见） → yield chunk 事件
-- [ ] 3.5 实现 review→rewrite 循环控制（max_iterations 上限，通过则跳出）
-- [ ] 3.6 编写 engine 单元测试（mock LLM service，验证事件序列和循环逻辑）
+- [x] 3.1 创建 `backend/skill_engine/engine.py` — `SkillEngine` 类，`async execute(skill, context) -> AsyncGenerator[SSEEvent]`
+- [x] 3.2 实现 `generate` 步骤：流式调用 `llm_service.stream_generate()` → yield chunk 事件
+- [x] 3.3 实现 `review` 步骤：非流式调用 `llm_service._call_llm_once()` → 判断 pass_condition → yield review_result 事件
+- [x] 3.4 实现 `rewrite` 步骤：流式调用（输入原文 + 审核意见） → yield chunk 事件
+- [x] 3.5 实现 review→rewrite 循环控制（max_iterations 上限，通过则跳出）
+- [x] 3.6 编写 engine 单元测试（mock LLM service，验证事件序列和循环逻辑）
 
 ## 4. Skill Loader 热加载 (P0)
 
