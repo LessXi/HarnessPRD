@@ -4,8 +4,10 @@ import logging
 import os
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from loguru import logger
 
 from core.config import settings
@@ -102,6 +104,21 @@ app.add_middleware(
 # ---------- 请求链中间件（correlation → logging） ----------
 app.middleware("http")(correlation_middleware)
 app.middleware("http")(request_logging_middleware)
+
+# ---------- 异常处理器 ----------
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_failed_handler(request: Request, exc: RequestValidationError):
+    """记录请求体验证失败的详细信息。"""
+    logger.bind(event="validation_failed").warning(
+        "Validation failed: {errors}", errors=exc.errors()
+    )
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+    )
+
 
 # ---------- 挂载路由 ----------
 app.include_router(sessions_router)

@@ -26,6 +26,19 @@ client = TestClient(app)
 from skill_engine.models import SSEEvent
 
 
+VALID_FORM_DATA = {
+    "product_name": "TestApp",
+    "one_liner": "Test one-liner",
+    "problem_statement": "Test problem",
+    "target_users": "Test users",
+    "mvp_features": ["a", "b", "c"],
+    "platform_type": "web",
+    "needs_auth": "yes",
+    "needs_database": "yes",
+    "page_count": "1-3",
+}
+
+
 async def _fake_chat_stream(*args, **kwargs):
     """模拟对话流式返回 3 个字符串 chunk（conversation 端点使用）。"""
     for chunk in ["Hello", " World", "!"]:
@@ -117,7 +130,7 @@ class TestSummaryGenerate:
         """POST /api/summary/generate 返回 JSON"""
         resp = client.post("/api/summary/generate", json={
             "session_id": "test-001",
-            "form_data": {"product_name": "TestApp"},
+            "form_data": VALID_FORM_DATA,
             "history": [],
         })
         assert resp.status_code == 200
@@ -137,7 +150,7 @@ class TestDocuments:
         """POST /api/documents/prd/stream 返回 SSE 流"""
         resp = client.post("/api/documents/prd/stream", json={
             "session_id": "test-001",
-            "form_data": {"product_name": "TestApp"},
+            "form_data": VALID_FORM_DATA,
             "requirements_summary": "test summary",
         })
         assert resp.status_code == 200
@@ -147,7 +160,7 @@ class TestDocuments:
         """不支持的文档类型返回 400"""
         resp = client.post("/api/documents/invalid/stream", json={
             "session_id": "test-001",
-            "form_data": {},
+            "form_data": VALID_FORM_DATA,
             "requirements_summary": "test",
         })
         assert resp.status_code == 400
@@ -158,7 +171,7 @@ class TestDocuments:
         resp = client.post("/api/documents/prd/optimize", json={
             "session_id": "test-001",
             "content": "# Test",
-            "form_data": {"product_name": "TestApp"},
+            "form_data": VALID_FORM_DATA,
             "requirements_summary": "test",
         })
         assert resp.status_code == 200
