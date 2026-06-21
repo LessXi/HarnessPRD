@@ -162,18 +162,13 @@ __pycache__/
 # Playwright MCP
 .playwright-mcp/
 
-# Graphify output
-graphify-out/
 
 # Test screenshots
 *.png
 
-# open-mem: Auto-generated folder context files.
-# Uncomment to exclude from version control (recommended for large projects):
-# **/AGENTS.md
-
-# open-mem local memory database
-.open-mem/
 
 # Local MCP config
 config/
+
+# git worktrees
+.worktrees/
