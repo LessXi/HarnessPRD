@@ -6,9 +6,9 @@
 
 ## 2. loguru 日志核心 (P0)
 
-- [ ] 2.1 创建 `backend/core/logging_config.py`：配置 loguru 双 sink（终端彩色 `sys.stderr` + NDJSON 文件 `logs/app_{time:YYYY-MM-DD}.ndjson`，rotation 每日，retention 7 天），实现 `InterceptHandler` 桥接标准 logging
-- [ ] 2.2 在 `backend/main.py` 的 app 创建后调用 `setup_logging()`，替换 uvicorn 默认 logging，启动时输出初始化日志
-- [ ] 2.3 在 `backend/core/logging_config.py` 中实现 `get_logger(name)` 工厂函数，返回绑定了模块名的 loguru logger
+- [x] 2.1 创建 `backend/core/logging_config.py`：配置 loguru 双 sink（终端彩色 `sys.stderr` + NDJSON 文件 `logs/app_{time:YYYY-MM-DD}.ndjson`，rotation 每日，retention 7 天），实现 `InterceptHandler` 桥接标准 logging
+- [x] 2.2 在 `backend/main.py` 的 app 创建后调用 `setup_logging()`，替换 uvicorn 默认 logging，启动时输出初始化日志
+- [x] 2.3 在 `backend/core/logging_config.py` 中实现 `get_logger(name)` 工厂函数，返回绑定了模块名的 loguru logger
 
 ## 3. 请求中间件与错误分类 (P0)
 

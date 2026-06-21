@@ -1,18 +1,29 @@
 """HarnessPRD — FastAPI 应用入口"""
 
+import logging
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
 from api.sessions import router as sessions_router
 from api.conversation import router as conversation_router
 from api.documents import router as documents_router
 from core.config import settings
+from core.logging_config import InterceptHandler, setup_logging
 
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description="AI-driven conversational requirements workbench",
+)
+
+# ---------- 初始化 loguru 日志系统（替换默认 logging） ----------
+setup_logging()
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+logger.bind(event="startup").info(
+    "Logging initialized — level={level}", level=settings.log_level
 )
 
 # ---------- CORS（从 settings 读取） ----------

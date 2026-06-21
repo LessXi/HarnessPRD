@@ -4,14 +4,184 @@
   "graph": {},
   "nodes": [
     {
+      "label": "progress.md",
+      "file_type": "document",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "sdd_progress",
+      "community": 2,
+      "norm_label": "progress.md"
+    },
+    {
+      "label": "Subagent-Driven Development Progress Ledger",
+      "file_type": "document",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "sdd_progress_subagent_driven_development_progress_ledger",
+      "community": 2,
+      "norm_label": "subagent-driven development progress ledger"
+    },
+    {
+      "label": "Change: debug-observability",
+      "file_type": "document",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "sdd_progress_change_debug_observability",
+      "community": 2,
+      "norm_label": "change: debug-observability"
+    },
+    {
+      "label": "Mode: review_mode=standard, tdd_mode=tdd",
+      "file_type": "document",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "sdd_progress_mode_review_mode_standard_tdd_mode_tdd",
+      "community": 2,
+      "norm_label": "mode: review_mode=standard, tdd_mode=tdd"
+    },
+    {
+      "label": "subagent-progress.md",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/.comet/subagent-progress.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "comet_subagent_progress",
+      "community": 3,
+      "norm_label": "subagent-progress.md"
+    },
+    {
+      "label": "Comet Subagent Progress Checkpoint",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/.comet/subagent-progress.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "comet_subagent_progress_comet_subagent_progress_checkpoint",
+      "community": 3,
+      "norm_label": "comet subagent progress checkpoint"
+    },
+    {
+      "label": "Current Task",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/.comet/subagent-progress.md",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "comet_subagent_progress_current_task",
+      "community": 3,
+      "norm_label": "current task"
+    },
+    {
+      "label": "tasks.md",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "debug_observability_tasks",
+      "community": 1,
+      "norm_label": "tasks.md"
+    },
+    {
+      "label": "1. \u4f9d\u8d56\u4e0e\u914d\u7f6e (P0)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_1_\u4f9d\u8d56\u4e0e\u914d\u7f6e_p0",
+      "community": 1,
+      "norm_label": "1. \u4f9d\u8d56\u4e0e\u914d\u7f6e (p0)"
+    },
+    {
+      "label": "2. loguru \u65e5\u5fd7\u6838\u5fc3 (P0)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_2_loguru_\u65e5\u5fd7\u6838\u5fc3_p0",
+      "community": 1,
+      "norm_label": "2. loguru \u65e5\u5fd7\u6838\u5fc3 (p0)"
+    },
+    {
+      "label": "3. \u8bf7\u6c42\u4e2d\u95f4\u4ef6\u4e0e\u9519\u8bef\u5206\u7c7b (P0)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_3_\u8bf7\u6c42\u4e2d\u95f4\u4ef6\u4e0e\u9519\u8bef\u5206\u7c7b_p0",
+      "community": 1,
+      "norm_label": "3. \u8bf7\u6c42\u4e2d\u95f4\u4ef6\u4e0e\u9519\u8bef\u5206\u7c7b (p0)"
+    },
+    {
+      "label": "4. LangSmith \u96c6\u6210\u4e0e Prompt \u8ffd\u8e2a (P0)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_4_langsmith_\u96c6\u6210\u4e0e_prompt_\u8ffd\u8e2a_p0",
+      "community": 1,
+      "norm_label": "4. langsmith \u96c6\u6210\u4e0e prompt \u8ffd\u8e2a (p0)"
+    },
+    {
+      "label": "5. \u542f\u52a8\u914d\u7f6e\u6821\u9a8c (P1)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_5_\u542f\u52a8\u914d\u7f6e\u6821\u9a8c_p1",
+      "community": 1,
+      "norm_label": "5. \u542f\u52a8\u914d\u7f6e\u6821\u9a8c (p1)"
+    },
+    {
+      "label": "6. Debug API \u7aef\u70b9 (P1)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_6_debug_api_\u7aef\u70b9_p1",
+      "community": 1,
+      "norm_label": "6. debug api \u7aef\u70b9 (p1)"
+    },
+    {
+      "label": "7. \u524d\u7aef debugLogger \u5de5\u5177 (P1)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_7_\u524d\u7aef_debuglogger_\u5de5\u5177_p1",
+      "community": 1,
+      "norm_label": "7. \u524d\u7aef debuglogger \u5de5\u5177 (p1)"
+    },
+    {
+      "label": "8. \u524d\u7aef\u65e5\u5fd7\u96c6\u6210 (P1)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L44",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_8_\u524d\u7aef\u65e5\u5fd7\u96c6\u6210_p1",
+      "community": 1,
+      "norm_label": "8. \u524d\u7aef\u65e5\u5fd7\u96c6\u6210 (p1)"
+    },
+    {
+      "label": "9. E2E \u9a8c\u8bc1 (P2)",
+      "file_type": "document",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "debug_observability_tasks_9_e2e_\u9a8c\u8bc1_p2",
+      "community": 1,
+      "norm_label": "9. e2e \u9a8c\u8bc1 (p2)"
+    },
+    {
       "label": "error_classifier.py",
       "file_type": "code",
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "core_error_classifier",
       "community": 5,
-      "norm_label": "error_classifier.py"
+      "norm_label": "error_classifier.py",
+      "id": "core_error_classifier"
     },
     {
       "label": "ErrorCategory",
@@ -19,9 +189,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "core_error_classifier_errorcategory",
       "community": 5,
-      "norm_label": "errorcategory"
+      "norm_label": "errorcategory",
+      "id": "core_error_classifier_errorcategory"
     },
     {
       "label": "str",
@@ -29,9 +199,9 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "str",
       "community": 5,
-      "norm_label": "str"
+      "norm_label": "str",
+      "id": "str"
     },
     {
       "label": "classify_error()",
@@ -39,9 +209,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L23",
       "_origin": "ast",
-      "id": "core_error_classifier_classify_error",
       "community": 5,
-      "norm_label": "classify_error()"
+      "norm_label": "classify_error()",
+      "id": "core_error_classifier_classify_error"
     },
     {
       "label": "Exception",
@@ -49,9 +219,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L23",
       "_origin": "ast",
-      "id": "backend_core_error_classifier_py_exception",
       "community": 7,
-      "norm_label": "exception"
+      "norm_label": "exception",
+      "id": "backend_core_error_classifier_py_exception"
     },
     {
       "label": "_message_indicates_rate_limit()",
@@ -59,9 +229,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L67",
       "_origin": "ast",
-      "id": "core_error_classifier_message_indicates_rate_limit",
       "community": 5,
-      "norm_label": "_message_indicates_rate_limit()"
+      "norm_label": "_message_indicates_rate_limit()",
+      "id": "core_error_classifier_message_indicates_rate_limit"
     },
     {
       "label": "_message_indicates_timeout()",
@@ -69,9 +239,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L71",
       "_origin": "ast",
-      "id": "core_error_classifier_message_indicates_timeout",
       "community": 5,
-      "norm_label": "_message_indicates_timeout()"
+      "norm_label": "_message_indicates_timeout()",
+      "id": "core_error_classifier_message_indicates_timeout"
     },
     {
       "label": "_message_indicates_content_filter()",
@@ -79,9 +249,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L75",
       "_origin": "ast",
-      "id": "core_error_classifier_message_indicates_content_filter",
       "community": 5,
-      "norm_label": "_message_indicates_content_filter()"
+      "norm_label": "_message_indicates_content_filter()",
+      "id": "core_error_classifier_message_indicates_content_filter"
     },
     {
       "label": "_message_indicates_auth()",
@@ -89,9 +259,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L79",
       "_origin": "ast",
-      "id": "core_error_classifier_message_indicates_auth",
       "community": 5,
-      "norm_label": "_message_indicates_auth()"
+      "norm_label": "_message_indicates_auth()",
+      "id": "core_error_classifier_message_indicates_auth"
     },
     {
       "label": "\u9519\u8bef\u5206\u7c7b\u5668 \u2014\u2014 \u6839\u636e\u5f02\u5e38\u7c7b\u578b\u548c\u6d88\u606f\u5185\u5bb9\u8fd4\u56de\u7ed3\u6784\u5316\u5206\u7c7b\u3002",
@@ -99,9 +269,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "core_error_classifier_rationale_1",
       "community": 5,
-      "norm_label": "\u9519\u8bef\u5206\u7c7b\u5668 \u2014\u2014 \u6839\u636e\u5f02\u5e38\u7c7b\u578b\u548c\u6d88\u606f\u5185\u5bb9\u8fd4\u56de\u7ed3\u6784\u5316\u5206\u7c7b\u3002"
+      "norm_label": "\u9519\u8bef\u5206\u7c7b\u5668 \u2014\u2014 \u6839\u636e\u5f02\u5e38\u7c7b\u578b\u548c\u6d88\u606f\u5185\u5bb9\u8fd4\u56de\u7ed3\u6784\u5316\u5206\u7c7b\u3002",
+      "id": "core_error_classifier_rationale_1"
     },
     {
       "label": "\u6839\u636e\u5f02\u5e38\u7c7b\u578b\u548c\u6d88\u606f\u5185\u5bb9\u8fd4\u56de ErrorCategory\u3002      \u5339\u914d\u987a\u5e8f\uff1a     1. \u5f02\u5e38\u7c7b\u540d     2. \u5f02\u5e38\u6d88\u606f\u5173\u952e\u8bcd     3. httpx.",
@@ -109,9 +279,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L24",
       "_origin": "ast",
-      "id": "core_error_classifier_rationale_24",
       "community": 5,
-      "norm_label": "\u6839\u636e\u5f02\u5e38\u7c7b\u578b\u548c\u6d88\u606f\u5185\u5bb9\u8fd4\u56de errorcategory\u3002      \u5339\u914d\u987a\u5e8f:     1. \u5f02\u5e38\u7c7b\u540d     2. \u5f02\u5e38\u6d88\u606f\u5173\u952e\u8bcd     3. httpx."
+      "norm_label": "\u6839\u636e\u5f02\u5e38\u7c7b\u578b\u548c\u6d88\u606f\u5185\u5bb9\u8fd4\u56de errorcategory\u3002      \u5339\u914d\u987a\u5e8f:     1. \u5f02\u5e38\u7c7b\u540d     2. \u5f02\u5e38\u6d88\u606f\u5173\u952e\u8bcd     3. httpx.",
+      "id": "core_error_classifier_rationale_24"
     },
     {
       "label": "test_error_classifier.py",
@@ -119,9 +289,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "tests_test_error_classifier",
       "community": 7,
-      "norm_label": "test_error_classifier.py"
+      "norm_label": "test_error_classifier.py",
+      "id": "tests_test_error_classifier"
     },
     {
       "label": "RateLimitError",
@@ -129,9 +299,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_ratelimiterror",
       "community": 11,
-      "norm_label": "ratelimiterror"
+      "norm_label": "ratelimiterror",
+      "id": "tests_test_error_classifier_ratelimiterror"
     },
     {
       "label": "APITimeoutError",
@@ -139,9 +309,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L14",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_apitimeouterror",
       "community": 8,
-      "norm_label": "apitimeouterror"
+      "norm_label": "apitimeouterror",
+      "id": "tests_test_error_classifier_apitimeouterror"
     },
     {
       "label": "ContentFilterError",
@@ -149,9 +319,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L19",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_contentfiltererror",
       "community": 10,
-      "norm_label": "contentfiltererror"
+      "norm_label": "contentfiltererror",
+      "id": "tests_test_error_classifier_contentfiltererror"
     },
     {
       "label": "AuthenticationError",
@@ -159,9 +329,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L24",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_authenticationerror",
       "community": 9,
-      "norm_label": "authenticationerror"
+      "norm_label": "authenticationerror",
+      "id": "tests_test_error_classifier_authenticationerror"
     },
     {
       "label": "mock_response()",
@@ -169,9 +339,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L29",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_mock_response",
       "community": 6,
-      "norm_label": "mock_response()"
+      "norm_label": "mock_response()",
+      "id": "tests_test_error_classifier_mock_response"
     },
     {
       "label": "Response",
@@ -179,9 +349,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L29",
       "_origin": "ast",
-      "id": "response",
       "community": 6,
-      "norm_label": "response"
+      "norm_label": "response",
+      "id": "response"
     },
     {
       "label": "test_classify_by_class_name_rate_limit()",
@@ -189,9 +359,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L36",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_class_name_rate_limit",
       "community": 11,
-      "norm_label": "test_classify_by_class_name_rate_limit()"
+      "norm_label": "test_classify_by_class_name_rate_limit()",
+      "id": "tests_test_error_classifier_test_classify_by_class_name_rate_limit"
     },
     {
       "label": "test_classify_by_class_name_timeout()",
@@ -199,9 +369,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L42",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_class_name_timeout",
       "community": 8,
-      "norm_label": "test_classify_by_class_name_timeout()"
+      "norm_label": "test_classify_by_class_name_timeout()",
+      "id": "tests_test_error_classifier_test_classify_by_class_name_timeout"
     },
     {
       "label": "test_classify_by_class_name_content_filter()",
@@ -209,9 +379,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L48",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_class_name_content_filter",
       "community": 10,
-      "norm_label": "test_classify_by_class_name_content_filter()"
+      "norm_label": "test_classify_by_class_name_content_filter()",
+      "id": "tests_test_error_classifier_test_classify_by_class_name_content_filter"
     },
     {
       "label": "test_classify_by_class_name_auth()",
@@ -219,9 +389,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L54",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_class_name_auth",
       "community": 9,
-      "norm_label": "test_classify_by_class_name_auth()"
+      "norm_label": "test_classify_by_class_name_auth()",
+      "id": "tests_test_error_classifier_test_classify_by_class_name_auth"
     },
     {
       "label": "test_classify_by_message_rate()",
@@ -229,9 +399,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L62",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_rate",
-      "community": 12,
-      "norm_label": "test_classify_by_message_rate()"
+      "community": 7,
+      "norm_label": "test_classify_by_message_rate()",
+      "id": "tests_test_error_classifier_test_classify_by_message_rate"
     },
     {
       "label": "test_classify_by_message_429()",
@@ -239,9 +409,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L68",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_429",
-      "community": 13,
-      "norm_label": "test_classify_by_message_429()"
+      "community": 7,
+      "norm_label": "test_classify_by_message_429()",
+      "id": "tests_test_error_classifier_test_classify_by_message_429"
     },
     {
       "label": "test_classify_by_message_timeout()",
@@ -249,9 +419,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L74",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_timeout",
-      "community": 14,
-      "norm_label": "test_classify_by_message_timeout()"
+      "community": 7,
+      "norm_label": "test_classify_by_message_timeout()",
+      "id": "tests_test_error_classifier_test_classify_by_message_timeout"
     },
     {
       "label": "test_classify_by_message_timed_out()",
@@ -259,9 +429,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L80",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_timed_out",
-      "community": 15,
-      "norm_label": "test_classify_by_message_timed_out()"
+      "community": 7,
+      "norm_label": "test_classify_by_message_timed_out()",
+      "id": "tests_test_error_classifier_test_classify_by_message_timed_out"
     },
     {
       "label": "test_classify_by_message_content_filter()",
@@ -269,9 +439,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L86",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_content_filter",
-      "community": 16,
-      "norm_label": "test_classify_by_message_content_filter()"
+      "community": 7,
+      "norm_label": "test_classify_by_message_content_filter()",
+      "id": "tests_test_error_classifier_test_classify_by_message_content_filter"
     },
     {
       "label": "test_classify_by_message_auth()",
@@ -279,9 +449,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L92",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_auth",
-      "community": 17,
-      "norm_label": "test_classify_by_message_auth()"
+      "community": 7,
+      "norm_label": "test_classify_by_message_auth()",
+      "id": "tests_test_error_classifier_test_classify_by_message_auth"
     },
     {
       "label": "test_classify_by_message_401()",
@@ -289,9 +459,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L98",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_401",
       "community": 7,
-      "norm_label": "test_classify_by_message_401()"
+      "norm_label": "test_classify_by_message_401()",
+      "id": "tests_test_error_classifier_test_classify_by_message_401"
     },
     {
       "label": "test_classify_by_message_403()",
@@ -299,9 +469,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L104",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_403",
       "community": 7,
-      "norm_label": "test_classify_by_message_403()"
+      "norm_label": "test_classify_by_message_403()",
+      "id": "tests_test_error_classifier_test_classify_by_message_403"
     },
     {
       "label": "test_classify_by_message_key()",
@@ -309,9 +479,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L110",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_by_message_key",
       "community": 7,
-      "norm_label": "test_classify_by_message_key()"
+      "norm_label": "test_classify_by_message_key()",
+      "id": "tests_test_error_classifier_test_classify_by_message_key"
     },
     {
       "label": "test_classify_http_4xx()",
@@ -319,9 +489,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L118",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_http_4xx",
       "community": 6,
-      "norm_label": "test_classify_http_4xx()"
+      "norm_label": "test_classify_http_4xx()",
+      "id": "tests_test_error_classifier_test_classify_http_4xx"
     },
     {
       "label": "test_classify_http_5xx()",
@@ -329,9 +499,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L126",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_http_5xx",
       "community": 6,
-      "norm_label": "test_classify_http_5xx()"
+      "norm_label": "test_classify_http_5xx()",
+      "id": "tests_test_error_classifier_test_classify_http_5xx"
     },
     {
       "label": "test_httpx_429_matches_rate_limit()",
@@ -339,9 +509,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L134",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_httpx_429_matches_rate_limit",
       "community": 6,
-      "norm_label": "test_httpx_429_matches_rate_limit()"
+      "norm_label": "test_httpx_429_matches_rate_limit()",
+      "id": "tests_test_error_classifier_test_httpx_429_matches_rate_limit"
     },
     {
       "label": "test_classify_unknown()",
@@ -349,9 +519,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L142",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_unknown",
       "community": 7,
-      "norm_label": "test_classify_unknown()"
+      "norm_label": "test_classify_unknown()",
+      "id": "tests_test_error_classifier_test_classify_unknown"
     },
     {
       "label": "test_classify_empty_message()",
@@ -359,9 +529,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L150",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_test_classify_empty_message",
       "community": 7,
-      "norm_label": "test_classify_empty_message()"
+      "norm_label": "test_classify_empty_message()",
+      "id": "tests_test_error_classifier_test_classify_empty_message"
     },
     {
       "label": "\u6d4b\u8bd5 error_classifier \u6a21\u5757",
@@ -369,9 +539,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_1",
       "community": 7,
-      "norm_label": "\u6d4b\u8bd5 error_classifier \u6a21\u5757"
+      "norm_label": "\u6d4b\u8bd5 error_classifier \u6a21\u5757",
+      "id": "tests_test_error_classifier_rationale_1"
     },
     {
       "label": "\u6a21\u4eff LangChain/OpenAI \u7684 RateLimitError",
@@ -379,9 +549,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L10",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_10",
       "community": 11,
-      "norm_label": "\u6a21\u4eff langchain/openai \u7684 ratelimiterror"
+      "norm_label": "\u6a21\u4eff langchain/openai \u7684 ratelimiterror",
+      "id": "tests_test_error_classifier_rationale_10"
     },
     {
       "label": "\u6a21\u4eff LangChain/OpenAI \u7684 APITimeoutError",
@@ -389,9 +559,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L15",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_15",
       "community": 8,
-      "norm_label": "\u6a21\u4eff langchain/openai \u7684 apitimeouterror"
+      "norm_label": "\u6a21\u4eff langchain/openai \u7684 apitimeouterror",
+      "id": "tests_test_error_classifier_rationale_15"
     },
     {
       "label": "\u6a21\u4eff LangChain/OpenAI \u7684 ContentFilterError",
@@ -399,9 +569,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L20",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_20",
       "community": 10,
-      "norm_label": "\u6a21\u4eff langchain/openai \u7684 contentfiltererror"
+      "norm_label": "\u6a21\u4eff langchain/openai \u7684 contentfiltererror",
+      "id": "tests_test_error_classifier_rationale_20"
     },
     {
       "label": "\u6a21\u4eff LangChain/OpenAI \u7684 AuthenticationError",
@@ -409,9 +579,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L25",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_25",
       "community": 9,
-      "norm_label": "\u6a21\u4eff langchain/openai \u7684 authenticationerror"
+      "norm_label": "\u6a21\u4eff langchain/openai \u7684 authenticationerror",
+      "id": "tests_test_error_classifier_rationale_25"
     },
     {
       "label": "\u521b\u5efa mock httpx.Response",
@@ -419,9 +589,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L30",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_30",
       "community": 6,
-      "norm_label": "\u521b\u5efa mock httpx.response"
+      "norm_label": "\u521b\u5efa mock httpx.response",
+      "id": "tests_test_error_classifier_rationale_30"
     },
     {
       "label": "\u7c7b\u540d RateLimitError \u2192 LLM_RATE_LIMIT",
@@ -429,9 +599,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L37",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_37",
       "community": 11,
-      "norm_label": "\u7c7b\u540d ratelimiterror \u2192 llm_rate_limit"
+      "norm_label": "\u7c7b\u540d ratelimiterror \u2192 llm_rate_limit",
+      "id": "tests_test_error_classifier_rationale_37"
     },
     {
       "label": "\u7c7b\u540d APITimeoutError \u2192 LLM_TIMEOUT",
@@ -439,9 +609,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L43",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_43",
       "community": 8,
-      "norm_label": "\u7c7b\u540d apitimeouterror \u2192 llm_timeout"
+      "norm_label": "\u7c7b\u540d apitimeouterror \u2192 llm_timeout",
+      "id": "tests_test_error_classifier_rationale_43"
     },
     {
       "label": "\u7c7b\u540d ContentFilterError \u2192 LLM_CONTENT_FILTER",
@@ -449,9 +619,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L49",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_49",
       "community": 10,
-      "norm_label": "\u7c7b\u540d contentfiltererror \u2192 llm_content_filter"
+      "norm_label": "\u7c7b\u540d contentfiltererror \u2192 llm_content_filter",
+      "id": "tests_test_error_classifier_rationale_49"
     },
     {
       "label": "\u7c7b\u540d AuthenticationError \u2192 LLM_AUTH",
@@ -459,9 +629,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L55",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_55",
       "community": 9,
-      "norm_label": "\u7c7b\u540d authenticationerror \u2192 llm_auth"
+      "norm_label": "\u7c7b\u540d authenticationerror \u2192 llm_auth",
+      "id": "tests_test_error_classifier_rationale_55"
     },
     {
       "label": "\u6d88\u606f\u542b 'rate' \u2192 LLM_RATE_LIMIT",
@@ -469,9 +639,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L63",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_63",
-      "community": 12,
-      "norm_label": "\u6d88\u606f\u542b 'rate' \u2192 llm_rate_limit"
+      "community": 7,
+      "norm_label": "\u6d88\u606f\u542b 'rate' \u2192 llm_rate_limit",
+      "id": "tests_test_error_classifier_rationale_63"
     },
     {
       "label": "\u6d88\u606f\u542b '429' \u2192 LLM_RATE_LIMIT",
@@ -479,9 +649,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L69",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_69",
-      "community": 13,
-      "norm_label": "\u6d88\u606f\u542b '429' \u2192 llm_rate_limit"
+      "community": 7,
+      "norm_label": "\u6d88\u606f\u542b '429' \u2192 llm_rate_limit",
+      "id": "tests_test_error_classifier_rationale_69"
     },
     {
       "label": "\u6d88\u606f\u542b 'timeout' \u2192 LLM_TIMEOUT",
@@ -489,9 +659,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L75",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_75",
-      "community": 14,
-      "norm_label": "\u6d88\u606f\u542b 'timeout' \u2192 llm_timeout"
+      "community": 7,
+      "norm_label": "\u6d88\u606f\u542b 'timeout' \u2192 llm_timeout",
+      "id": "tests_test_error_classifier_rationale_75"
     },
     {
       "label": "\u6d88\u606f\u542b 'timed out' \u2192 LLM_TIMEOUT",
@@ -499,9 +669,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L81",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_81",
-      "community": 15,
-      "norm_label": "\u6d88\u606f\u542b 'timed out' \u2192 llm_timeout"
+      "community": 7,
+      "norm_label": "\u6d88\u606f\u542b 'timed out' \u2192 llm_timeout",
+      "id": "tests_test_error_classifier_rationale_81"
     },
     {
       "label": "\u6d88\u606f\u540c\u65f6\u542b 'content' \u548c 'filter' \u2192 LLM_CONTENT_FILTER",
@@ -509,9 +679,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L87",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_87",
-      "community": 16,
-      "norm_label": "\u6d88\u606f\u540c\u65f6\u542b 'content' \u548c 'filter' \u2192 llm_content_filter"
+      "community": 7,
+      "norm_label": "\u6d88\u606f\u540c\u65f6\u542b 'content' \u548c 'filter' \u2192 llm_content_filter",
+      "id": "tests_test_error_classifier_rationale_87"
     },
     {
       "label": "\u6d88\u606f\u542b 'auth' \u2192 LLM_AUTH",
@@ -519,9 +689,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L93",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_93",
-      "community": 17,
-      "norm_label": "\u6d88\u606f\u542b 'auth' \u2192 llm_auth"
+      "community": 7,
+      "norm_label": "\u6d88\u606f\u542b 'auth' \u2192 llm_auth",
+      "id": "tests_test_error_classifier_rationale_93"
     },
     {
       "label": "HTTPStatusError 4xx \u2192 HTTP_CLIENT_ERROR",
@@ -529,9 +699,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L119",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_119",
       "community": 6,
-      "norm_label": "httpstatuserror 4xx \u2192 http_client_error"
+      "norm_label": "httpstatuserror 4xx \u2192 http_client_error",
+      "id": "tests_test_error_classifier_rationale_119"
     },
     {
       "label": "HTTPStatusError 5xx \u2192 HTTP_SERVER_ERROR",
@@ -539,9 +709,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L127",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_127",
       "community": 6,
-      "norm_label": "httpstatuserror 5xx \u2192 http_server_error"
+      "norm_label": "httpstatuserror 5xx \u2192 http_server_error",
+      "id": "tests_test_error_classifier_rationale_127"
     },
     {
       "label": "HTTPStatusError 4xx \u4f46\u6d88\u606f\u542b 'rate' \u2192 LLM_RATE_LIMIT (\u6d88\u606f\u4f18\u5148)",
@@ -549,9 +719,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L135",
       "_origin": "ast",
-      "id": "tests_test_error_classifier_rationale_135",
       "community": 6,
-      "norm_label": "httpstatuserror 4xx \u4f46\u6d88\u606f\u542b 'rate' \u2192 llm_rate_limit (\u6d88\u606f\u4f18\u5148)"
+      "norm_label": "httpstatuserror 4xx \u4f46\u6d88\u606f\u542b 'rate' \u2192 llm_rate_limit (\u6d88\u606f\u4f18\u5148)",
+      "id": "tests_test_error_classifier_rationale_135"
     },
     {
       "label": "config.py",
@@ -559,7 +729,7 @@
       "source_file": "backend/core/config.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 0,
       "norm_label": "config.py",
       "id": "core_config"
     },
@@ -639,7 +809,7 @@
       "source_file": "backend/core/config.py",
       "source_location": "L116",
       "_origin": "ast",
-      "community": 4,
+      "community": 0,
       "norm_label": ".check_llm_config()",
       "id": "core_config_settings_check_llm_config"
     },
@@ -649,7 +819,7 @@
       "source_file": "backend/core/config.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 0,
       "norm_label": "\u5e94\u7528\u914d\u7f6e,\u57fa\u4e8e pydantic-settings \u4ece .env \u8bfb\u53d6\u3002  \u5de5\u4f5c\u65b9\u5f0f: 1. \u81ea\u52a8\u4ece backend/.env \u8bfb\u53d6\u73af\u5883\u53d8\u91cf(\u5982\u679c\u8be5\u6587\u4ef6\u5b58",
       "id": "core_config_rationale_1"
     },
@@ -669,7 +839,7 @@
       "source_file": "backend/core/config.py",
       "source_location": "L117",
       "_origin": "ast",
-      "community": 4,
+      "community": 0,
       "norm_label": "\u6821\u9a8c\u6240\u9009 provider \u7684 api key \u662f\u5426\u5df2\u914d\u7f6e\u3002\u7f3a\u5931\u65f6\u53ea\u7ed9 warning,\u4e0d\u963b\u585e\u542f\u52a8",
       "id": "core_config_rationale_117"
     },
@@ -679,7 +849,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 0,
       "norm_label": "test_config.py",
       "id": "tests_test_config"
     },
@@ -689,7 +859,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L12",
       "_origin": "ast",
-      "community": 3,
+      "community": 0,
       "norm_label": "testloglevel",
       "id": "tests_test_config_testloglevel"
     },
@@ -699,7 +869,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L15",
       "_origin": "ast",
-      "community": 3,
+      "community": 0,
       "norm_label": ".test_log_level_valid()",
       "id": "tests_test_config_testloglevel_test_log_level_valid"
     },
@@ -709,7 +879,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 3,
+      "community": 0,
       "norm_label": ".test_log_level_invalid()",
       "id": "tests_test_config_testloglevel_test_log_level_invalid"
     },
@@ -719,7 +889,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L41",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "norm_label": "testlangsmithtracing",
       "id": "tests_test_config_testlangsmithtracing"
     },
@@ -729,7 +899,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L44",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "norm_label": ".test_tracing_without_key_warning()",
       "id": "tests_test_config_testlangsmithtracing_test_tracing_without_key_warning"
     },
@@ -739,7 +909,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L57",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "norm_label": ".test_tracing_with_key()",
       "id": "tests_test_config_testlangsmithtracing_test_tracing_with_key"
     },
@@ -749,7 +919,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 2,
+      "community": 0,
       "norm_label": "\u6d4b\u8bd5 core.config \u7684\u53ef\u89c2\u6d4b\u6027\u5b57\u6bb5\u9a8c\u8bc1\u3002",
       "id": "tests_test_config_rationale_1"
     },
@@ -759,7 +929,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L16",
       "_origin": "ast",
-      "community": 3,
+      "community": 0,
       "norm_label": "\u9a8c\u8bc1\u5408\u6cd5\u503c:info\u2192info, debug\u2192debug",
       "id": "tests_test_config_rationale_16"
     },
@@ -769,7 +939,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L45",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "norm_label": "tracing=true + api_key=\"\" \u2192 \u8f93\u51fa warning",
       "id": "tests_test_config_rationale_45"
     },
@@ -779,7 +949,7 @@
       "source_file": "backend/tests/test_config.py",
       "source_location": "L58",
       "_origin": "ast",
-      "community": 1,
+      "community": 0,
       "norm_label": "tracing=true + api_key=\"sk-xxx\" \u2192 \u65e0 warning",
       "id": "tests_test_config_rationale_58"
     }
@@ -788,12 +958,152 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "sdd_progress",
+      "target": "sdd_progress_subagent_driven_development_progress_ledger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "sdd_progress_subagent_driven_development_progress_ledger",
+      "target": "sdd_progress_change_debug_observability",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".superpowers/sdd/progress.md",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "sdd_progress_subagent_driven_development_progress_ledger",
+      "target": "sdd_progress_mode_review_mode_standard_tdd_mode_tdd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/.comet/subagent-progress.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "comet_subagent_progress",
+      "target": "comet_subagent_progress_comet_subagent_progress_checkpoint",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/.comet/subagent-progress.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "comet_subagent_progress_comet_subagent_progress_checkpoint",
+      "target": "comet_subagent_progress_current_task",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_1_\u4f9d\u8d56\u4e0e\u914d\u7f6e_p0",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_2_loguru_\u65e5\u5fd7\u6838\u5fc3_p0",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_3_\u8bf7\u6c42\u4e2d\u95f4\u4ef6\u4e0e\u9519\u8bef\u5206\u7c7b_p0",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_4_langsmith_\u96c6\u6210\u4e0e_prompt_\u8ffd\u8e2a_p0",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_5_\u542f\u52a8\u914d\u7f6e\u6821\u9a8c_p1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_6_debug_api_\u7aef\u70b9_p1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_7_\u524d\u7aef_debuglogger_\u5de5\u5177_p1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_8_\u524d\u7aef\u65e5\u5fd7\u96c6\u6210_p1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "openspec/changes/debug-observability/tasks.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "debug_observability_tasks",
+      "target": "debug_observability_tasks_9_e2e_\u9a8c\u8bc1_p2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier",
-      "target": "core_error_classifier_classify_error",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_classify_error"
     },
     {
       "relation": "contains",
@@ -801,9 +1111,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "contains",
@@ -811,9 +1121,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier",
-      "target": "core_error_classifier_message_indicates_auth",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_auth"
     },
     {
       "relation": "contains",
@@ -821,9 +1131,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier",
-      "target": "core_error_classifier_message_indicates_content_filter",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_content_filter"
     },
     {
       "relation": "contains",
@@ -831,9 +1141,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier",
-      "target": "core_error_classifier_message_indicates_rate_limit",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_rate_limit"
     },
     {
       "relation": "contains",
@@ -841,9 +1151,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier",
-      "target": "core_error_classifier_message_indicates_timeout",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_timeout"
     },
     {
       "relation": "rationale_for",
@@ -851,9 +1161,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_rationale_1",
-      "target": "core_error_classifier",
-      "confidence_score": 1.0
+      "target": "core_error_classifier"
     },
     {
       "relation": "imports_from",
@@ -862,9 +1172,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "core_error_classifier",
-      "confidence_score": 1.0
+      "target": "core_error_classifier"
     },
     {
       "relation": "references",
@@ -873,9 +1183,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_classify_error",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "inherits",
@@ -883,9 +1193,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_errorcategory",
-      "target": "str",
-      "confidence_score": 1.0
+      "target": "str"
     },
     {
       "relation": "uses",
@@ -893,9 +1203,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "response",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 0.5
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "uses",
@@ -903,9 +1213,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_error_classifier_apitimeouterror",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 0.5
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "uses",
@@ -913,9 +1223,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_error_classifier_authenticationerror",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 0.5
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "uses",
@@ -923,9 +1233,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_error_classifier_contentfiltererror",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 0.5
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "uses",
@@ -933,9 +1243,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_error_classifier_ratelimiterror",
-      "target": "core_error_classifier_errorcategory",
-      "confidence_score": 0.5
+      "target": "core_error_classifier_errorcategory"
     },
     {
       "relation": "references",
@@ -944,9 +1254,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_classify_error",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -955,9 +1265,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_classify_error",
-      "target": "core_error_classifier_message_indicates_auth",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_auth"
     },
     {
       "relation": "calls",
@@ -966,9 +1276,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_classify_error",
-      "target": "core_error_classifier_message_indicates_content_filter",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_content_filter"
     },
     {
       "relation": "calls",
@@ -977,9 +1287,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_classify_error",
-      "target": "core_error_classifier_message_indicates_rate_limit",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_rate_limit"
     },
     {
       "relation": "calls",
@@ -988,9 +1298,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_classify_error",
-      "target": "core_error_classifier_message_indicates_timeout",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_message_indicates_timeout"
     },
     {
       "relation": "rationale_for",
@@ -998,9 +1308,9 @@
       "source_file": "backend/core/error_classifier.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_error_classifier_rationale_24",
-      "target": "core_error_classifier_classify_error",
-      "confidence_score": 1.0
+      "target": "core_error_classifier_classify_error"
     },
     {
       "relation": "calls",
@@ -1206,9 +1516,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_apitimeouterror",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "inherits",
@@ -1216,9 +1526,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_authenticationerror",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "inherits",
@@ -1226,9 +1536,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_contentfiltererror",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "inherits",
@@ -1236,9 +1546,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_ratelimiterror",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1247,9 +1557,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_401",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1258,9 +1568,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_403",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1269,9 +1579,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_429",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1280,9 +1590,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_auth",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1291,9 +1601,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_content_filter",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1302,9 +1612,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_key",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1313,9 +1623,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_rate",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1324,9 +1634,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L82",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_timed_out",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1335,9 +1645,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_message_timeout",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1346,9 +1656,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_empty_message",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "calls",
@@ -1357,9 +1667,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_unknown",
-      "target": "backend_core_error_classifier_py_exception",
-      "confidence_score": 1.0
+      "target": "backend_core_error_classifier_py_exception"
     },
     {
       "relation": "contains",
@@ -1367,9 +1677,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_apitimeouterror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_apitimeouterror"
     },
     {
       "relation": "contains",
@@ -1377,9 +1687,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_authenticationerror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_authenticationerror"
     },
     {
       "relation": "contains",
@@ -1387,9 +1697,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_contentfiltererror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_contentfiltererror"
     },
     {
       "relation": "contains",
@@ -1397,9 +1707,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_mock_response",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_mock_response"
     },
     {
       "relation": "contains",
@@ -1407,9 +1717,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_ratelimiterror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_ratelimiterror"
     },
     {
       "relation": "contains",
@@ -1417,9 +1727,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_auth"
     },
     {
       "relation": "contains",
@@ -1427,9 +1737,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_content_filter",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_content_filter"
     },
     {
       "relation": "contains",
@@ -1437,9 +1747,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_rate_limit",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_rate_limit"
     },
     {
       "relation": "contains",
@@ -1447,9 +1757,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_timeout",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_timeout"
     },
     {
       "relation": "contains",
@@ -1457,9 +1767,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_401",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_401"
     },
     {
       "relation": "contains",
@@ -1467,9 +1777,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_403",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_403"
     },
     {
       "relation": "contains",
@@ -1477,9 +1787,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_429",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_429"
     },
     {
       "relation": "contains",
@@ -1487,9 +1797,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_auth"
     },
     {
       "relation": "contains",
@@ -1497,9 +1807,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_content_filter",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_content_filter"
     },
     {
       "relation": "contains",
@@ -1507,9 +1817,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_key",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_key"
     },
     {
       "relation": "contains",
@@ -1517,9 +1827,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_rate",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_rate"
     },
     {
       "relation": "contains",
@@ -1527,9 +1837,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_timed_out",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_timed_out"
     },
     {
       "relation": "contains",
@@ -1537,9 +1847,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_by_message_timeout",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_timeout"
     },
     {
       "relation": "contains",
@@ -1547,9 +1857,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_empty_message",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_empty_message"
     },
     {
       "relation": "contains",
@@ -1557,9 +1867,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_http_4xx",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_http_4xx"
     },
     {
       "relation": "contains",
@@ -1567,9 +1877,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_http_5xx",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_http_5xx"
     },
     {
       "relation": "contains",
@@ -1577,9 +1887,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_classify_unknown",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_unknown"
     },
     {
       "relation": "contains",
@@ -1587,9 +1897,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier",
-      "target": "tests_test_error_classifier_test_httpx_429_matches_rate_limit",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_httpx_429_matches_rate_limit"
     },
     {
       "relation": "rationale_for",
@@ -1597,9 +1907,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_1",
-      "target": "tests_test_error_classifier",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier"
     },
     {
       "relation": "rationale_for",
@@ -1607,9 +1917,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_10",
-      "target": "tests_test_error_classifier_ratelimiterror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_ratelimiterror"
     },
     {
       "relation": "calls",
@@ -1618,9 +1928,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_class_name_rate_limit",
-      "target": "tests_test_error_classifier_ratelimiterror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_ratelimiterror"
     },
     {
       "relation": "rationale_for",
@@ -1628,9 +1938,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_15",
-      "target": "tests_test_error_classifier_apitimeouterror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_apitimeouterror"
     },
     {
       "relation": "calls",
@@ -1639,9 +1949,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_class_name_timeout",
-      "target": "tests_test_error_classifier_apitimeouterror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_apitimeouterror"
     },
     {
       "relation": "rationale_for",
@@ -1649,9 +1959,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_20",
-      "target": "tests_test_error_classifier_contentfiltererror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_contentfiltererror"
     },
     {
       "relation": "calls",
@@ -1660,9 +1970,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_class_name_content_filter",
-      "target": "tests_test_error_classifier_contentfiltererror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_contentfiltererror"
     },
     {
       "relation": "rationale_for",
@@ -1670,9 +1980,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_25",
-      "target": "tests_test_error_classifier_authenticationerror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_authenticationerror"
     },
     {
       "relation": "calls",
@@ -1681,9 +1991,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_by_class_name_auth",
-      "target": "tests_test_error_classifier_authenticationerror",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_authenticationerror"
     },
     {
       "relation": "references",
@@ -1692,9 +2002,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_mock_response",
-      "target": "response",
-      "confidence_score": 1.0
+      "target": "response"
     },
     {
       "relation": "rationale_for",
@@ -1702,9 +2012,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_30",
-      "target": "tests_test_error_classifier_mock_response",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_mock_response"
     },
     {
       "relation": "calls",
@@ -1713,9 +2023,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_http_4xx",
-      "target": "tests_test_error_classifier_mock_response",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_mock_response"
     },
     {
       "relation": "calls",
@@ -1724,9 +2034,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_classify_http_5xx",
-      "target": "tests_test_error_classifier_mock_response",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_mock_response"
     },
     {
       "relation": "calls",
@@ -1735,9 +2045,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_test_httpx_429_matches_rate_limit",
-      "target": "tests_test_error_classifier_mock_response",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_mock_response"
     },
     {
       "relation": "rationale_for",
@@ -1745,9 +2055,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_37",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_rate_limit",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_rate_limit"
     },
     {
       "relation": "rationale_for",
@@ -1755,9 +2065,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_43",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_timeout",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_timeout"
     },
     {
       "relation": "rationale_for",
@@ -1765,9 +2075,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_49",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_content_filter",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_content_filter"
     },
     {
       "relation": "rationale_for",
@@ -1775,9 +2085,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_55",
-      "target": "tests_test_error_classifier_test_classify_by_class_name_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_class_name_auth"
     },
     {
       "relation": "rationale_for",
@@ -1785,9 +2095,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_63",
-      "target": "tests_test_error_classifier_test_classify_by_message_rate",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_rate"
     },
     {
       "relation": "rationale_for",
@@ -1795,9 +2105,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_69",
-      "target": "tests_test_error_classifier_test_classify_by_message_429",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_429"
     },
     {
       "relation": "rationale_for",
@@ -1805,9 +2115,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_75",
-      "target": "tests_test_error_classifier_test_classify_by_message_timeout",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_timeout"
     },
     {
       "relation": "rationale_for",
@@ -1815,9 +2125,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_81",
-      "target": "tests_test_error_classifier_test_classify_by_message_timed_out",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_timed_out"
     },
     {
       "relation": "rationale_for",
@@ -1825,9 +2135,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_87",
-      "target": "tests_test_error_classifier_test_classify_by_message_content_filter",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_content_filter"
     },
     {
       "relation": "rationale_for",
@@ -1835,9 +2145,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L93",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_93",
-      "target": "tests_test_error_classifier_test_classify_by_message_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_by_message_auth"
     },
     {
       "relation": "rationale_for",
@@ -1845,9 +2155,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_119",
-      "target": "tests_test_error_classifier_test_classify_http_4xx",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_http_4xx"
     },
     {
       "relation": "rationale_for",
@@ -1855,9 +2165,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_127",
-      "target": "tests_test_error_classifier_test_classify_http_5xx",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_classify_http_5xx"
     },
     {
       "relation": "rationale_for",
@@ -1865,9 +2175,9 @@
       "source_file": "backend/tests/test_error_classifier.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_error_classifier_rationale_135",
-      "target": "tests_test_error_classifier_test_httpx_429_matches_rate_limit",
-      "confidence_score": 1.0
+      "target": "tests_test_error_classifier_test_httpx_429_matches_rate_limit"
     },
     {
       "relation": "contains",
@@ -2156,5 +2466,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "59fb58d16689c0ddf8ed1a96590d1c6a7caf2d2f"
+  "built_at_commit": "f344e16a2d24f37cd1b37407df2f943d625bbb32"
 }
