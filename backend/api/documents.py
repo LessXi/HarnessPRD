@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from api.schemas import DocumentRequest, OptimizeRequest, DownloadRequest
-from api.sse_utils import SSE_HEADERS
+from api.sse_utils import SSE_HEADERS, serialize_sse_event
 from services.document_service import generate_document_stream, optimize_document_stream
 
 logger = logging.getLogger(__name__)
@@ -19,19 +19,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
 DOC_TYPES = {"prd", "api", "prompts"}
-
-
-def _serialize_sse(event) -> str:
-    """将 SSEEvent 序列化为 SSE data 行（与前端 readStream 兼容）。"""
-    if event.event == "chunk":
-        return f"data: {json.dumps({'event': 'chunk', 'content': event.content})}\n\n"
-    elif event.event == "review_result":
-        return f"data: {json.dumps({'event': 'review_result', 'passed': event.passed, 'issues': event.issues})}\n\n"
-    elif event.event == "done":
-        return f"data: {json.dumps({'event': 'done', 'content': event.content})}\n\n"
-    elif event.event == "error":
-        return f"data: {json.dumps({'event': 'error', 'content': event.content})}\n\n"
-    return f"data: {json.dumps({'event': event.event, 'content': event.content})}\n\n"
 
 
 @router.post("/{doc_type}/stream")
@@ -54,7 +41,7 @@ async def stream_document(request: Request, doc_type: str, data: DocumentRequest
                 api_content=data.api_content,
                 session_id=session_id,
             ):
-                yield _serialize_sse(event)
+                yield serialize_sse_event(event)
 
             # safety fallback — engine 理应 yield done 事件
             # yield f"data: {json.dumps({'event': 'done'})}\n\n"
@@ -89,7 +76,7 @@ async def optimize_document(request: Request, doc_type: str, data: OptimizeReque
                 api_content=data.api_content,
                 session_id=session_id,
             ):
-                yield _serialize_sse(event)
+                yield serialize_sse_event(event)
 
             # safety fallback
             # yield f"data: {json.dumps({'event': 'done'})}\n\n"

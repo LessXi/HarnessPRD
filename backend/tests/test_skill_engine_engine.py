@@ -199,15 +199,14 @@ class TestSkillEngineExecute:
         )
         events = [e async for e in engine.execute(skill, {})]
 
-        # gen(1 chunk) + review(1 chunk + 1 review_result) + done
-        assert len(events) == 4
+        # gen(1 chunk) + review(1 review_result) + done
+        assert len(events) == 3
         assert events[0].event == "chunk"  # generate token
         assert events[0].content == "doc content"
-        assert events[1].event == "chunk"  # review full text
-        assert events[2].event == "review_result"
-        assert events[2].passed is True
-        assert events[2].issues == []
-        assert events[3].event == "done"
+        assert events[1].event == "review_result"
+        assert events[1].passed is True
+        assert events[1].issues == []
+        assert events[2].event == "done"
 
     @pytest.mark.asyncio
     async def test_generate_review_fail_rewrite_review_pass(
@@ -216,7 +215,7 @@ class TestSkillEngineExecute:
         """generate → review 不通过 → rewrite → review 通过 → done"""
         call_count = [0]
 
-        async def ainvoke_side_effect(messages):
+        async def ainvoke_side_effect(messages, **kwargs):
             call_count[0] += 1
             if call_count[0] == 1:
                 return AIMessage(
@@ -258,18 +257,18 @@ class TestSkillEngineExecute:
         )
         events = [e async for e in engine.execute(skill, {})]
 
-        # gen(1) + review1(1chunk+1result) + rewrite(1) + review2(1chunk+1result+1done)
-        assert len(events) == 7
+        # gen(1) + review1(1result) + rewrite(1) + review2(1result+1done)
+        assert len(events) == 5
 
         # Review 1: 不通过
-        assert events[2].event == "review_result"
-        assert events[2].passed is False
-        assert events[2].issues == ["缺细节"]
+        assert events[1].event == "review_result"
+        assert events[1].passed is False
+        assert events[1].issues == ["缺细节"]
 
         # Review 2: 通过 + done
-        assert events[5].event == "review_result"
-        assert events[5].passed is True
-        assert events[6].event == "done"
+        assert events[3].event == "review_result"
+        assert events[3].passed is True
+        assert events[4].event == "done"
 
     # --------------------------------------------------
     # 边界条件
@@ -299,19 +298,19 @@ class TestSkillEngineExecute:
         )
         events = [e async for e in engine.execute(skill, {})]
 
-        # round0: gen(1chunk) + review(1chunk+1result_失败)
-        # round1: gen(1chunk) + review(1chunk+1result_失败)
+        # round0: gen(1chunk) + review(1result_失败)
+        # round1: gen(1chunk) + review(1result_失败)
         # done
-        assert len(events) == 7
+        assert len(events) == 5
 
         # 两次 review 都失败
-        assert events[2].event == "review_result"
-        assert events[2].passed is False
-        assert events[5].event == "review_result"
-        assert events[5].passed is False
+        assert events[1].event == "review_result"
+        assert events[1].passed is False
+        assert events[3].event == "review_result"
+        assert events[3].passed is False
 
         # 最后强制 done
-        assert events[6].event == "done"
+        assert events[4].event == "done"
 
     @pytest.mark.asyncio
     async def test_event_count_with_multi_step(self, mock_llm_service):
@@ -344,8 +343,8 @@ class TestSkillEngineExecute:
         )
         events = [e async for e in engine.execute(skill, {})]
 
-        # gen(2) + review(1chunk+1result) + rewrite(2) + review(1chunk+1result) + done
-        assert len(events) == 9
+        # gen(2) + review(1result) + rewrite(2) + review(1result) + done
+        assert len(events) == 7
         assert events[-1].event == "done"
 
     @pytest.mark.asyncio
@@ -383,9 +382,9 @@ class TestSkillEngineExecute:
         )
         events = [e async for e in engine.execute(skill, {})]
 
-        assert events[2].event == "review_result"
-        assert events[2].passed is True
-        assert events[3].event == "done"
+        assert events[1].event == "review_result"
+        assert events[1].passed is True
+        assert events[2].event == "done"
 
     # --------------------------------------------------
     # helpers

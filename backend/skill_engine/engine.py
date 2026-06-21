@@ -94,6 +94,8 @@ class SkillEngine:
         base_prompt = ""
         # 单次标记：仅在首轮首步时跳过 generate（optimize 场景从外部传入内容）
         _skip_first_generate = bool(current_content)
+        session_id = context.get("session_id", "")
+        doc_type = context.get("doc_type", "")
 
         for round_num in range(skill.max_iterations):
             for step in skill.steps:
@@ -113,7 +115,7 @@ class SkillEngine:
                     current_content = ""
                     base_prompt = prompt
                     try:
-                        async for token in self._llm.stream_generate(prompt):
+                        async for token in self._llm.stream_generate(prompt, session_id=session_id, doc_type=doc_type):
                             yield SSEEvent(event="chunk", content=token)
                             current_content += token
                     except Exception as e:
@@ -125,14 +127,13 @@ class SkillEngine:
 
                 elif step.type == "review":
                     try:
-                        full = await self._call_llm_once(prompt)
+                        full = await self._call_llm_once(prompt, session_id=session_id, doc_type=doc_type)
                     except Exception as e:
                         yield SSEEvent(
                             event="error",
                             content=f"LLM 调用失败: {e}",
                         )
                         return
-                    yield SSEEvent(event="chunk", content=full)
                     passed, issues = self._parse_review_result(
                         full, step.pass_condition
                     )
@@ -152,7 +153,7 @@ class SkillEngine:
                 elif step.type == "rewrite":
                     current_content = ""
                     try:
-                        async for token in self._llm.stream_generate(prompt):
+                        async for token in self._llm.stream_generate(prompt, session_id=session_id, doc_type=doc_type):
                             yield SSEEvent(event="chunk", content=token)
                             current_content += token
                     except Exception as e:
@@ -232,13 +233,15 @@ class SkillEngine:
         passed = pass_condition in text
         return passed, []
 
-    async def _call_llm_once(self, prompt: str) -> str:
+    async def _call_llm_once(self, prompt: str, session_id: str = "", doc_type: str = "") -> str:
         """非流式调用 LLM。
 
         使用 ``get_llm().ainvoke()`` 获取完整响应文本。
 
         Args:
             prompt: 已渲染的完整提示词。
+            session_id: 会话 ID（用于 LangSmith 追踪）。
+            doc_type: 文档类型（用于 LangSmith 追踪）。
 
         Returns:
             响应文本（``response.content``）。
@@ -246,7 +249,10 @@ class SkillEngine:
         from langchain.schema import SystemMessage
 
         llm = self._llm.get_llm()
-        response = await llm.ainvoke([SystemMessage(content=prompt)])
+        config = {}
+        if session_id:
+            config = {"metadata": {"session_id": session_id, "doc_type": doc_type}}
+        response = await llm.ainvoke([SystemMessage(content=prompt)], config=config)
         if hasattr(response, "content"):
             return response.content
         if hasattr(response, "text"):
