@@ -526,7 +526,7 @@ git commit -m "feat: 4 Request models use FormData instead of dict[str, Any]"
 - Modifies: `_form_to_kwargs(form_data: dict → FormData)` — 通过 `.model_dump()` 或属性访问
 - Modifies: `_build_system_prompt(form_data: dict → FormData)`
 
-- [ ] **Step 1: 修改 conversation_service.py**
+- [x] **Step 1: 修改 conversation_service.py**
 
 ```python
 """对话服务：Prompt 组装、流式对话、摘要生成
@@ -662,18 +662,18 @@ async def generate_summary(
     return result.content if isinstance(result.content, str) else str(result.content)
 ```
 
-- [ ] **Step 2: conversation.py 路由适配 — 无需改动签名，FastAPI 自动反序列化**
+- [x] **Step 2: conversation.py 路由适配 — 无需改动签名，FastAPI 自动反序列化**
 
 `backend/api/conversation.py` 中的 `chat_stream_endpoint` 和 `generate_summary_endpoint` 已通过 `data: ChatRequest` 接收请求，Pydantic 自动将 `form_data` 反序列化为 `FormData` 实例。路由层无需改动。
 
-- [ ] **Step 3: 验证导入链无循环**
+- [x] **Step 3: 验证导入链无循环**
 
 ```powershell
 python -c "from backend.services.conversation_service import chat_stream, generate_summary, _form_to_kwargs; print('OK')"
 ```
 Expected: `OK`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/services/conversation_service.py
