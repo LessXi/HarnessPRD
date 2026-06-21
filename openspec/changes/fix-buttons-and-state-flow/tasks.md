@@ -1,10 +1,10 @@
 ## 1. 类型定义与数据迁移 (types/index.ts)
 
-- [ ] 1.1 从 `ProjectState` 接口中移除 `autoAdvance: boolean` 字段 [P0]
-- [ ] 1.2 更新 `createDefaultProject()` 不再初始化 `autoAdvance` [P0]
-- [ ] 1.3 更新 `loadProject()` 数据迁移逻辑：忽略旧 `autoAdvance` 字段，不报错 [P0]
-- [ ] 1.4 更新 `VALID_TRANSITIONS`：添加 `generating_prd` → `ai_dialogue`、`generating_api` → `reviewing_prd`、`generating_prompts` → `reviewing_api` 回退边 [P0]
-- [ ] 1.5 更新 `isValidStateTransition`：`generating_*` 状态允许回退到对应前一稳定状态 [P0]
+- [x] 1.1 从 `ProjectState` 接口中移除 `autoAdvance: boolean` 字段 [P0]
+- [x] 1.2 更新 `createDefaultProject()` 不再初始化 `autoAdvance` [P0]
+- [x] 1.3 更新 `loadProject()` 数据迁移逻辑：忽略旧 `autoAdvance` 字段，不报错 [P0]
+- [x] 1.4 更新 `VALID_TRANSITIONS`：添加 `generating_prd` → `ai_dialogue`、`generating_api` → `reviewing_prd`、`generating_prompts` → `reviewing_api` 回退边 [P0]
+- [x] 1.5 更新 `isValidStateTransition`：`generating_*` 状态允许回退到对应前一稳定状态 [P0]
 
 ## 2. Sidebar 按钮清理 (Sidebar.tsx)
 
