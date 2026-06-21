@@ -208,3 +208,55 @@ Skill 文件通过 `{{ variable_name }}` 引用上下文变量，引擎在执行
 1. **模板替换语法**：用 `{{ var }}`（Mustache-style）还是 `$var`（shell-style）？建议 `{{ var }}`，用户熟悉。
 2. **review 结果展示**：前端当前只显示最终改写结果，是否需要展示审核意见？建议作为 `review_result` SSE 事件透传，前端后续版本可选择性展示。
 3. **Skill 版本管理**：skill 文件是否需要 `version` 字段和向后兼容？MVP 先不做，后续迭代考虑。
+
+## Debug 可观测性集成
+
+新创建的 `skill_engine/` 模块必须接入项目已有的 debug-observability 体系：
+
+### 日志规范
+
+所有模块导入 `from loguru import logger`，使用结构化 event 标签：
+
+| 模块 | event 标签 | 级别 | 触发时机 |
+|------|-----------|------|---------|
+| `parser.py` | `skill_parse_error` | WARNING | .md 文件解析失败 |
+| `engine.py` | `skill_execution_start` | INFO | 开始执行 skill |
+| `engine.py` | `skill_execution_complete` | INFO | skill 执行完成 |
+| `engine.py` | `skill_step_start` | INFO | 单步开始（含 step_id/type） |
+| `engine.py` | `skill_step_complete` | INFO | 单步完成 |
+| `engine.py` | `llm_error` | ERROR | LLM 调用异常（含 error_category） |
+| `loader.py` | `skill_loader_scan` | INFO | 启动扫描完成（含 skill 数量） |
+| `loader.py` | `skill_loader_reload` | INFO | 热加载完成 |
+| `loader.py` | `skill_parse_error` | WARNING | 扫描时个别 skill 解析失败 |
+
+### session_id 透传
+
+`document_service.py` → engine → llm_service 链路必须保持 `session_id` 透传：
+
+```python
+# context dict 中携带 session_id
+context = {
+    "form_data": {...},
+    "requirements_summary": "...",
+    "session_id": session_id,  # 从 request.state.correlation_id 获取
+}
+
+# engine 透传给 llm_service
+await stream_generate(prompt, session_id=context.get("session_id", ""), doc_type=doc_type)
+```
+
+### 错误分类
+
+引擎中所有 LLM 调用包裹 try/except，使用 `classify_error(e)` 分类后记录：
+
+```python
+from core.error_classifier import classify_error
+
+try:
+    async for chunk in stream_generate(...):
+        yield chunk
+except Exception as e:
+    category = classify_error(e)
+    logger.bind(event="llm_error").error(...)
+    raise
+```
