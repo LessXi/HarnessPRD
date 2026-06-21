@@ -42,11 +42,11 @@
 
 ## 7. Debug 埋点接入 (App.tsx)
 
-- [ ] 7.1 在 `handleGoBack` 注入 trace 探针：记录 `targetState`、受影响步骤、`completedSteps` 变更 [P1]
-- [ ] 7.2 在 `handleConfirmDoc` 注入 log 探针：记录 `docType`、viewState 变更、`showCompletionPrompt` 设置 [P1]
-- [ ] 7.3 在 `switchView` 注入 trace 探针：记录每次 ViewState 转换的 from → to [P1]
-- [ ] 7.4 在 `handleStopGeneration` 注入 log 探针：记录 abort 调用、回退目标状态 [P1]
-- [ ] 7.5 在 `generateDocumentStream` 调用处注入 timer 探针：记录文档生成耗时 [P1]
+- [x] 7.1 在 `handleGoBack` 注入 trace 探针：记录 `targetState`、受影响步骤、`completedSteps` 变更 [P1]
+- [x] 7.2 在 `handleConfirmDoc` 注入 log 探针：记录 `docType`、viewState 变更、`showCompletionPrompt` 设置 [P1]
+- [x] 7.3 在 `switchView` 注入 trace 探针：记录每次 ViewState 转换的 from → to [P1]
+- [x] 7.4 在 `handleStopGeneration` 注入 log 探针：记录 abort 调用、回退目标状态 [P1]
+- [x] 7.5 在 `generateDocumentStream` 调用处注入 timer 探针：记录文档生成耗时 [P1]
 - [ ] 7.6 回归验证通过后运行 `debug-cleanup` 移除所有探针 [P0]
 
 ## 8. 回归验证
