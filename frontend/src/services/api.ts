@@ -1,6 +1,7 @@
 import axios from "axios";
 import type {
   QuestionsConfig,
+  FormData,
   ChatRequest,
   SummaryRequest,
   DocumentRequest,

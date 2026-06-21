@@ -21,9 +21,11 @@ import type {
   ChatMessage,
   ProjectState,
   DocumentState,
+  FormData,
 } from "@/types";
 import { STEPS, STEP_INDEX_MAP, createEmptyProjectState, createEmptyDocumentState, isValidStateTransition } from "@/types";
 import { debugLogger } from "@/utils/debugLogger";
+import { migrateFormData } from "@/utils/migration";
 
 const PROJECT_KEY = "harnessprd:project";
 
@@ -38,9 +40,12 @@ function loadProject(): ProjectState {
     const parsed = JSON.parse(raw);
     // 兼容旧数据：解构忽略 autoAdvance (已移除)，确保所有字段存在
     const { autoAdvance, ...cleanData } = parsed;
+    // 迁移旧版 form_data（Record<string,any> → FormData）
+    const migratedFormData = migrateFormData(cleanData.form_data ?? {});
     return {
       ...createEmptyProjectState(),
       ...cleanData,
+      form_data: migratedFormData,
       prd: { ...createEmptyDocumentState(), ...cleanData.prd },
       api: { ...createEmptyDocumentState(), ...cleanData.api },
       prompts: { ...createEmptyDocumentState(), ...cleanData.prompts },
@@ -782,7 +787,7 @@ export default function App() {
       if (!Array.isArray(fd.mvp_features) || fd.mvp_features.length < 3 || fd.mvp_features.some((v: string) => !v?.trim())) {
         missing.push("MVP 核心功能（至少3项）");
       }
-      if (!fd.platform) missing.push("目标平台");
+      if (!fd.platform_type) missing.push("目标平台");
       if (!fd.needs_auth) missing.push("用户登录");
       if (!fd.needs_database) missing.push("数据存储");
       if (!fd.page_count) missing.push("页面数量");

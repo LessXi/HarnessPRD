@@ -4,8 +4,10 @@ import logging
 import os
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from loguru import logger
 
 from core.config import settings
@@ -67,12 +69,30 @@ async def validate_debug_config() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期：校验 debug 配置 + 初始化 Skill Engine。"""
+    """应用生命周期：校验 debug 配置 + 初始化 Skill Engine + 校验 Prompt 模板。"""
     await validate_debug_config()
     from services.document_service import init_skill_engine
 
     init_skill_engine("skills")
     logger.bind(event="startup").info("Skill engine initialized from backend/skills")
+
+    # 校验 Prompt 模板中的变量引用
+    from core.prompt_validator import validate_all
+
+    validation_errors = validate_all()
+    if validation_errors:
+        for fp, errs in validation_errors.items():
+            logger.bind(event="prompt_validation").warning(
+                "Template validation found {count} issue(s) in {path}",
+                count=len(errs),
+                path=fp,
+            )
+            for e in errs:
+                logger.bind(event="prompt_validation").warning("  -> {ref}", ref=e)
+    else:
+        logger.bind(event="prompt_validation").info(
+            "Prompt template validation passed — all references valid"
+        )
     yield
 
 
@@ -102,6 +122,21 @@ app.add_middleware(
 # ---------- 请求链中间件（correlation → logging） ----------
 app.middleware("http")(correlation_middleware)
 app.middleware("http")(request_logging_middleware)
+
+# ---------- 异常处理器 ----------
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_failed_handler(request: Request, exc: RequestValidationError):
+    """记录请求体验证失败的详细信息。"""
+    logger.bind(event="validation_failed").warning(
+        "Validation failed: {errors}", errors=exc.errors()
+    )
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+    )
+
 
 # ---------- 挂载路由 ----------
 app.include_router(sessions_router)

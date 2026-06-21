@@ -1,6 +1,8 @@
 # 表单提交数据结构
 
-> 版本 1.0 · 更新时间：2026-06-14
+> 版本 2.0 · 更新时间：2026-06-22
+
+> **⚠️ `questions_config.json` 已降级为 fallback。** 真相源为 `backend/core/product_schema.json`（JSON Schema Draft-07）。后端通过 Pydantic `create_model()` 动态构建 `FormData` 模型，前端通过 ajv 编译 Schema 校验。手写 `validate()` 已废弃。
 
 ---
 

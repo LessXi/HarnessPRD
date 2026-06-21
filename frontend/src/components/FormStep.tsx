@@ -1,8 +1,12 @@
-import { useState, type FormEvent } from "react";
-import type { QuestionsConfig } from "@/types";
+import { useState, useMemo, type FormEvent } from "react";
+import type { QuestionsConfig, FormData } from "@/types";
+import { validateFormData } from "@/utils/validation";
+import JsonPreviewModal from "@/components/JsonPreviewModal";
 
 interface Props {
   questions: QuestionsConfig;
+  // Record<string, any> 用于动态 key 访问（question id 驱动）
+  // 运行时始终为 FormData 类型
   formData: Record<string, any>;
   onChange: (name: string, value: any) => void;
   onSubmit: () => void;
@@ -10,32 +14,27 @@ interface Props {
 
 export default function FormStep({ questions, formData, onChange, onSubmit }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPreview, setShowPreview] = useState(false);
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
 
-  function validate(): boolean {
-    const allQuestions = [...questions.base_questions, ...questions.advanced_questions];
-    const newErrors: Record<string, string> = {};
+  // ajv 实时校验
+  const validation = useMemo(() => validateFormData(formData), [formData]);
+  const { valid, errors: ajvErrors } = validation;
 
-    for (const q of allQuestions) {
-      if (!q.required) continue;
-
-      const val = formData[q.id];
-      if (q.type === "list") {
-        if (!Array.isArray(val) || val.length < 3 || val.some((v) => !v.trim())) {
-          newErrors[q.id] = `至少需要 3 项，且每项不能为空`;
-        }
-      } else if (!val || (typeof val === "string" && !val.trim())) {
-        newErrors[q.id] = `${q.label}为必填项`;
-      }
+  // 将 ajv errors 映射到字段 → 错误消息
+  const fieldErrors: Record<string, string> = {};
+  for (const e of ajvErrors) {
+    const fieldName = e.path.replace(/^\//, "") || e.path;
+    if (fieldName && !fieldErrors[fieldName]) {
+      fieldErrors[fieldName] = e.message;
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   }
+  // 合并服务端 422 错误
+  const displayErrors = { ...fieldErrors, ...serverErrors };
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (validate()) {
+    if (valid) {
       onSubmit();
     }
   }
@@ -59,7 +58,7 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
 
   function renderField(q: QuestionsConfig["base_questions"][number]) {
     const val = formData[q.id] ?? "";
-    const error = errors[q.id];
+    const error = displayErrors[q.id];
 
     const baseInputClass =
       "w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition-colors " +
@@ -207,6 +206,10 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
     );
   }
 
+  const hasData = Object.values(formData).some(
+    (v) => v !== "" && v !== undefined && !(Array.isArray(v) && v.length === 0)
+  );
+
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto py-8 px-4 space-y-8">
       {/* 步骤标题 */}
@@ -250,13 +253,41 @@ export default function FormStep({ questions, formData, onChange, onSubmit }: Pr
         )}
       </div>
 
-      {/* 提交按钮 */}
-      <button
-        type="submit"
-        className="w-full rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 transition-colors shadow-sm"
-      >
-        提交并开始 AI 对话
-      </button>
+      {/* 双按钮布局 */}
+      <div className="space-y-3">
+        {/* 预览 JSON 按钮 */}
+        {hasData && (
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className="w-full rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-6 transition-colors"
+          >
+            预览 JSON
+          </button>
+        )}
+
+        {/* 提交按钮 */}
+        <button
+          type="submit"
+          disabled={!valid}
+          className={`w-full rounded-xl font-semibold py-3 px-6 transition-colors shadow-sm ${
+            valid
+              ? "bg-primary-500 hover:bg-primary-600 text-white"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          提交并开始 AI 对话
+        </button>
+      </div>
+
+      {/* JSON 预览 Modal */}
+      {showPreview && (
+        <JsonPreviewModal
+          formData={formData}
+          errors={ajvErrors}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </form>
   );
 }

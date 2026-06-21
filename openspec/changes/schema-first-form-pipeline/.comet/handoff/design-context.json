@@ -1,0 +1,18 @@
+{
+  "change": "schema-first-form-pipeline",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "e966c272407da2778b0e46878e0ece642e781f553547c3d87f844f3718aff673",
+  "files": [
+    { "path": "openspec/changes/schema-first-form-pipeline/proposal.md", "sha256": "4221e2d99de3fa0c2aaa11e7e4059de2299c6eb49afdbb078308e1d371117695" },
+    { "path": "openspec/changes/schema-first-form-pipeline/design.md", "sha256": "18c1da1769613296d93cf43c6d71f70eaa08c4b7acc93f097d37ffa448f43f4f" },
+    { "path": "openspec/changes/schema-first-form-pipeline/tasks.md", "sha256": "15be36b87abc5c3fe9a2ea26656a153004cff83d6821fe020d41db1608d78305" },
+    { "path": "openspec/changes/schema-first-form-pipeline/specs/api-typed-form/spec.md", "sha256": "ef7c8db7bdff171b3815d79b7ff47dd3ca0d8c341db096335c7b842dcbc41a17" },
+    { "path": "openspec/changes/schema-first-form-pipeline/specs/form-preview/spec.md", "sha256": "40f6174b96917c10f12a94f47009ee575b3e453445254c83459945d04f4916b9" },
+    { "path": "openspec/changes/schema-first-form-pipeline/specs/form-schema/spec.md", "sha256": "b0db3bbe92f05da34b09f68b28f8bffde90806299b7e34ddaa00b504bec29c04" },
+    { "path": "openspec/changes/schema-first-form-pipeline/specs/form-validation/spec.md", "sha256": "0064e41f8a181ff120784a471c4627e1005977809eb3d9bd51593d7ff61159c4" },
+    { "path": "openspec/changes/schema-first-form-pipeline/specs/typed-form-state/spec.md", "sha256": "38f15326faebea369c643a65f03b6df568aa89bf0d5697857bfa3e717c333604" }
+  ]
+}

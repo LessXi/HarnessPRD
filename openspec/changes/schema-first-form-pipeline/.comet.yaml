@@ -1,0 +1,23 @@
+workflow: full
+phase: build
+context_compression: off
+build_mode: subagent-driven-development
+build_pause: null
+subagent_dispatch: confirmed
+tdd_mode: tdd
+review_mode: thorough
+build_command: python -m pytest backend/tests/ -q
+isolation: branch
+verify_mode: null
+auto_transition: true
+base_ref: e7415101d51a1ef5ceec688611ae111fd7af256f
+design_doc: docs/superpowers/specs/2026-06-22-schema-first-form-pipeline-design.md
+plan: docs/superpowers/plans/2026-06-22-schema-first-form-pipeline.md
+verify_result: pending
+verification_report: null
+branch_status: pending
+created_at: 2026-06-21
+verified_at: null
+archived: false
+handoff_context: openspec/changes/schema-first-form-pipeline/.comet/handoff/design-context.json
+handoff_hash: e966c272407da2778b0e46878e0ece642e781f553547c3d87f844f3718aff673
