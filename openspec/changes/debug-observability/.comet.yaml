@@ -1,7 +1,8 @@
 workflow: full
 phase: build
 context_compression: off
-build_mode: subagent-driven-development
+build_command: cd backend && python -m pytest tests/ -v
+verify_command: cd backend && python -m pytest tests/ -v
 build_pause: null
 subagent_dispatch: confirmed
 tdd_mode: tdd
