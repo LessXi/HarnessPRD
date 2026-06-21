@@ -14,13 +14,13 @@
 
 ## 3. 统一回退机制 (App.tsx)
 
-- [ ] 3.1 实现 `handleGoBack(targetState: ViewState)` 函数 [P0]
-- [ ] 3.2 handleGoBack 内部逻辑：计算受影响步骤 → 显示确认对话框 → 确认后重置 `confirmed` → 添加 `pendingUpdates` → 更新 `viewState` → 调整 `completedSteps` [P0]
-- [ ] 3.3 替换 `handleNavigate` 中的后向导航逻辑为调用 `handleGoBack` [P0]
-- [ ] 3.4 替换 `handleRollback` 为调用 `handleGoBack` [P0]
-- [ ] 3.5 更新 `handleBack`（CompletionPromptBar「返回」）：调用 `handleGoBack` 回退到上一个稳定状态，而非仅关闭提示栏 [P1]
-- [ ] 3.6 移除 `App.tsx` 中所有 `autoAdvance` 相关的条件分支 [P0]
-- [ ] 3.7 更新 `handleConfirmDoc`：移除 autoAdvance 检查，始终设置 `showCompletionPrompt = true` [P0]
+- [x] 3.1 实现 `handleGoBack(targetState: ViewState)` 函数 [P0]
+- [x] 3.2 handleGoBack 内部逻辑：计算受影响步骤 → 显示确认对话框 → 确认后重置 `confirmed` → 添加 `pendingUpdates` → 更新 `viewState` → 调整 `completedSteps` [P0]
+- [x] 3.3 替换 `handleNavigate` 中的后向导航逻辑为调用 `handleGoBack` [P0]
+- [x] 3.4 替换 `handleRollback` 为调用 `handleGoBack` [P0]
+- [x] 3.5 更新 `handleBack`（CompletionPromptBar「返回」）：调用 `handleGoBack` 回退到上一个稳定状态，而非仅关闭提示栏 [P1]
+- [x] 3.6 移除 `App.tsx` 中所有 `autoAdvance` 相关的条件分支 [P0]
+- [x] 3.7 更新 `handleConfirmDoc`：移除 autoAdvance 检查，始终设置 `showCompletionPrompt = true` [P0]
 
 ## 4. 停止生成功能 (App.tsx + DocumentReview.tsx)
 
