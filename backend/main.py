@@ -69,12 +69,30 @@ async def validate_debug_config() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期：校验 debug 配置 + 初始化 Skill Engine。"""
+    """应用生命周期：校验 debug 配置 + 初始化 Skill Engine + 校验 Prompt 模板。"""
     await validate_debug_config()
     from services.document_service import init_skill_engine
 
     init_skill_engine("skills")
     logger.bind(event="startup").info("Skill engine initialized from backend/skills")
+
+    # 校验 Prompt 模板中的变量引用
+    from core.prompt_validator import validate_all
+
+    validation_errors = validate_all()
+    if validation_errors:
+        for fp, errs in validation_errors.items():
+            logger.bind(event="prompt_validation").warning(
+                "Template validation found {count} issue(s) in {path}",
+                count=len(errs),
+                path=fp,
+            )
+            for e in errs:
+                logger.bind(event="prompt_validation").warning("  -> {ref}", ref=e)
+    else:
+        logger.bind(event="prompt_validation").info(
+            "Prompt template validation passed — all references valid"
+        )
     yield
 
 
