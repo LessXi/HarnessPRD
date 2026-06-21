@@ -173,5 +173,5 @@ config/
 # git worktrees
 .worktrees/
 
-# graphify cache (auto-generated)
-graphify-out/cache/
+# graphify (auto-generated, rebuild with: graphify .)
+graphify-out/

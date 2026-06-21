@@ -1,0 +1,15 @@
+{
+  "change": "skill-driven-doc-gen",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "394653e359e50103fe89b3f49af079ac40a9a34a7240eaa58a294d3ea710e73d",
+  "files": [
+    { "path": "openspec/changes/skill-driven-doc-gen/proposal.md", "sha256": "9cf978a65620b00788e4fa3e2bfa7b79c1856b24f6be76a13d10a1b58792c30c" },
+    { "path": "openspec/changes/skill-driven-doc-gen/design.md", "sha256": "5901feee1b1cca8dfa38d8d1590ac3284eb6c71c1366689d91da572247df07d8" },
+    { "path": "openspec/changes/skill-driven-doc-gen/tasks.md", "sha256": "c6412b906bc4c081bfcce855b0cf88483c8ef8acbcdc5027e776d117c918a3a5" },
+    { "path": "openspec/changes/skill-driven-doc-gen/specs/doc-gen-skills/spec.md", "sha256": "7a21929ee09cb1671bdeedecd31f3f08a523db5ca8e4dd4b7eef2bf3111a50c4" },
+    { "path": "openspec/changes/skill-driven-doc-gen/specs/skill-engine/spec.md", "sha256": "d58de0519598cdc714bfb5e499347bfb123731e9344a2fe01374136154941802" }
+  ]
+}
