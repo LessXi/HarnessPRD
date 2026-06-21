@@ -12,6 +12,7 @@ from typing import Optional
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
+from pydantic import ValidationError
 
 from skill_engine.models import SkillParseError, SkillSchema, StepSchema
 
@@ -89,7 +90,7 @@ def parse_skill_file(filepath: str) -> SkillSchema:
     # 4) Pydantic 校验 → SkillSchema
     try:
         return SkillSchema(**data)
-    except Exception as e:
+    except ValidationError as e:
         raise SkillParseError(f"Skill 数据校验失败: {e}") from e
 
 

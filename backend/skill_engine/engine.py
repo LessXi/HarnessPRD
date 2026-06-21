@@ -15,10 +15,26 @@
 """
 
 import json
-from typing import Any, AsyncGenerator
+import logging
+import re
+from typing import Any, AsyncGenerator, Protocol
 
 from skill_engine.models import SSEEvent, SkillSchema
 from skill_engine.parser import render_skill_prompt
+
+logger = logging.getLogger(__name__)
+
+
+class LLMServiceProtocol(Protocol):
+    """LLM 服务协议：定义 SkillEngine 对 LLM 服务的期望接口。"""
+
+    def stream_generate(self, prompt: str, **kwargs: Any) -> AsyncGenerator[str, None]:
+        """流式调用 LLM，逐 token 生成。"""
+        ...
+
+    def get_llm(self) -> Any:
+        """获取底层 LLM 实例（需具备 ainvoke 方法）。"""
+        ...
 
 
 class SkillEngine:
@@ -28,7 +44,7 @@ class SkillEngine:
     通过 ``AsyncGenerator[SSEEvent]`` 流式推送事件。
     """
 
-    def __init__(self, llm_service: Any) -> None:
+    def __init__(self, llm_service: LLMServiceProtocol) -> None:
         """初始化引擎。
 
         Args:
@@ -82,18 +98,33 @@ class SkillEngine:
 
                 if step.type == "generate":
                     current_content = ""
-                    async for token in self._llm.stream_generate(prompt):
-                        yield SSEEvent(event="chunk", content=token)
-                        current_content += token
+                    try:
+                        async for token in self._llm.stream_generate(prompt):
+                            yield SSEEvent(event="chunk", content=token)
+                            current_content += token
+                    except Exception as e:
+                        yield SSEEvent(
+                            event="error",
+                            content=f"LLM 调用失败: {e}",
+                        )
+                        return
 
                 elif step.type == "review":
-                    full = await self._call_llm_once(prompt)
+                    try:
+                        full = await self._call_llm_once(prompt)
+                    except Exception as e:
+                        yield SSEEvent(
+                            event="error",
+                            content=f"LLM 调用失败: {e}",
+                        )
+                        return
                     yield SSEEvent(event="chunk", content=full)
                     passed, issues = self._parse_review_result(
                         full, step.pass_condition
                     )
                     yield SSEEvent(
                         event="review_result",
+                        content=full,
                         passed=passed,
                         issues=issues,
                     )
@@ -106,9 +137,16 @@ class SkillEngine:
 
                 elif step.type == "rewrite":
                     current_content = ""
-                    async for token in self._llm.stream_generate(prompt):
-                        yield SSEEvent(event="chunk", content=token)
-                        current_content += token
+                    try:
+                        async for token in self._llm.stream_generate(prompt):
+                            yield SSEEvent(event="chunk", content=token)
+                            current_content += token
+                    except Exception as e:
+                        yield SSEEvent(
+                            event="error",
+                            content=f"LLM 调用失败: {e}",
+                        )
+                        return
 
         # 达到 max_iterations 后强制结束
         yield SSEEvent(event="done", content=current_content)
@@ -126,8 +164,9 @@ class SkillEngine:
 
         **策略**：
         1. ``pass_condition`` 为 ``None`` → 自动通过
-        2. 尝试 ``json.loads(text)`` 提取 ``{"passed": bool, "issues": [...]}``
-        3. JSON 解析失败 → ``pass_condition in text`` 关键词匹配
+        2. 尝试从 markdown 代码块 `` ```json ... ``` `` 中提取 JSON
+        3. 回退到直接 ``json.loads(text)`` 解析
+        4. 全部失败 → ``pass_condition in text`` 关键词匹配
 
         Args:
             text: LLM 返回的完整审阅文本。
@@ -140,14 +179,38 @@ class SkillEngine:
             return True, []
 
         # --- JSON 优先 ---
-        try:
-            data = json.loads(text)
-            if isinstance(data, dict) and "passed" in data:
-                passed = bool(data["passed"])
-                issues = data.get("issues", [])
+
+        def _try_parse(data_dict: dict) -> tuple[bool, list[str]] | None:
+            """尝试从字典中提取 passed/issues。"""
+            if "passed" in data_dict:
+                passed = bool(data_dict["passed"])
+                issues = data_dict.get("issues", [])
                 if not isinstance(issues, list):
                     issues = []
                 return passed, issues
+            return None
+
+        # 策略 1: 提取 markdown 代码块中的 JSON
+        json_match = re.search(
+            r"```(?:json)?\s*\n?(\{.*?\})\s*\n?```", text, re.DOTALL
+        )
+        if json_match:
+            try:
+                data = json.loads(json_match.group(1))
+                if isinstance(data, dict):
+                    result = _try_parse(data)
+                    if result is not None:
+                        return result
+            except (json.JSONDecodeError, ValueError):
+                pass
+
+        # 策略 2: 直接解析全文（纯 JSON 输入）
+        try:
+            data = json.loads(text)
+            if isinstance(data, dict):
+                result = _try_parse(data)
+                if result is not None:
+                    return result
         except (json.JSONDecodeError, ValueError):
             pass
 
@@ -172,4 +235,9 @@ class SkillEngine:
         response = await llm.ainvoke([SystemMessage(content=prompt)])
         if hasattr(response, "content"):
             return response.content
+        if hasattr(response, "text"):
+            return response.text
+        logger.warning(
+            "LLM response has no content/text attribute: %s", type(response)
+        )
         return str(response)
