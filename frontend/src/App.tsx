@@ -169,6 +169,8 @@ export default function App() {
 
   // 用于在 streaming 中断时保留部分内容
   const streamingContentRef = useRef("");
+  // 标记用户主动停止生成，防止 onError 异步回调覆盖 viewState
+  const abortedIntentionallyRef = useRef(false);
 
   // 同步 ref
   useEffect(() => {
@@ -406,6 +408,12 @@ export default function App() {
         setAbortController(null);
       },
       onError: (err) => {
+        // 若用户主动停止生成，跳过 switchView 避免覆盖 handleStopGeneration 回退的 viewState
+        if (abortedIntentionallyRef.current) {
+          abortedIntentionallyRef.current = false;
+          setAbortController(null);
+          return;
+        }
         // 保存已接收的部分内容
         setStreamingContent((prev) => {
           if (prev) {
@@ -495,6 +503,7 @@ export default function App() {
     if (abortController) {
       abortController.abort();
       setAbortController(null);
+      setStreamingContent('');
       setError("已取消生成");
       setTimeout(() => setError(null), 2000);
     }
@@ -588,6 +597,18 @@ export default function App() {
     }
   }, [pendingNextDocType, switchView]);
 
+  const DOC_TYPE_MAP: Record<string, "prd" | "api" | "prompts"> = {
+    reviewing_prd: "prd",
+    reviewing_api: "api",
+    reviewing_prompts: "prompts",
+  };
+
+  const DOC_TYPE_LABEL: Record<string, string> = {
+    prd: "PRD",
+    api: "接口文档",
+    prompts: "提示词",
+  };
+
   const handleGoBack = useCallback((targetState: ViewState) => {
     /* @debug:trace:task-7 */ console.log("[DEBUG:handleGoBack entry: targetState, affected steps:task-7]", { fn: "handleGoBack", type: "enter" });
     const currentIdx = STEP_INDEX_MAP[project.viewState];
@@ -653,6 +674,7 @@ export default function App() {
   };
 
   const handleStopGeneration = useCallback(() => {
+    abortedIntentionallyRef.current = true;
     abortController?.abort();
     /* @debug:log:task-7 */ console.log("[DEBUG:handleStopGeneration: abort + fallback:task-7]", project.viewState);
     setAbortController(null);
@@ -741,18 +763,6 @@ export default function App() {
   // ======================================================================
   // 导航与回退（必须在 early return 之前定义，遵守 Hooks 规则）
   // ======================================================================
-
-  const DOC_TYPE_MAP: Record<string, "prd" | "api" | "prompts"> = {
-    reviewing_prd: "prd",
-    reviewing_api: "api",
-    reviewing_prompts: "prompts",
-  };
-
-  const DOC_TYPE_LABEL: Record<string, string> = {
-    prd: "PRD",
-    api: "接口文档",
-    prompts: "提示词",
-  };
 
   const handleNavigate = useCallback((targetViewState: ViewState) => {
     if (!isValidStateTransition(project.viewState, targetViewState, project.completedSteps)) {
