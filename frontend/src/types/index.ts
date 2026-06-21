@@ -64,10 +64,33 @@ export interface DocumentState {
   confirmed: boolean
 }
 
+// ===== FormData 强类型（17 字段 + _schema_version） =====
+
+export interface FormData {
+  _schema_version: string;
+  product_name: string;
+  one_liner: string;
+  problem_statement: string;
+  target_users: string;
+  mvp_features: string[];
+  platform_type: string;
+  needs_auth: string;
+  needs_database: string;
+  page_count: string;
+  visual_style: string;
+  competitors: string;
+  tech_stack_preference: string;
+  feature_priority: string;
+  doc_depth: string;
+  ai_temperature: string;
+  timeline_expectation: string;
+  additional_context: string;
+}
+
 export interface ProjectState {
   session_id: string
   viewState: ViewState
-  form_data: Record<string, any>
+  form_data: FormData
   messages: ChatMessage[]
   requirements_summary: string
   prd: DocumentState
@@ -87,7 +110,26 @@ export function createEmptyProjectState(): ProjectState {
   return {
     session_id: '',
     viewState: 'form_editing',
-    form_data: {},
+    form_data: {
+      _schema_version: '1.0.0',
+      product_name: '',
+      one_liner: '',
+      problem_statement: '',
+      target_users: '',
+      mvp_features: ['', '', ''],
+      platform_type: '',
+      needs_auth: '',
+      needs_database: '',
+      page_count: '',
+      visual_style: 'unsure',
+      competitors: '',
+      tech_stack_preference: '',
+      feature_priority: 'ai_suggest',
+      doc_depth: 'standard',
+      ai_temperature: 'balanced',
+      timeline_expectation: 'unsure',
+      additional_context: '',
+    },
     messages: [],
     requirements_summary: '',
     prd: createEmptyDocumentState(),
@@ -102,19 +144,19 @@ export function createEmptyProjectState(): ProjectState {
 
 export interface ChatRequest {
   session_id: string
-  form_data: Record<string, any>
+  form_data: FormData
   history: ChatMessage[]
 }
 
 export interface SummaryRequest {
   session_id: string
-  form_data: Record<string, any>
+  form_data: FormData
   history: ChatMessage[]
 }
 
 export interface DocumentRequest {
   session_id: string
-  form_data: Record<string, any>
+  form_data: FormData
   requirements_summary: string
   previous_content?: string
   prd_content?: string
@@ -124,7 +166,7 @@ export interface DocumentRequest {
 export interface OptimizeRequest {
   session_id: string
   content: string
-  form_data: Record<string, any>
+  form_data: FormData
   requirements_summary: string
   prd_content?: string
   api_content?: string

@@ -2,11 +2,14 @@ import { useEffect, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import { debugLogger } from "@/utils/debugLogger";
+import type { FormData } from "@/types";
 
 // 运行时 monaco 实例引用（用于 Range 构造）
 let _monaco: typeof import("monaco-editor") | null = null;
 
 interface Props {
+  // Record<string, any> 用于 JSON.stringify 序列化
+  // 运行时始终为 FormData 类型
   formData: Record<string, any>;
   /** 可选的 JSON schema 对象（仅用于文档） */
   schema?: object;

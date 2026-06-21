@@ -1,10 +1,12 @@
 import { useState, useMemo, type FormEvent } from "react";
-import type { QuestionsConfig } from "@/types";
+import type { QuestionsConfig, FormData } from "@/types";
 import { validateFormData } from "@/utils/validation";
 import JsonPreviewModal from "@/components/JsonPreviewModal";
 
 interface Props {
   questions: QuestionsConfig;
+  // Record<string, any> 用于动态 key 访问（question id 驱动）
+  // 运行时始终为 FormData 类型
   formData: Record<string, any>;
   onChange: (name: string, value: any) => void;
   onSubmit: () => void;
