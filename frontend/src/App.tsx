@@ -203,8 +203,6 @@ export default function App() {
 
   // 切换 viewState 并持久化
   const switchView = useCallback((newView: ViewState) => {
-    /* @debug:trace:task-7 */ console.log("[DEBUG:switchView: from → to:task-7]", { fn: "switchView", type: "enter" });
-    updateProject((prev) => {
       debugLogger.log('info', 'state:transition', {
         from: prev.viewState,
         to: newView,
@@ -362,8 +360,6 @@ export default function App() {
     docType: "prd" | "api" | "prompts",
     previousContent?: string,
   ) => {
-    /* @debug:timer:task-7 */ console.log("[DEBUG:handleGenerateDoc: doc generation timer:task-7]", { ms: Date.now(), phase: "mark" });
-    const viewStateMap = {
       prd: "generating_prd" as ViewState,
       api: "generating_api" as ViewState,
       prompts: "generating_prompts" as ViewState,
@@ -545,8 +541,6 @@ export default function App() {
     
     const nextDocType = nextDocTypeMap[docType];
     if (nextDocType) {
-      /* @debug:log:task-7 */ console.log("[DEBUG:handleConfirmDoc: docType confirmed:task-7]", docType);
-      setPendingNextDocType(nextDocType);
       setShowCompletionPrompt(true);
     }
   }, [updateProject]);
@@ -610,8 +604,6 @@ export default function App() {
   };
 
   const handleGoBack = useCallback((targetState: ViewState) => {
-    /* @debug:trace:task-7 */ console.log("[DEBUG:handleGoBack entry: targetState, affected steps:task-7]", { fn: "handleGoBack", type: "enter" });
-    const currentIdx = STEP_INDEX_MAP[project.viewState];
     const targetIdx = STEP_INDEX_MAP[targetState];
     if (targetIdx >= currentIdx) return;
 
@@ -676,8 +668,6 @@ export default function App() {
   const handleStopGeneration = useCallback(() => {
     abortedIntentionallyRef.current = true;
     abortController?.abort();
-    /* @debug:log:task-7 */ console.log("[DEBUG:handleStopGeneration: abort + fallback:task-7]", project.viewState);
-    setAbortController(null);
     setStreamingContent('');
     const preGenState = getPreGenState(project.viewState);
     handleGoBack(preGenState);

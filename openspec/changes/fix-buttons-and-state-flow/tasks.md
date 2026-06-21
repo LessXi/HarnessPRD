@@ -47,13 +47,13 @@
 - [x] 7.3 在 `switchView` 注入 trace 探针：记录每次 ViewState 转换的 from → to [P1]
 - [x] 7.4 在 `handleStopGeneration` 注入 log 探针：记录 abort 调用、回退目标状态 [P1]
 - [x] 7.5 在 `generateDocumentStream` 调用处注入 timer 探针：记录文档生成耗时 [P1]
-- [ ] 7.6 回归验证通过后运行 `debug-cleanup` 移除所有探针 [P0]
+- [x] 7.6 回归验证通过后运行 `debug-cleanup` 移除所有探针 [P0]
 
 ## 8. 回归验证
 
-- [ ] 8.1 `form_editing` → `ai_dialogue` → `generating_prd` → `reviewing_prd` → ... → `completed` 全程遍历，验证每步按钮状态 [P0]
-- [ ] 8.2 验证回退：从 `reviewing_prompts` 回退到 `ai_dialogue`，确认对话框正确，affected steps confirmed 重置 [P0]
-- [ ] 8.3 验证停止生成：`generating_prd` 状态点击停止 → SSE 中断 → 回到 `ai_dialogue` [P0]
-- [ ] 8.4 验证显示框：生成长文档时内容区不撑出视口，内部滚动正常 [P0]
-- [ ] 8.5 验证旧数据兼容：加载含 `autoAdvance` 字段的 localStorage 数据不报错 [P1]
-- [ ] 8.6 验证无按钮重复：`reviewing_*` 状态 Sidebar 仅有进度导航，DocumentReview 工具栏完整 [P0]
+- [v] 8.1 `form_editing` → `ai_dialogue` → `generating_prd` → `reviewing_prd` → ... → `completed` 全程遍历，验证每步按钮状态 [P0]
+- [v] 8.2 验证回退：从 `reviewing_prompts` 回退到 `ai_dialogue`，确认对话框正确，affected steps confirmed 重置 [P0]
+- [v] 8.3 验证停止生成：`generating_prd` 状态点击停止 → SSE 中断 → 回到 `ai_dialogue` [P0]
+- [v] 8.4 验证显示框：生成长文档时内容区不撑出视口，内部滚动正常 [P0]
+- [v] 8.5 验证旧数据兼容：加载含 `autoAdvance` 字段的 localStorage 数据不报错 [P1]
+- [v] 8.6 验证无按钮重复：`reviewing_*` 状态 Sidebar 仅有进度导航，DocumentReview 工具栏完整 [P0]
