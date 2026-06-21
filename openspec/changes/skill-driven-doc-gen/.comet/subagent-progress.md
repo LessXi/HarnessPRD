@@ -2,19 +2,14 @@
 # Change: skill-driven-doc-gen
 # Last updated: 2026-06-21
 
-## Current Task
-plan: 任务 1：Skill Engine 数据模型 (P0)
-openspec: ## 1. Skill Engine 数据模型 (P0) / - [x] 1.1, 1.2, 1.3
-stage: done
+## Batch 1 (Tasks 1-3) — DONE
+- Task 1: 808ed78 (19 tests)
+- Task 2: 18d1111 (16 tests) — squashed into 00795c2
+- Task 3: 00795c2 (15 tests, full 133/133)
+- Fix round 1: 0f36936 (CRITICAL + 5 IMPORTANT fixed, 133/133)
+- Review: batch 1 review complete, round 1 fix applied
 
-## Implementation
-- commits: 808ed78
-- files: backend/skill_engine/__init__.py, backend/skill_engine/models.py, backend/tests/test_skill_engine_models.py
-- RED: ModuleNotFoundError → confirmed
-- GREEN: 19 passed in 0.04s
-
-## Review
+## Next: Batch 2 (Tasks 4-6)
 - review_mode: thorough
-- batch: 1 (tasks 1-3)
+- batch: 2
 - review_rounds: 0
-- review_status: pending (batch incomplete)

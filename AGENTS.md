@@ -2,14 +2,18 @@
 
 AI 驱动的对话式需求工作台。引导产品经理完成三个步骤：填写产品信息表单 → AI 对话澄清（SSE 流式）→ 文档生成（PRD、接口文档、提示词套件 — 每项都经历 Write→Review→Rewrite 循环）。
 
-**状态：预实现阶段。** 仅有依赖清单和规格文档，尚未编写任何源码。
+**状态：Skill Engine 阶段。** 后端已实现 Skill Engine（声明式技能引擎）+ API 服务层。前端正在开发中。
 
 ## 项目结构
 
 | 层 | 技术栈 | 入口 |
 |-------|-------|-------|
-| **前端** | React 18 + Vite 5 + TypeScript + Tailwind 3 + shadcn/ui | `frontend/`（尚无 src）|
-| **后端** | Python 3.11 + FastAPI + LangChain 0.3 + SSE | `backend/`（尚无 src）|
+| **前端** | React 18 + Vite 5 + TypeScript + Tailwind 3 + shadcn/ui | `frontend/src/` |
+| **后端 — API** | Python 3.11 + FastAPI + LangChain 0.3 + SSE | `backend/api/` |
+| **后端 — 核心** | Python 3.11 + 声明式 Skill Engine | `backend/skill_engine/` — 引擎框架（engine、loader、parser、models） |
+| **后端 — 技能** | Markdown 声明文件（.md） | `backend/skills/` — 文档生成技能定义（prd/api/prompts） |
+| **后端 — 服务** | Python 3.11 + LangChain | `backend/services/` — 聊天、摘要、下载 |
+| **后端 — 中间件** | Python 3.11 + SSE | `backend/middleware/` — SSE 流式传输 |
 | **LLM** | OpenAI / Anthropic / DeepSeek（通过 LangChain Provider） | — |
 
 **关键设计决策（无数据库、无认证、无 Redis、开发阶段无 Docker）：** 详见 `docs/tech-stack.md`。
@@ -34,13 +38,13 @@ cd frontend && npm run preview
 
 后端为纯计算层，不存储任何会话数据。所有 API 端点是无状态的——每次请求携带完整上下文（`form_data`、`history`、文档内容等）。
 
-**仅 8 个 API 端点**：
-1. `GET /api/questions` — 表单配置
-2. `POST /api/chat/stream` — SSE 聊天流式
-3. `POST /api/summary/generate` — 需求摘要生成
-4. `POST /api/documents/{type}/stream` — SSE 文档生成（PRD/API/Prompts）
-5. `POST /api/documents/{type}/optimize` — SSE 审阅→改写
-6. `POST /api/documents/{type}/download` — 下载 `.md` 文件
+**API 端点概览**（所有 `/api` 路径为前端约定反向代理，后端实际路由前缀不同）：
+1. `GET /api/questions` — 表单配置（`sessions` 路由）
+2. `POST /api/chat/stream` — SSE 聊天流式（`conversation` 路由）
+3. `POST /api/summary/generate` — 需求摘要生成（`conversation` 路由）
+4. `POST /{doc_type}/stream` — SSE 文档生成，由 Skill Engine 驱动（`documents` 路由）
+5. `POST /{doc_type}/optimize` — SSE 审阅→改写，由 Skill Engine 驱动（`documents` 路由）
+6. `POST /{doc_type}/download` — 下载 `.md` 文件（`documents` 路由）
 7. `GET /` — API 根路径
 8. `GET /health` — 健康检查
 
@@ -67,11 +71,12 @@ interface ProjectState {
 
 2. **步骤二 — AI 对话澄清**（`/chat` 路由，携带 `viewState` 参数）。前端携带完整 `form_data` 和 `history` 调用 `POST /api/chat/stream`（SSE 流式）。对话结束后调用 `POST /api/summary/generate` 生成需求摘要，用户确认后进入生成阶段。
 
-3. **步骤三 — 文档生成**：
-   - 前端调用 `POST /api/documents/{type}/stream`（SSE 流式）生成初稿
-   - 完成后自动调用 `POST /api/documents/{type}/optimize`（SSE 流式）进行审阅→改写
-   - 最多 3 轮 Review→Rewrite 循环，由前端控制轮次计数
-   - 文档类型：`prd`（PRD）、`api`（接口文档）、`prompts`（提示词套件）
+3. **步骤三 — 文档生成（Skill Engine 驱动）**：
+   - 后端 Skill Engine 加载 `backend/skills/*.md` 声明文件，解析为 `SkillSchema`（含多步骤定义）
+   - 前端调用 `POST /{doc_type}/stream`（SSE 流式），后端根据 `doc_type` 匹配对应 skill（prd-generate / api-generate / prompts-generate）
+   - Skill Engine 按步骤顺序执行：generate → review → rewrite（循环，默认最多 3 轮）
+   - 每步输出通过 SSE 流式推送到前端
+   - max_iterations 在 skill `.md` 文件中定义，后端 engine.py 控制迭代终止
 
 4. **会话 ID** — 前端使用 `crypto.randomUUID()` 生成，`session_id` 仅用于后端日志追踪，无实际存储语义。
 
@@ -79,7 +84,8 @@ interface ProjectState {
 
 ## 约定
 
-- **尚无源码** — 所有实现从零开始。
+- **Skill Engine** — 后端 `backend/skill_engine/` 为声明式 prompt 技能引擎。engine.py 负责编排 generate→review→rewrite 循环，loader.py 负责加载技能文件，parser.py 解析 Markdown 声明，models.py 定义 Pydantic 模型。`backend/skills/` 为 .md 声明文件（prd-generate.md / api-generate.md / prompts-generate.md），每个 skill 包含名称、描述、最大迭代次数和步骤列表。
+- **Prompts 文件** — `backend/prompts/` 仅保留 chat 相关文件：`chat_system.jinja2`、`chat_summary.jinja2`、`chat-prompts.md`。文档生成已迁移至 Skill Engine，不再使用 Jinja2 模板。
 - **前端路由**：`/form`、`/chat`、`/generate`、`/completed`（不再使用 `<session_id>` 路径参数，所有数据在 localStorage 中）。
 - **表单数据模型** 定义在 `docs/form-data-structure.md` 中 — 直接使用其中所示的 Pydantic 模型。
 - **优先级标记** 定义在 `docs/features.md` 中：P0（必须有）、P1（重要）、P2（锦上添花）。

@@ -24,32 +24,32 @@
 
 ## 4. Skill Loader 热加载 (P0)
 
-- [ ] 4.1 创建 `backend/skill_engine/loader.py` — `SkillLoader` 类，启动时扫描目录
-- [ ] 4.2 实现内存缓存（key=skill name），`get(name)` 方法
-- [ ] 4.3 实现 `reload()` 方法 — 重新扫描目录，原子替换缓存
-- [ ] 4.4 编写 loader 单元测试（扫描、缓存、热加载、文件不存在）
+- [x] 4.1 创建 `backend/skill_engine/loader.py` — `SkillLoader` 类，启动时扫描目录
+- [x] 4.2 实现内存缓存（key=skill name），`get(name)` 方法
+- [x] 4.3 实现 `reload()` 方法 — 重新扫描目录，原子替换缓存
+- [x] 4.4 编写 loader 单元测试（扫描、缓存、热加载、文件不存在）
 
 ## 5. Skill 文件编写 (P0)
 
-- [ ] 5.1 创建 `backend/skills/` 目录
-- [ ] 5.2 编写 `backend/skills/prd-generate.md` — 将 `generate_prd.jinja2` + `doc_review.jinja2` + `doc_rewrite.jinja2` 内容迁移为 skill 格式
-- [ ] 5.3 编写 `backend/skills/api-generate.md` — 将 `generate_api.jinja2` + 审核改写内容迁移
-- [ ] 5.4 编写 `backend/skills/prompts-generate.md` — 将 `generate_prompts.jinja2` + 审核改写内容迁移
-- [ ] 5.5 验证：启动时 loader 能成功解析全部 3 个 skill 文件
+- [x] 5.1 创建 `backend/skills/` 目录
+- [x] 5.2 编写 `backend/skills/prd-generate.md` — 将 `generate_prd.jinja2` + `doc_review.jinja2` + `doc_rewrite.jinja2` 内容迁移为 skill 格式
+- [x] 5.3 编写 `backend/skills/api-generate.md` — 将 `generate_api.jinja2` + 审核改写内容迁移
+- [x] 5.4 编写 `backend/skills/prompts-generate.md` — 将 `generate_prompts.jinja2` + 审核改写内容迁移
+- [x] 5.5 验证：启动时 loader 能成功解析全部 3 个 skill 文件
 
 ## 6. 后端集成 (P0)
 
-- [ ] 6.1 重构 `backend/services/document_service.py` — 移除 `_build_review_prompt()`、`_build_rewrite_prompt()`、`_has_issues()` 等硬编码方法
-- [ ] 6.2 `generate_document_stream()` 改为调用 `engine.execute(skill, context)`
-- [ ] 6.3 `optimize_document_stream()` 废弃（review→rewrite 由 skill engine 内部处理），保留端点但路由到 engine
-- [ ] 6.4 在 `backend/main.py` 或 `backend/api/documents.py` 中初始化 loader（应用启动时）
-- [ ] 6.5 确保 `requirements.txt` 包含 `PyYAML` 依赖
+- [x] 6.1 重构 `backend/services/document_service.py` — 移除 `_build_review_prompt()`、`_build_rewrite_prompt()`、`_has_issues()` 等硬编码方法
+- [x] 6.2 `generate_document_stream()` 改为调用 `engine.execute(skill, context)`
+- [x] 6.3 `optimize_document_stream()` 废弃（review→rewrite 由 skill engine 内部处理），保留端点但路由到 engine
+- [x] 6.4 在 `backend/main.py` 或 `backend/api/documents.py` 中初始化 loader（应用启动时）
+- [x] 6.5 确保 `requirements.txt` 包含 `PyYAML` 依赖
 
 ## 7. 验证与回归 (P1)
 
-- [ ] 7.1 编写集成测试：用 mock form_data 分别测试三种文档的完整生成流程
-- [ ] 7.2 对比新旧输出：skill 驱动的输出质量不低于原 Jinja2 模板输出
-- [ ] 7.3 验证 SSE 事件格式：chunk/done/error/review_result 事件格式正确，前端可正常消费
+- [x] 7.1 编写集成测试：用 mock form_data 分别测试三种文档的完整生成流程
+- [x] 7.2 对比新旧输出：skill 驱动的输出质量不低于原 Jinja2 模板输出
+- [x] 7.3 验证 SSE 事件格式：chunk/done/error/review_result 事件格式正确，前端可正常消费
 - [ ] 7.4 验证热加载：修改 skill 文件内容后 reload，新请求使用新 prompt
 
 ## 8. 清理与收尾 (P1)
