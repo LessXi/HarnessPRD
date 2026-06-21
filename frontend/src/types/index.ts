@@ -74,7 +74,6 @@ export interface ProjectState {
   api: DocumentState
   prompts: DocumentState
   completedSteps: ViewState[]  // 已完成步骤列表
-  autoAdvance: boolean         // 是否自动推进
   pendingUpdates: ViewState[]  // 待更新步骤列表
 }
 
@@ -95,7 +94,6 @@ export function createEmptyProjectState(): ProjectState {
     api: createEmptyDocumentState(),
     prompts: createEmptyDocumentState(),
     completedSteps: [],
-    autoAdvance: false,
     pendingUpdates: [],
   }
 }
@@ -147,11 +145,11 @@ export interface StreamCallbacks {
 const VALID_TRANSITIONS: Record<ViewState, ViewState[]> = {
   form_editing: ['ai_dialogue'],
   ai_dialogue: ['generating_prd', 'form_editing'], // 可以回退到表单编辑
-  generating_prd: ['reviewing_prd'],
+  generating_prd: ['reviewing_prd', 'ai_dialogue'],
   reviewing_prd: ['generating_api', 'ai_dialogue'], // 可以回退到对话
-  generating_api: ['reviewing_api'],
+  generating_api: ['reviewing_api', 'reviewing_prd'],
   reviewing_api: ['generating_prompts', 'reviewing_prd'], // 可以回退到PRD审阅
-  generating_prompts: ['reviewing_prompts'],
+  generating_prompts: ['reviewing_prompts', 'reviewing_api'],
   reviewing_prompts: ['completed', 'reviewing_api'], // 可以回退到API审阅
   completed: ['form_editing'], // 可以开始新项目
 }

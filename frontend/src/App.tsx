@@ -36,13 +36,14 @@ function loadProject(): ProjectState {
     const raw = localStorage.getItem(PROJECT_KEY);
     if (!raw) return createEmptyProjectState();
     const parsed = JSON.parse(raw);
-    // 兼容旧数据：确保所有字段存在
+    // 兼容旧数据：解构忽略 autoAdvance (已移除)，确保所有字段存在
+    const { autoAdvance, ...cleanData } = parsed;
     return {
       ...createEmptyProjectState(),
-      ...parsed,
-      prd: { ...createEmptyDocumentState(), ...parsed.prd },
-      api: { ...createEmptyDocumentState(), ...parsed.api },
-      prompts: { ...createEmptyDocumentState(), ...parsed.prompts },
+      ...cleanData,
+      prd: { ...createEmptyDocumentState(), ...cleanData.prd },
+      api: { ...createEmptyDocumentState(), ...cleanData.api },
+      prompts: { ...createEmptyDocumentState(), ...cleanData.prompts },
     };
   } catch {
     return createEmptyProjectState();
