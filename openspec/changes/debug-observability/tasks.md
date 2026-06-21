@@ -12,8 +12,8 @@
 
 ## 3. 请求中间件与错误分类 (P0)
 
-- [ ] 3.1 创建 `backend/core/middleware.py`：实现 `RequestLoggingMiddleware`（ASGI middleware），记录 method/path/status/duration_ms/corr_id，读取/生成 `X-Correlation-ID` 头
-- [ ] 3.2 在 `backend/main.py` 的 CORS middleware 之后注册 `RequestLoggingMiddleware`
+- [x] 3.1 创建 `backend/core/middleware.py`：实现 `RequestLoggingMiddleware`（ASGI middleware），记录 method/path/status/duration_ms/corr_id，读取/生成 `X-Correlation-ID` 头
+- [x] 3.2 在 `backend/main.py` 的 CORS middleware 之后注册 `RequestLoggingMiddleware`
 - [x] 3.3 创建 `backend/core/error_classifier.py`：定义 `ErrorCategory` enum 和 `classify_error(exception) -> ErrorCategory` 函数，覆盖 OpenAI/Anthropic/DeepSeek 的 rate_limit/timeout/content_filter 异常类型
 
 ## 4. LangSmith 集成与 Prompt 追踪 (P0)

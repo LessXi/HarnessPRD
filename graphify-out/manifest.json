@@ -60,8 +60,8 @@
     "semantic_hash": ""
   },
   "backend/main.py": {
-    "mtime": 1782039737.536128,
-    "ast_hash": "06a1d1f92b4ce66dd1c179848e07fbae",
+    "mtime": 1782040221.8400228,
+    "ast_hash": "9761b27f271c350001bf4efc24864e0b",
     "semantic_hash": ""
   },
   "backend/services/__init__.py": {
@@ -365,8 +365,8 @@
     "semantic_hash": ""
   },
   "openspec/changes/debug-observability/tasks.md": {
-    "mtime": 1782039997.0147305,
-    "ast_hash": "6b3d207892abcb7beddd8aa92324bdee",
+    "mtime": 1782040247.4208837,
+    "ast_hash": "365a52cc8569538a16e2e1ac8c7deaab",
     "semantic_hash": ""
   },
   "openspec/changes/ux-optimization-flow-closure/.openspec.yaml": {
@@ -437,6 +437,36 @@
   "backend/core/error_classifier.py": {
     "mtime": 1782039932.7349167,
     "ast_hash": "c7ed5f05b10e379a09a2bb6d46f57b7c",
+    "semantic_hash": ""
+  },
+  "backend/core/logging_config.py": {
+    "mtime": 1782040104.470945,
+    "ast_hash": "4b32fde2f64592a57521b2ae9d844d31",
+    "semantic_hash": ""
+  },
+  "backend/tests/test_logging_config.py": {
+    "mtime": 1782040146.9644804,
+    "ast_hash": "9696e337dadc98bf1638016874f9a90a",
+    "semantic_hash": ""
+  },
+  "backend/middleware/__init__.py": {
+    "mtime": 1782040300.8196845,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/middleware/correlation.py": {
+    "mtime": 1782040302.677445,
+    "ast_hash": "93d7d7ae224ad1079f6a9bc40773fd2e",
+    "semantic_hash": ""
+  },
+  "backend/middleware/request_logging.py": {
+    "mtime": 1782040304.3283362,
+    "ast_hash": "f48d95152ef4bef31196fb2366d4f1fd",
+    "semantic_hash": ""
+  },
+  "backend/tests/test_middleware.py": {
+    "mtime": 1782040348.0880277,
+    "ast_hash": "83d4f7617648917664edfbcf7637a9a6",
     "semantic_hash": ""
   }
 }
