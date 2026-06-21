@@ -8,6 +8,7 @@ from typing import Any, AsyncGenerator
 
 from loguru import logger
 
+from core.state import FormData
 from skill_engine.engine import SkillEngine
 from skill_engine.loader import SkillLoader
 from skill_engine.models import SSEEvent
@@ -44,7 +45,7 @@ def init_skill_engine(skills_dir: str) -> None:
 
 async def generate_document_stream(
     doc_type: DocType,
-    form_data: dict[str, Any],
+    form_data: FormData,
     requirements_summary: str,
     *,
     previous_content: str = "",
@@ -93,7 +94,7 @@ async def generate_document_stream(
 async def optimize_document_stream(
     doc_type: DocType,
     content: str,
-    form_data: dict[str, Any],
+    form_data: FormData,
     requirements_summary: str,
     *,
     prd_content: str = "",
@@ -147,7 +148,7 @@ async def optimize_document_stream(
 
 
 def _build_prompt_kwargs(
-    form_data: dict[str, Any],
+    form_data: FormData,
     requirements_summary: str,
     *,
     doc_type: DocType,

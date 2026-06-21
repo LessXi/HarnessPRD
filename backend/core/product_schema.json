@@ -93,6 +93,11 @@
       "type": "string",
       "default": "",
       "x-ui": { "label": "补充上下文", "widget": "textarea", "group": "advanced", "required": false }
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "x-ui": { "label": "Schema 版本", "widget": "hidden", "group": "meta", "required": false }
     }
   },
   "required": [

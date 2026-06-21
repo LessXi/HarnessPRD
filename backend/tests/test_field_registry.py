@@ -19,9 +19,9 @@ class TestGetSchema:
         assert "$schema" in s
         assert s["$schema"] == "https://json-schema.org/draft-07/schema#"
 
-    def test_get_schema_has_17_properties(self):
+    def test_get_schema_has_18_properties(self):
         s = fr.get_schema()
-        assert len(s["properties"]) == 17
+        assert len(s["properties"]) == 18
 
     def test_get_schema_version_is_1_0_0(self):
         s = fr.get_schema()

@@ -7,7 +7,7 @@ export interface ValidationResult {
   errors: { path: string; message: string }[];
 }
 
-const ajv = new Ajv({ allErrors: true, strict: false });
+const ajv = new Ajv({ allErrors: true, strict: false, validateSchema: false });
 const validate = ajv.compile(productSchema);
 
 export function validateFormData(data: Record<string, unknown>): ValidationResult {

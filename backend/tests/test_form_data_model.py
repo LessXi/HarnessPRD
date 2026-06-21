@@ -8,9 +8,9 @@ from core.state import FormData
 class TestFormDataModel:
     """FormData — dynamically generated from product_schema.json."""
 
-    def test_has_17_fields(self):
-        """FormData 应包含全部 17 个字段（9 必填 + 8 选填）。"""
-        assert len(FormData.model_fields) == 17
+    def test_has_18_fields(self):
+        """FormData 应包含全部 18 个字段（9 必填 + 8 选填 + 1 隐藏元数据）。"""
+        assert len(FormData.model_fields) == 18
 
     def test_rejects_missing_required(self):
         """缺少必填字段时抛出 ValidationError。"""
