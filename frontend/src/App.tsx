@@ -499,20 +499,6 @@ export default function App() {
   }, [abortController]);
 
   // ======================================================================
-  // 文档编辑保存
-  // ======================================================================
-
-  const handleDocEdit = useCallback((docType: "prd" | "api" | "prompts", editedContent: string) => {
-    updateProject((prev) => ({
-      ...prev,
-      [docType]: {
-        ...prev[docType],
-        user_edits: editedContent,
-      },
-    }));
-  }, [updateProject]);
-
-  // ======================================================================
   // 文档续写
   // ======================================================================
 
@@ -895,7 +881,7 @@ export default function App() {
           streamingText={streamingContent || undefined}
           onOptimize={() => handleOptimizeDoc("prd")}
           onResume={() => handleResumeDoc("prd")}
-          onEdit={(text) => handleDocEdit("prd", text)}
+           onEdit={(text) => updateProject(prev => ({ ...prev, prd: { ...prev.prd, user_edits: text } }))}
           onConfirm={() => handleConfirmDoc("prd")}
         />
       );
@@ -914,7 +900,7 @@ export default function App() {
           streamingText={streamingContent || undefined}
           onOptimize={() => handleOptimizeDoc("api")}
           onResume={() => handleResumeDoc("api")}
-          onEdit={(text) => handleDocEdit("api", text)}
+          onEdit={(text) => updateProject(prev => ({ ...prev, api: { ...prev.api, user_edits: text } }))}
           onConfirm={() => handleConfirmDoc("api")}
         />
       );
@@ -933,7 +919,7 @@ export default function App() {
           streamingText={streamingContent || undefined}
           onOptimize={() => handleOptimizeDoc("prompts")}
           onResume={() => handleResumeDoc("prompts")}
-          onEdit={(text) => handleDocEdit("prompts", text)}
+          onEdit={(text) => updateProject(prev => ({ ...prev, prompts: { ...prev.prompts, user_edits: text } }))}
           onConfirm={() => handleConfirmDoc("prompts")}
           confirmLabel="完成"
         />

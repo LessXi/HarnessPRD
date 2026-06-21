@@ -36,9 +36,9 @@
 
 ## 6. 按钮一致性收尾 (App.tsx + 全局)
 
-- [ ] 6.1 删除 `handleDocEdit`（旧 Sidebar 编辑按钮的保存模式处理器），仅保留 DocumentReview 内部 textarea 编辑模式 [P1]
-- [ ] 6.2 清理 `primaryActions` / `secondaryActions` 构建逻辑中不再需要的分支 [P1]
-- [ ] 6.3 确保 `generating_*` 状态下 Sidebar 不渲染任何操作按钮 [P0]
+- [x] 6.1 删除 `handleDocEdit`（旧 Sidebar 编辑按钮的保存模式处理器），仅保留 DocumentReview 内部 textarea 编辑模式 [P1]
+- [x] 6.2 清理 `primaryActions` / `secondaryActions` 构建逻辑中不再需要的分支 [P1]
+- [x] 6.3 确保 `generating_*` 状态下 Sidebar 不渲染任何操作按钮 [P0]
 
 ## 7. Debug 埋点接入 (App.tsx)
 
