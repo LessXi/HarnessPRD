@@ -1,5 +1,5 @@
 workflow: hotfix
-phase: verify
+phase: archive
 context_compression: off
 build_mode: direct
 build_pause: null
@@ -12,9 +12,10 @@ auto_transition: true
 base_ref: f985c5aec54e5fbceb5e702207ae1a33d9dfc860
 design_doc: null
 plan: null
-verify_result: pending
+verify_result: pass
 verification_report: docs/superpowers/reports/2026-06-21-e2e-hotfix-verify.md
 branch_status: handled
 created_at: 2026-06-21
-verified_at: null
-archived: false
+verified_at: 2026-06-21
+archived: true
+
