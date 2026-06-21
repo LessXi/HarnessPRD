@@ -334,6 +334,14 @@ export default function App() {
       updateProject((prev) => ({
         ...prev,
         requirements_summary: result.summary,
+        messages: [
+          ...prev.messages,
+          {
+            role: "assistant",
+            content: result.summary,
+            timestamp: new Date().toISOString(),
+          },
+        ],
       }));
     } catch (e: any) {
       setError(e?.response?.data?.detail || e.message || "摘要生成失败");
@@ -684,12 +692,35 @@ export default function App() {
   // ======================================================================
 
   const handleNavigate = useCallback((targetViewState: ViewState) => {
-    if (isValidStateTransition(project.viewState, targetViewState, project.completedSteps)) {
-      switchView(targetViewState);
-    } else {
+    if (!isValidStateTransition(project.viewState, targetViewState, project.completedSteps)) {
       setError(`无法从 ${project.viewState} 转换到 ${targetViewState}`);
+      return;
     }
-  }, [project.viewState, project.completedSteps, switchView]);
+
+    // Bug #2 修复: 从表单页跳转时必须通过表单验证
+    if (project.viewState === "form_editing") {
+      const fd = project.form_data;
+      const missing: string[] = [];
+      if (!fd.product_name?.trim()) missing.push("产品名称");
+      if (!fd.one_liner?.trim()) missing.push("一句话定义");
+      if (!fd.problem?.trim()) missing.push("解决的问题");
+      if (!fd.target_users?.trim()) missing.push("目标用户");
+      if (!Array.isArray(fd.mvp_features) || fd.mvp_features.length < 3 || fd.mvp_features.some((v: string) => !v?.trim())) {
+        missing.push("MVP 核心功能（至少3项）");
+      }
+      if (!fd.platform || fd.platform === "-- 请选择 --") missing.push("目标平台");
+      if (!fd.needs_auth) missing.push("用户登录");
+      if (!fd.needs_storage) missing.push("数据存储");
+      if (!fd.page_count) missing.push("页面数量");
+
+      if (missing.length > 0) {
+        setError(`请先完整填写产品信息表单。未填写：${missing.join("、")}`);
+        return;
+      }
+    }
+
+    switchView(targetViewState);
+  }, [project.viewState, project.completedSteps, project.form_data, switchView]);
 
   const handleRollback = useCallback((targetStep: ViewState) => {
     if (!project.completedSteps.includes(targetStep)) {

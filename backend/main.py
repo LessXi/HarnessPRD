@@ -67,8 +67,12 @@ async def validate_debug_config() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期：启动时校验 debug 配置，关闭时无需清理。"""
+    """应用生命周期：校验 debug 配置 + 初始化 Skill Engine。"""
     await validate_debug_config()
+    from services.document_service import init_skill_engine
+
+    init_skill_engine("skills")
+    logger.bind(event="startup").info("Skill engine initialized from backend/skills")
     yield
 
 
@@ -117,18 +121,6 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
-
-
-# ---------- 启动事件 ----------
-
-
-@app.on_event("startup")
-async def startup():
-    """初始化共享资源。"""
-    from services.document_service import init_skill_engine
-
-    init_skill_engine("skills")
-    logger.bind(event="startup").info("Skill engine initialized from backend/skills")
 
 
 # ---------- 直接运行时启动 ----------
