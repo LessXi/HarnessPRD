@@ -145,14 +145,14 @@ base-ref: e7415101d51a1ef5ceec688611ae111fd7af256f
 }
 ```
 
-- [ ] **Step 2: 手动校验 JSON 合法性**
+- [x] **Step 2: 手动校验 JSON 合法性**
 
 ```powershell
 python -c "import json; json.load(open('backend/core/product_schema.json','r',encoding='utf-8')); print('OK')"
 ```
 Expected: `OK`
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/core/product_schema.json
@@ -171,7 +171,7 @@ git commit -m "feat: add product_schema.json (JSON Schema Draft-07)"
 - Modifies: `_load()` — 优先读 `product_schema.json`，失败降级 `questions_config.json`
 - Keeps: `get_all_fields()`, `get_field_ids()`, `get_required_field_ids()`, `get_optional_field_ids()`, `get_field()`, `is_list_field()` — 签名不变
 
-- [ ] **Step 1: 编写 field_registry 降级逻辑 + get_schema()**
+- [x] **Step 1: 编写 field_registry 降级逻辑 + get_schema()**
 
 ```python
 """字段注册表：以 product_schema.json 为单一来源，提供统一的字段元信息。
@@ -291,14 +291,14 @@ def is_list_field(field_id: str) -> bool:
     return f is not None and f.get("type") == "list"
 ```
 
-- [ ] **Step 2: 验证 get_schema() 返回有效 Schema**
+- [x] **Step 2: 验证 get_schema() 返回有效 Schema**
 
 ```powershell
 python -c "from backend.core.field_registry import get_schema; s=get_schema(); print(s.get('x-meta',{}).get('schema_version')); print(len(s.get('properties',{})))"
 ```
 Expected: `1.0.0` + `17`
 
-- [ ] **Step 3: 验证降级路径（移除 product_schema.json 后仍可工作）**
+- [x] **Step 3: 验证降级路径（移除 product_schema.json 后仍可工作）**
 
 ```powershell
 # 备份 schema 然后测试降级
@@ -310,7 +310,7 @@ mv backend/core/product_schema.json.bak backend/core/product_schema.json
 ```
 Expected: `0.0.0 (degraded)` (WARNING 日志)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/core/field_registry.py
