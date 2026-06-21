@@ -1,5 +1,5 @@
 workflow: full
-phase: build
+phase: verify
 context_compression: off
 build_mode: subagent-driven-development
 build_pause: null
@@ -8,13 +8,13 @@ tdd_mode: tdd
 review_mode: thorough
 build_command: python -m pytest backend/tests/ -q
 isolation: branch
-verify_mode: null
+verify_mode: full
 auto_transition: true
 base_ref: e7415101d51a1ef5ceec688611ae111fd7af256f
 design_doc: docs/superpowers/specs/2026-06-22-schema-first-form-pipeline-design.md
 plan: docs/superpowers/plans/2026-06-22-schema-first-form-pipeline.md
 verify_result: pending
-verification_report: null
+verification_report: docs/superpowers/reports/2026-06-22-schema-first-form-pipeline-verify.md
 branch_status: pending
 created_at: 2026-06-21
 verified_at: null
