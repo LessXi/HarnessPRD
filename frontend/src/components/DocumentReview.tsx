@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { downloadDocument } from "@/services/api";
@@ -26,7 +26,7 @@ export interface DocumentReviewProps {
   confirmLabel?: string;
 }
 
-export default function DocumentReview({
+const DocumentReview = React.memo(function DocumentReview({
   title, docType, content, streamingText, optimizing = false,
   onOptimize, onResume, onEdit, onConfirm, confirmLabel = "确认并继续",
 }: DocumentReviewProps) {
@@ -36,6 +36,7 @@ export default function DocumentReview({
   const [downloading, setDownloading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollRafRef = useRef<number | null>(null);
 
   const isStreaming = streamingText !== undefined || optimizing;
   const displayContent = isStreaming ? streamingText ?? content : content;
@@ -47,9 +48,19 @@ export default function DocumentReview({
     }
   }, [content, editing]);
 
-  // 自动滚动到底部
+  // 自动滚动到底部（节流：流式期间用 rAF 合并，避免每个 token 触发一次平滑滚动）
   useEffect(() => {
-    contentRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (scrollRafRef.current !== null) return;
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      contentRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+    return () => {
+      if (scrollRafRef.current !== null) {
+        cancelAnimationFrame(scrollRafRef.current);
+        scrollRafRef.current = null;
+      }
+    };
   }, [displayContent]);
 
   // 编辑模式下自适应 textarea 高度
@@ -215,11 +226,17 @@ export default function DocumentReview({
           </div>
         ) : (
           <div className="rounded-xl border border-gray-200 bg-white px-6 py-5">
-            <div className="prose prose-sm max-w-none prose-headings:text-gray-800 prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-p:text-sm prose-p:leading-relaxed prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-table:text-sm">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
-            </div>
-            {isStreaming && (
-              <span className="inline-block w-1.5 h-4 bg-primary-500 animate-pulse ml-0.5 align-text-bottom" />
+            {isStreaming ? (
+              // 流式生成中：用纯文本 pre 显示，避免每个 token 触发 ReactMarkdown 全量重解析
+              // 长文档（如提示词套件 2 万+字）下 ReactMarkdown 重解析是 O(n²) 开销，导致 UI 卡顿/闪烁
+              <pre className="whitespace-pre-wrap break-words text-sm text-gray-800 leading-relaxed font-sans">
+                {displayContent}
+                <span className="inline-block w-1.5 h-4 bg-primary-500 animate-pulse ml-0.5 align-text-bottom" />
+              </pre>
+            ) : (
+              <div className="prose prose-sm max-w-none prose-headings:text-gray-800 prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-p:text-sm prose-p:leading-relaxed prose-code:bg-gray-100 prose-code:px-1 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-table:text-sm">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{displayContent}</ReactMarkdown>
+              </div>
             )}
           </div>
         )}
@@ -243,4 +260,6 @@ export default function DocumentReview({
       <div ref={contentRef} />
     </div>
   );
-}
+});
+
+export default DocumentReview;

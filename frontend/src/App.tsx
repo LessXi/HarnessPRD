@@ -1,8 +1,13 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import JSZip from "jszip";
 import FormStep from "@/components/FormStep";
 import MessageList from "@/components/MessageList";
 import ChatInput from "@/components/ChatInput";
 import DocumentReview from "@/components/DocumentReview";
+import CompletionPromptBar from "@/components/CompletionPromptBar";
+import CompletionSummary from "@/components/CompletionSummary";
+import PreviewModal from "@/components/PreviewModal";
+import Sidebar, { PrimaryAction, SecondaryAction } from "@/components/Sidebar";
 import {
   getQuestions,
   chatStream,
@@ -17,7 +22,7 @@ import type {
   ProjectState,
   DocumentState,
 } from "@/types";
-import { STEPS, STEP_INDEX_MAP, createEmptyProjectState, createEmptyDocumentState } from "@/types";
+import { STEPS, STEP_INDEX_MAP, createEmptyProjectState, createEmptyDocumentState, isValidStateTransition } from "@/types";
 
 const PROJECT_KEY = "harnessprd:project";
 
@@ -49,6 +54,49 @@ function saveProject(state: ProjectState): void {
   } catch {
     // localStorage 满或不可用
   }
+}
+
+// ========================================================================
+// 确认对话框
+// ========================================================================
+
+interface ConfirmDialogProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }: ConfirmDialogProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/40" onClick={onCancel} />
+      <div className="relative bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+        <p className="text-sm text-gray-600 mb-6">{message}</p>
+        <div className="flex justify-end gap-3">
+          <button
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            onClick={onCancel}
+          >
+            取消
+          </button>
+          <button
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700"
+            onClick={() => {
+              onConfirm();
+              onCancel();
+            }}
+          >
+            确认
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ========================================================================
@@ -102,6 +150,20 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [streamingContent, setStreamingContent] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
+  const [pendingNextDocType, setPendingNextDocType] = useState<"prd" | "api" | "prompts" | null>(null);
+  const [previewModal, setPreviewModal] = useState<{ isOpen: boolean; docType: "prd" | "api" | "prompts" | null }>({
+    isOpen: false,
+    docType: null,
+  });
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
   // 用于在 streaming 中断时保留部分内容
   const streamingContentRef = useRef("");
@@ -148,6 +210,7 @@ export default function App() {
       session_id: sessionId,
       viewState: "ai_dialogue",
       messages: [],
+      completedSteps: [...new Set([...prev.completedSteps, "form_editing" as ViewState])],
     }));
 
     setChatLoading(true);
@@ -281,6 +344,10 @@ export default function App() {
     setStreamingContent("");
     setError(null);
 
+    // 创建新的 AbortController
+    const controller = new AbortController();
+    setAbortController(controller);
+
     const req = {
       session_id: project.session_id,
       form_data: project.form_data,
@@ -304,9 +371,12 @@ export default function App() {
             ...p,
             [docType]: docState,
             viewState: `reviewing_${docType}` as ViewState,
+            // 重新生成完成，清除该步骤的待更新状态
+            pendingUpdates: p.pendingUpdates.filter(s => s !== `reviewing_${docType}` as ViewState),
           }));
           return "";
         });
+        setAbortController(null);
       },
       onError: (err) => {
         // 保存已接收的部分内容
@@ -325,8 +395,9 @@ export default function App() {
         });
         setError(`文档生成中断：${err}。可以点击"继续生成"从断点续写。`);
         switchView(`reviewing_${docType}`);
+        setAbortController(null);
       },
-    });
+    }, controller.signal);
   }, [project, switchView, updateProject]);
 
   // ======================================================================
@@ -339,6 +410,10 @@ export default function App() {
 
     setStreamingContent("");
     setError(null);
+
+    // 创建新的 AbortController
+    const controller = new AbortController();
+    setAbortController(controller);
 
     optimizeDocumentStream(docType, {
       session_id: project.session_id,
@@ -363,6 +438,7 @@ export default function App() {
           }
           return "";
         });
+        setAbortController(null);
       },
       onError: (err) => {
         setStreamingContent((prev) => {
@@ -379,9 +455,23 @@ export default function App() {
           return "";
         });
         setError(`文档优化中断：${err}`);
+        setAbortController(null);
       },
-    });
+    }, controller.signal);
   }, [project, updateProject]);
+
+  // ======================================================================
+  // 取消生成
+  // ======================================================================
+
+  const handleCancel = useCallback(() => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+      setError("已取消生成");
+      setTimeout(() => setError(null), 2000);
+    }
+  }, [abortController]);
 
   // ======================================================================
   // 文档编辑保存
@@ -426,25 +516,213 @@ export default function App() {
       ...prev,
       [docType]: { ...prev[docType], confirmed: true },
       viewState: nextStateMap[docType],
+      completedSteps: [...new Set([...prev.completedSteps, `reviewing_${docType}` as ViewState])],
+      // 清除该步骤的待更新状态（用户已确认，数据已一致）
+      pendingUpdates: prev.pendingUpdates.filter(s => s !== `reviewing_${docType}` as ViewState),
     }));
-    // 触发下一个文档的生成
+    
     const nextDocType = nextDocTypeMap[docType];
     if (nextDocType) {
-      // 使用 setTimeout 确保状态更新后再触发生成
-      setTimeout(() => handleGenerateDoc(nextDocType), 200);
+      if (project.autoAdvance) {
+        // 自动推进：直接生成下一个文档
+        setTimeout(() => handleGenerateDoc(nextDocType), 200);
+      } else {
+        // 手动推进：显示提示栏
+        setPendingNextDocType(nextDocType);
+        setShowCompletionPrompt(true);
+      }
     }
-  }, [updateProject, handleGenerateDoc]);
+  }, [updateProject, handleGenerateDoc, project.autoAdvance]);
+
+  // ======================================================================
+  // 提示栏回调
+  // ======================================================================
+
+  const handleContinue = useCallback(() => {
+    if (pendingNextDocType) {
+      setShowCompletionPrompt(false);
+      handleGenerateDoc(pendingNextDocType);
+      setPendingNextDocType(null);
+    }
+  }, [pendingNextDocType, handleGenerateDoc]);
+
+  const handleSkip = useCallback(() => {
+    // 跳过当前阶段，进入下一阶段
+    if (pendingNextDocType) {
+      const nextStateMap: Record<string, ViewState> = {
+        prd: "generating_api",
+        api: "generating_prompts",
+        prompts: "completed",
+      };
+      const nextState = nextStateMap[pendingNextDocType];
+
+      // 待更新步骤标签
+      const DOC_LABEL: Record<string, string> = {
+        prd: "PRD",
+        api: "接口文档",
+        prompts: "提示词套件",
+      };
+      const skipLabel = DOC_LABEL[pendingNextDocType] || pendingNextDocType;
+
+      setConfirmDialog({
+        isOpen: true,
+        title: "确认跳过",
+        message: `跳过${skipLabel}阶段，确定吗？`,
+        onConfirm: () => {
+          // 更新状态到下一个阶段
+          if (nextState) {
+            switchView(nextState);
+          }
+          setShowCompletionPrompt(false);
+          setPendingNextDocType(null);
+        },
+      });
+    }
+  }, [pendingNextDocType, switchView]);
+
+  const handleBack = useCallback(() => {
+    // 返回上一个阶段
+    setShowCompletionPrompt(false);
+    setPendingNextDocType(null);
+  }, []);
 
   // ======================================================================
   // 重置项目
   // ======================================================================
 
   const handleReset = useCallback(() => {
-    localStorage.removeItem(PROJECT_KEY);
-    setProject(createEmptyProjectState());
-    setStreamingContent("");
-    setError(null);
+    setConfirmDialog({
+      isOpen: true,
+      title: "开始新项目",
+      message: "将清空所有数据，确定吗？",
+      onConfirm: () => {
+        localStorage.removeItem(PROJECT_KEY);
+        setProject(createEmptyProjectState());
+        setStreamingContent("");
+        setError(null);
+      },
+    });
   }, []);
+
+  // ======================================================================
+  // 文档预览、下载、复制
+  // ======================================================================
+
+  const handlePreview = useCallback((docType: "prd" | "api" | "prompts") => {
+    setPreviewModal({ isOpen: true, docType });
+  }, []);
+
+  const handleDownload = useCallback((docType: "prd" | "api" | "prompts") => {
+    const doc = project[docType];
+    const content = doc.user_edits || doc.content;
+    const blob = new Blob([content], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    // 文件名大写前缀，如 PRD_2026-06-21.md
+    const prefixMap: Record<string, string> = { prd: "PRD", api: "API", prompts: "Prompts" };
+    a.download = `${prefixMap[docType]}_${new Date().toISOString().split("T")[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [project]);
+
+  const handleCopy = useCallback((docType: "prd" | "api" | "prompts") => {
+    // 显示复制成功提示
+    setError("已复制到剪贴板");
+    setTimeout(() => setError(null), 2000);
+  }, []);
+
+  const handleDownloadAll = useCallback(async () => {
+    const zip = new JSZip();
+    
+    // 添加文档到 ZIP（spec 要求文件名：PRD.md、API.md、Prompts.md）
+    zip.file("PRD.md", project.prd.user_edits || project.prd.content);
+    zip.file("API.md", project.api.user_edits || project.api.content);
+    zip.file("Prompts.md", project.prompts.user_edits || project.prompts.content);
+    
+    // 生成 ZIP 文件
+    const content = await zip.generateAsync({ type: "blob" });
+    
+    // 下载 ZIP 文件
+    const url = URL.createObjectURL(content);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `HarnessPRD_${new Date().toISOString().split("T")[0]}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [project]);
+
+  // 逐个下载所有文档
+  const handleDownloadAllSeparately = useCallback(() => {
+    (["prd", "api", "prompts"] as const).forEach((docType, idx) => {
+      setTimeout(() => handleDownload(docType), idx * 300);
+    });
+  }, [handleDownload]);
+
+  // ======================================================================
+  // 导航与回退（必须在 early return 之前定义，遵守 Hooks 规则）
+  // ======================================================================
+
+  const handleNavigate = useCallback((targetViewState: ViewState) => {
+    if (isValidStateTransition(project.viewState, targetViewState, project.completedSteps)) {
+      switchView(targetViewState);
+    } else {
+      setError(`无法从 ${project.viewState} 转换到 ${targetViewState}`);
+    }
+  }, [project.viewState, project.completedSteps, switchView]);
+
+  const handleRollback = useCallback((targetStep: ViewState) => {
+    if (!project.completedSteps.includes(targetStep)) {
+      setError(`步骤 ${targetStep} 尚未完成，无法回退`);
+      return;
+    }
+
+    const currentIdx = STEP_INDEX_MAP[project.viewState];
+    const targetIdx = STEP_INDEX_MAP[targetStep];
+    if (targetIdx >= currentIdx) {
+      setError(`无法回退到 ${targetStep}，它不在当前步骤之前`);
+      return;
+    }
+
+    const targetLabel = STEPS[targetIdx]?.label || targetStep;
+    const currentLabel = STEPS[currentIdx]?.label || project.viewState;
+    // 列出所有受影响的后续步骤
+    const affectedLabels: string[] = [];
+    for (let i = targetIdx + 1; i <= currentIdx; i++) {
+      const label = STEPS[i]?.label;
+      if (label) affectedLabels.push(label);
+    }
+    const affectedText = affectedLabels.join("、");
+    const confirmMessage = `返回${targetLabel}阶段将标记${affectedText}为待更新，确定吗？`;
+
+    setConfirmDialog({
+      isOpen: true,
+      title: "确认回退",
+      message: confirmMessage,
+      onConfirm: () => {
+        const pendingUpdates: ViewState[] = [];
+        for (let i = targetIdx + 1; i <= currentIdx; i++) {
+          const stepId = STEPS[i]?.id as ViewState;
+          if (stepId && !pendingUpdates.includes(stepId)) {
+            pendingUpdates.push(stepId);
+          }
+        }
+        updateProject((prev) => ({
+          ...prev,
+          viewState: targetStep,
+          pendingUpdates: [...new Set([...prev.pendingUpdates, ...pendingUpdates])],
+        }));
+      },
+    });
+  }, [project.viewState, project.completedSteps, updateProject]);
+
+  const handleAutoAdvanceChange = useCallback((autoAdvance: boolean) => {
+    updateProject(prev => ({ ...prev, autoAdvance }));
+  }, [updateProject]);
 
   // ======================================================================
   // Render
@@ -588,16 +866,15 @@ export default function App() {
 
     case "completed":
       content = (
-        <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-3">
-              <p className="text-3xl">🎉</p>
-              <p className="text-lg font-medium text-gray-700">全部完成！</p>
-              <p className="text-sm text-gray-400">PRD、接口文档、提示词套件已生成</p>
-              <button onClick={handleReset} className="mt-2 text-sm text-primary-600 hover:underline">开始新项目</button>
-            </div>
-          </div>
-        </div>
+        <CompletionSummary
+          project={project}
+          onPreview={handlePreview}
+          onDownload={handleDownload}
+          onCopy={handleCopy}
+          onDownloadAll={handleDownloadAll}
+          onDownloadAllSeparately={handleDownloadAllSeparately}
+          onNewProject={handleReset}
+        />
       );
       break;
 
@@ -609,27 +886,145 @@ export default function App() {
       );
   }
 
+  const DOC_TYPE_MAP: Record<string, "prd" | "api" | "prompts"> = {
+    reviewing_prd: "prd",
+    reviewing_api: "api",
+    reviewing_prompts: "prompts",
+  };
+
+  const DOC_TYPE_LABEL: Record<string, string> = {
+    prd: "PRD",
+    api: "接口文档",
+    prompts: "提示词",
+  };
+
+  const primaryActions: PrimaryAction[] = [];
+  if (viewState === 'ai_dialogue') {
+    if (project.messages.length > 0 && !chatLoading) {
+      primaryActions.push({
+        label: '生成 PRD',
+        onClick: () => handleGenerateDoc('prd'),
+        variant: 'primary',
+      });
+    }
+  } else if (viewState === 'completed') {
+    primaryActions.push({
+      label: '开始新项目',
+      onClick: handleReset,
+      variant: 'primary',
+    });
+  } else if (DOC_TYPE_MAP[viewState]) {
+    const docType = DOC_TYPE_MAP[viewState];
+    primaryActions.push({
+      label: docType === 'prompts' ? '完成' : `确认${DOC_TYPE_LABEL[docType]}`,
+      onClick: () => handleConfirmDoc(docType),
+      variant: 'primary',
+    });
+  }
+
+  const secondaryActions: SecondaryAction[] = [];
+  if (viewState === 'ai_dialogue') {
+    if (project.messages.length > 0 && !chatLoading) {
+      secondaryActions.push({
+        label: '生成摘要',
+        onClick: handleGenerateSummary,
+      });
+    }
+  } else if (DOC_TYPE_MAP[viewState]) {
+    const docType = DOC_TYPE_MAP[viewState];
+    secondaryActions.push({
+      label: 'AI 优化',
+      onClick: () => handleOptimizeDoc(docType),
+    });
+    secondaryActions.push({
+      label: '编辑',
+      onClick: () => handleDocEdit(docType, project[docType].user_edits || project[docType].content),
+    });
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <StepProgress current={viewState} />
-      <div className="flex-1">{content}</div>
-      {error && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg shadow max-w-md">
-          {error}
-          <button onClick={() => setError(null)} className="ml-3 text-red-400 hover:text-red-600">✕</button>
-        </div>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* 移动端菜单按钮 */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* 侧边栏 */}
+      <div className={`fixed md:static inset-y-0 left-0 z-40 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out`}>
+        <Sidebar
+          current={viewState}
+          project={project}
+          onNavigate={handleNavigate}
+          onRollback={handleRollback}
+          primaryActions={primaryActions}
+          secondaryActions={secondaryActions}
+          onAutoAdvanceChange={handleAutoAdvanceChange}
+        />
+      </div>
+      
+      {/* 遮罩层 */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
-      {submitting && (
-        <div className="fixed inset-0 bg-white/60 flex items-center justify-center z-50">
-          <div className="flex items-center gap-2 text-primary-600 font-medium">
-            <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            正在提交...
+      
+      {/* 内容区 */}
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1">{content}</div>
+        {showCompletionPrompt && (
+          <CompletionPromptBar
+            currentViewState={viewState}
+            onContinue={handleContinue}
+            onSkip={handleSkip}
+            onBack={handleBack}
+            onCancel={() => {
+              handleCancel();
+              setShowCompletionPrompt(false);
+              setPendingNextDocType(null);
+            }}
+            isGenerating={streamingContent !== ""}
+          />
+        )}
+        {previewModal.isOpen && previewModal.docType && (
+          <PreviewModal
+            isOpen={previewModal.isOpen}
+            onClose={() => setPreviewModal({ isOpen: false, docType: null })}
+            title={previewModal.docType === "prd" ? "PRD 预览" : previewModal.docType === "api" ? "接口文档预览" : "提示词套件预览"}
+            content={project[previewModal.docType]?.user_edits || project[previewModal.docType]?.content || ""}
+          />
+        )}
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
+        />
+        {error && (
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg shadow max-w-md">
+            {error}
+            <button onClick={() => setError(null)} className="ml-3 text-red-400 hover:text-red-600">✕</button>
           </div>
-        </div>
-      )}
+        )}
+        {submitting && (
+          <div className="fixed inset-0 bg-white/60 flex items-center justify-center z-50">
+            <div className="flex items-center gap-2 text-primary-600 font-medium">
+              <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              正在提交...
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -57,6 +57,40 @@ export async function readStream(
   const decoder = new TextDecoder();
   let buffer = "";
 
+  // 解析 buffer 中的完整 SSE 行，返回剩余不完整行
+  const processLines = (buf: string): string => {
+    const lines = buf.split("\n");
+    const remainder = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || !trimmed.startsWith("data: ")) continue;
+
+      const jsonStr = trimmed.slice(6);
+      if (!jsonStr) continue;
+
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const event = parsed.event as string;
+
+        switch (event) {
+          case "chunk":
+            onChunk(parsed.content ?? "");
+            break;
+          case "done":
+            onDone(parsed);
+            break;
+          case "error":
+            onError(parsed.content ?? "未知 SSE 错误");
+            break;
+        }
+      } catch {
+        // JSON 解析失败，忽略这一行
+      }
+    }
+    return remainder;
+  };
+
   try {
     while (true) {
       if (signal?.aborted) {
@@ -68,36 +102,14 @@ export async function readStream(
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
+      buffer = processLines(buffer);
+    }
 
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith("data: ")) continue;
-
-        const jsonStr = trimmed.slice(6);
-        if (!jsonStr) continue;
-
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const event = parsed.event as string;
-
-          switch (event) {
-            case "chunk":
-              onChunk(parsed.content ?? "");
-              break;
-            case "done":
-              onDone(parsed);
-              break;
-            case "error":
-              onError(parsed.content ?? "未知 SSE 错误");
-              break;
-          }
-        } catch {
-          // JSON 解析失败，忽略这一行
-        }
-      }
+    // 流结束：刷新解码器并处理缓冲区中残留的最后一行
+    // （最后一个 SSE 事件可能没有以 \n 结尾，否则会丢失 done 事件）
+    buffer += decoder.decode();
+    if (buffer.trim()) {
+      processLines(buffer + "\n");
     }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "SSE 流读取异常";

@@ -18,6 +18,12 @@ export default {
           950: "#082f49",
         },
       },
+      width: {
+        sidebar: '250px',
+      },
+      screens: {
+        'sidebar': '768px', // 侧边栏折叠断点
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

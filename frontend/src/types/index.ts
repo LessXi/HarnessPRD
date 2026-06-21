@@ -73,6 +73,9 @@ export interface ProjectState {
   prd: DocumentState
   api: DocumentState
   prompts: DocumentState
+  completedSteps: ViewState[]  // 已完成步骤列表
+  autoAdvance: boolean         // 是否自动推进
+  pendingUpdates: ViewState[]  // 待更新步骤列表
 }
 
 /** 创建空的 DocumentState */
@@ -91,6 +94,9 @@ export function createEmptyProjectState(): ProjectState {
     prd: createEmptyDocumentState(),
     api: createEmptyDocumentState(),
     prompts: createEmptyDocumentState(),
+    completedSteps: [],
+    autoAdvance: false,
+    pendingUpdates: [],
   }
 }
 
@@ -133,4 +139,48 @@ export interface StreamCallbacks {
   onChunk: (text: string) => void
   onDone: (data?: Record<string, any>) => void
   onError: (error: string) => void
+}
+
+// ===== 状态转换验证 =====
+
+/** 合法的状态转换映射 */
+const VALID_TRANSITIONS: Record<ViewState, ViewState[]> = {
+  form_editing: ['ai_dialogue'],
+  ai_dialogue: ['generating_prd', 'form_editing'], // 可以回退到表单编辑
+  generating_prd: ['reviewing_prd'],
+  reviewing_prd: ['generating_api', 'ai_dialogue'], // 可以回退到对话
+  generating_api: ['reviewing_api'],
+  reviewing_api: ['generating_prompts', 'reviewing_prd'], // 可以回退到PRD审阅
+  generating_prompts: ['reviewing_prompts'],
+  reviewing_prompts: ['completed', 'reviewing_api'], // 可以回退到API审阅
+  completed: ['form_editing'], // 可以开始新项目
+}
+
+/**
+ * 验证状态转换是否合法
+ * @param current 当前状态
+ * @param target 目标状态
+ * @param completedSteps 已完成步骤列表
+ * @returns 是否合法
+ */
+export function isValidStateTransition(
+  current: ViewState,
+  target: ViewState,
+  completedSteps: ViewState[]
+): boolean {
+  // 检查是否是合法的直接转换
+  const validTargets = VALID_TRANSITIONS[current];
+  if (validTargets.includes(target)) {
+    return true;
+  }
+  
+  // 如果目标状态在已完成步骤中，允许回退
+  if (completedSteps.includes(target)) {
+    // 但需要确保目标状态是当前状态的前序步骤
+    const currentIdx = STEP_INDEX_MAP[current];
+    const targetIdx = STEP_INDEX_MAP[target];
+    return targetIdx < currentIdx;
+  }
+  
+  return false;
 }
