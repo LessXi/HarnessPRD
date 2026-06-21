@@ -8,9 +8,9 @@
 
 ## 2. Sidebar 按钮清理 (Sidebar.tsx)
 
-- [ ] 2.1 移除 `reviewing_*` 状态下 Sidebar 的 `primaryActions` / `secondaryActions` 渲染（确认/AI优化/编辑按钮不再出现在侧边栏）[P0]
-- [ ] 2.2 移除 Sidebar 底部设置区域的 `autoAdvance` 开关 UI [P0]
-- [ ] 2.3 确保 Sidebar「上一步」按钮调用统一的 `handleGoBack` 而非旧的 `handleNavigate` [P0]
+- [x] 2.1 移除 `reviewing_*` 状态下 Sidebar 的 `primaryActions` / `secondaryActions` 渲染（确认/AI优化/编辑按钮不再出现在侧边栏）[P0]
+- [x] 2.2 移除 Sidebar 底部设置区域的 `autoAdvance` 开关 UI [P0]
+- [x] 2.3 确保 Sidebar「上一步」按钮调用统一的 `handleGoBack` 而非旧的 `handleNavigate` [P0]
 
 ## 3. 统一回退机制 (App.tsx)
 

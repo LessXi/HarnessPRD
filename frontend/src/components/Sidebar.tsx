@@ -19,13 +19,12 @@ interface SidebarProps {
   current: ViewState;
   project: ProjectState;
   onNavigate: (viewState: ViewState) => void;
-  onRollback: (targetStep: ViewState) => void;
+  onGoBack: (targetState: ViewState) => void;
   primaryActions?: PrimaryAction[];
   secondaryActions?: SecondaryAction[];
-  onAutoAdvanceChange?: (autoAdvance: boolean) => void;
 }
 
-const Sidebar = React.memo(function Sidebar({ current, project, onNavigate, onRollback, primaryActions, secondaryActions, onAutoAdvanceChange }: SidebarProps) {
+const Sidebar = React.memo(function Sidebar({ current, project, onNavigate, onGoBack, primaryActions, secondaryActions }: SidebarProps) {
   const currentIdx = STEP_INDEX_MAP[current] ?? -1;
   
   // 计算前一个和下一个状态
@@ -61,7 +60,7 @@ const Sidebar = React.memo(function Sidebar({ current, project, onNavigate, onRo
                   <button
                     onClick={() => {
                       if (stepState === "done" || isCompleted) {
-                        onRollback(step.id as ViewState);
+                        onGoBack(step.id as ViewState);
                       }
                     }}
                     disabled={stepState === "pending" && !isCompleted}
@@ -108,7 +107,7 @@ const Sidebar = React.memo(function Sidebar({ current, project, onNavigate, onRo
           <div className="flex space-x-2">
             {previousState && (
               <button
-                onClick={() => onNavigate(previousState)}
+                onClick={() => onGoBack(previousState)}
                 className="flex-1 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 ← 上一步
@@ -175,18 +174,7 @@ const Sidebar = React.memo(function Sidebar({ current, project, onNavigate, onRo
         </div>
       </div>
 
-      {/* 设置区域 */}
-      <div className="p-4 border-t border-gray-100">
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={project.autoAdvance}
-            onChange={(e) => onAutoAdvanceChange?.(e.target.checked)}
-            className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
-          <span className="text-sm text-gray-700">自动推进</span>
-        </label>
-      </div>
+
     </aside>
   );
 });

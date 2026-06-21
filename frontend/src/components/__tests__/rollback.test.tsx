@@ -3,15 +3,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Sidebar from '../Sidebar';
 import { ViewState, ProjectState, createEmptyProjectState } from '@/types';
 
-describe('Rollback functionality', () => {
+describe('GoBack functionality', () => {
   const createProjectWithCompletedSteps = (completedSteps: ViewState[]): ProjectState => {
     const project = createEmptyProjectState();
     project.completedSteps = completedSteps;
     return project;
   };
 
-  it('should call onRollback when clicking a completed step', () => {
-    const onRollback = vi.fn();
+  it('should call onGoBack when clicking a completed step', () => {
+    const onGoBack = vi.fn();
     const onNavigate = vi.fn();
     const project = createProjectWithCompletedSteps(['form_editing', 'ai_dialogue']);
     
@@ -20,7 +20,7 @@ describe('Rollback functionality', () => {
         current="reviewing_prd"
         project={project}
         onNavigate={onNavigate}
-        onRollback={onRollback}
+        onGoBack={onGoBack}
       />
     );
 
@@ -28,11 +28,11 @@ describe('Rollback functionality', () => {
     const aiDialogueButton = screen.getByText('AI 对话');
     fireEvent.click(aiDialogueButton);
 
-    expect(onRollback).toHaveBeenCalledWith('ai_dialogue');
+    expect(onGoBack).toHaveBeenCalledWith('ai_dialogue');
   });
 
-  it('should not call onRollback when clicking a pending step', () => {
-    const onRollback = vi.fn();
+  it('should not call onGoBack when clicking a pending step', () => {
+    const onGoBack = vi.fn();
     const onNavigate = vi.fn();
     const project = createProjectWithCompletedSteps(['form_editing']);
     
@@ -41,7 +41,7 @@ describe('Rollback functionality', () => {
         current="ai_dialogue"
         project={project}
         onNavigate={onNavigate}
-        onRollback={onRollback}
+        onGoBack={onGoBack}
       />
     );
 
@@ -49,11 +49,11 @@ describe('Rollback functionality', () => {
     const prdButton = screen.getByText('PRD');
     fireEvent.click(prdButton);
 
-    expect(onRollback).not.toHaveBeenCalled();
+    expect(onGoBack).not.toHaveBeenCalled();
   });
 
   it('should show pending update warning for pending updates', () => {
-    const onRollback = vi.fn();
+    const onGoBack = vi.fn();
     const onNavigate = vi.fn();
     const project = createProjectWithCompletedSteps(['form_editing', 'ai_dialogue']);
     project.pendingUpdates = ['reviewing_prd'];
@@ -63,7 +63,7 @@ describe('Rollback functionality', () => {
         current="reviewing_api"
         project={project}
         onNavigate={onNavigate}
-        onRollback={onRollback}
+        onGoBack={onGoBack}
       />
     );
 
@@ -73,7 +73,7 @@ describe('Rollback functionality', () => {
   });
 
   it('should display correct step states', () => {
-    const onRollback = vi.fn();
+    const onGoBack = vi.fn();
     const onNavigate = vi.fn();
     const project = createProjectWithCompletedSteps(['form_editing', 'ai_dialogue']);
     
@@ -82,7 +82,7 @@ describe('Rollback functionality', () => {
         current="reviewing_prd"
         project={project}
         onNavigate={onNavigate}
-        onRollback={onRollback}
+        onGoBack={onGoBack}
       />
     );
 

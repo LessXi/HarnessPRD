@@ -785,10 +785,6 @@ export default function App() {
     switchView(targetViewState);
   }, [project.viewState, project.completedSteps, project.form_data, switchView]);
 
-  const handleRollback = useCallback((targetStep: ViewState) => {
-    handleGoBack(targetStep);
-  }, [handleGoBack]);
-
   // ======================================================================
   // Render
   // ======================================================================
@@ -966,13 +962,6 @@ export default function App() {
       onClick: handleReset,
       variant: 'primary',
     });
-  } else if (DOC_TYPE_MAP[viewState]) {
-    const docType = DOC_TYPE_MAP[viewState];
-    primaryActions.push({
-      label: docType === 'prompts' ? '完成' : `确认${DOC_TYPE_LABEL[docType]}`,
-      onClick: () => handleConfirmDoc(docType),
-      variant: 'primary',
-    });
   }
 
   const secondaryActions: SecondaryAction[] = [];
@@ -983,16 +972,6 @@ export default function App() {
         onClick: handleGenerateSummary,
       });
     }
-  } else if (DOC_TYPE_MAP[viewState]) {
-    const docType = DOC_TYPE_MAP[viewState];
-    secondaryActions.push({
-      label: 'AI 优化',
-      onClick: () => handleOptimizeDoc(docType),
-    });
-    secondaryActions.push({
-      label: '编辑',
-      onClick: () => handleDocEdit(docType, project[docType].user_edits || project[docType].content),
-    });
   }
 
   return (
@@ -1013,7 +992,7 @@ export default function App() {
           current={viewState}
           project={project}
           onNavigate={handleNavigate}
-          onRollback={handleRollback}
+          onGoBack={handleGoBack}
           primaryActions={primaryActions}
           secondaryActions={secondaryActions}
         />
