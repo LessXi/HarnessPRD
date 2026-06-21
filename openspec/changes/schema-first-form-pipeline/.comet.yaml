@@ -19,4 +19,6 @@ created_at: 2026-06-21
 verified_at: null
 archived: false
 handoff_context: openspec/changes/schema-first-form-pipeline/.comet/handoff/design-context.json
+build_command: cd backend && python -m pytest tests/ -q && cd ../frontend && npx tsc --noEmit && npx vitest run
+verify_command: cd backend && python -m pytest tests/ -q && cd ../frontend && npx vitest run
 handoff_hash: e966c272407da2778b0e46878e0ece642e781f553547c3d87f844f3718aff673
