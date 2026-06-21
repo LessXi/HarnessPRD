@@ -31,8 +31,8 @@
 
 ## 5. 显示框修复 (DocumentReview.tsx)
 
-- [ ] 5.1 文档内容区容器添加 `style={{ maxHeight: 'calc(100vh - 12rem)' }}` [P0]
-- [ ] 5.2 确认 `overflow-y-auto` 在固定高度下正确触发内部滚动 [P0]
+- [x] 5.1 文档内容区容器添加 `style={{ maxHeight: 'calc(100vh - 12rem)' }}` [P0]
+- [x] 5.2 确认 `overflow-y-auto` 在固定高度下正确触发内部滚动 [P0]
 
 ## 6. 按钮一致性收尾 (App.tsx + 全局)
 
