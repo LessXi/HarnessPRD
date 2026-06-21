@@ -1,8 +1,8 @@
 ## 1. 依赖与配置 (P0)
 
-- [ ] 1.1 添加 `langsmith`、`loguru` 到 `backend/requirements.txt`，`pip install`
-- [ ] 1.2 在 `backend/.env.example` 中添加 `LANGCHAIN_TRACING_V2`、`LANGCHAIN_API_KEY`、`LANGCHAIN_PROJECT`、`LOG_LEVEL`、`PROMPT_LOG_MAX_LENGTH` 配置项及注释
-- [ ] 1.3 在 `backend/core/config.py` 的 `Settings` 类中添加对应字段及校验逻辑（`check_langsmith_config` validator：tracing 开启时 api_key 缺失仅 WARNING）
+- [x] 1.1 添加 `langsmith`、`loguru` 到 `backend/requirements.txt`，`pip install`
+- [x] 1.2 在 `backend/.env.example` 中添加 `LANGCHAIN_TRACING_V2`、`LANGCHAIN_API_KEY`、`LANGCHAIN_PROJECT`、`LOG_LEVEL`、`PROMPT_LOG_MAX_LENGTH` 配置项及注释
+- [x] 1.3 在 `backend/core/config.py` 的 `Settings` 类中添加对应字段及校验逻辑（`check_langsmith_config` validator：tracing 开启时 api_key 缺失仅 WARNING）
 
 ## 2. loguru 日志核心 (P0)
 
@@ -14,7 +14,7 @@
 
 - [ ] 3.1 创建 `backend/core/middleware.py`：实现 `RequestLoggingMiddleware`（ASGI middleware），记录 method/path/status/duration_ms/corr_id，读取/生成 `X-Correlation-ID` 头
 - [ ] 3.2 在 `backend/main.py` 的 CORS middleware 之后注册 `RequestLoggingMiddleware`
-- [ ] 3.3 创建 `backend/core/error_classifier.py`：定义 `ErrorCategory` enum 和 `classify_error(exception) -> ErrorCategory` 函数，覆盖 OpenAI/Anthropic/DeepSeek 的 rate_limit/timeout/content_filter 异常类型
+- [x] 3.3 创建 `backend/core/error_classifier.py`：定义 `ErrorCategory` enum 和 `classify_error(exception) -> ErrorCategory` 函数，覆盖 OpenAI/Anthropic/DeepSeek 的 rate_limit/timeout/content_filter 异常类型
 
 ## 4. LangSmith 集成与 Prompt 追踪 (P0)
 
