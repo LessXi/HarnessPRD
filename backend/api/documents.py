@@ -1,6 +1,7 @@
 """文档生成路由：PRD / 接口文档 / 提示词套件
 
 无状态设计：每个请求携带完整上下文。
+底层使用 skill_engine，返回 SSEEvent 流。
 """
 
 import json
@@ -10,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import PlainTextResponse, StreamingResponse
 
 from api.schemas import DocumentRequest, OptimizeRequest, DownloadRequest
-from api.sse_utils import SSE_HEADERS, make_sse_stream
+from api.sse_utils import SSE_HEADERS, serialize_sse_event
 from services.document_service import generate_document_stream, optimize_document_stream
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ DOC_TYPES = {"prd", "api", "prompts"}
 
 @router.post("/{doc_type}/stream")
 async def stream_document(request: Request, doc_type: str, data: DocumentRequest):
-    """SSE 端点：流式生成文档。"""
+    """SSE 端点：流式生成文档（含自动 review→rewrite 循环）。"""
     if doc_type not in DOC_TYPES:
         raise HTTPException(400, f"不支持的文档类型: {doc_type}")
 
@@ -31,7 +32,7 @@ async def stream_document(request: Request, doc_type: str, data: DocumentRequest
 
     async def _stream():
         try:
-            async for chunk in generate_document_stream(
+            async for event in generate_document_stream(
                 doc_type=doc_type,
                 form_data=data.form_data,
                 requirements_summary=data.requirements_summary,
@@ -40,9 +41,10 @@ async def stream_document(request: Request, doc_type: str, data: DocumentRequest
                 api_content=data.api_content,
                 session_id=session_id,
             ):
-                yield f"data: {json.dumps({'event': 'chunk', 'content': chunk})}\n\n"
+                yield serialize_sse_event(event)
 
-            yield f"data: {json.dumps({'event': 'done'})}\n\n"
+            # safety fallback — engine 理应 yield done 事件
+            # yield f"data: {json.dumps({'event': 'done'})}\n\n"
         except Exception as e:
             logger.exception(f"[{session_id}] document stream error")
             yield f"data: {json.dumps({'event': 'error', 'content': str(e)})}\n\n"
@@ -56,7 +58,7 @@ async def stream_document(request: Request, doc_type: str, data: DocumentRequest
 
 @router.post("/{doc_type}/optimize")
 async def optimize_document(request: Request, doc_type: str, data: OptimizeRequest):
-    """SSE 端点：流式 Review→Rewrite 文档优化。"""
+    """SSE 端点：流式文档优化（review→rewrite 循环）。"""
     if doc_type not in DOC_TYPES:
         raise HTTPException(400, f"不支持的文档类型: {doc_type}")
 
@@ -64,9 +66,8 @@ async def optimize_document(request: Request, doc_type: str, data: OptimizeReque
     logger.info(f"[{session_id}] documents/{doc_type}/optimize request")
 
     async def _stream():
-        full_content = ""
         try:
-            async for chunk in optimize_document_stream(
+            async for event in optimize_document_stream(
                 doc_type=doc_type,
                 content=data.content,
                 form_data=data.form_data,
@@ -75,10 +76,10 @@ async def optimize_document(request: Request, doc_type: str, data: OptimizeReque
                 api_content=data.api_content,
                 session_id=session_id,
             ):
-                full_content += chunk
-                yield f"data: {json.dumps({'event': 'chunk', 'content': chunk})}\n\n"
+                yield serialize_sse_event(event)
 
-            yield f"data: {json.dumps({'event': 'done', 'content': full_content})}\n\n"
+            # safety fallback
+            # yield f"data: {json.dumps({'event': 'done'})}\n\n"
         except Exception as e:
             logger.exception(f"[{session_id}] document optimize error")
             yield f"data: {json.dumps({'event': 'error', 'content': str(e)})}\n\n"

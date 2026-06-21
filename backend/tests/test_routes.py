@@ -23,10 +23,20 @@ client = TestClient(app)
 
 # ---------- Mock LLM helpers ----------
 
-async def _fake_stream(*args, **kwargs):
-    """模拟 LLM 流式返回 3 个 chunk"""
+from skill_engine.models import SSEEvent
+
+
+async def _fake_chat_stream(*args, **kwargs):
+    """模拟对话流式返回 3 个字符串 chunk（conversation 端点使用）。"""
     for chunk in ["Hello", " World", "!"]:
         yield chunk
+
+
+async def _fake_doc_stream(*args, **kwargs):
+    """模拟文档流式返回 3 个 SSEEvent chunk + done（documents 端点使用）。"""
+    for chunk in ["Hello", " World", "!"]:
+        yield SSEEvent(event="chunk", content=chunk)
+    yield SSEEvent(event="done", content="Hello World!")
 
 
 # ---------- Tests ----------
@@ -66,7 +76,7 @@ class TestQuestions:
 class TestChatStream:
     """对话 SSE 端点"""
 
-    @patch("api.conversation.chat_stream", side_effect=_fake_stream)
+    @patch("api.conversation.chat_stream", side_effect=_fake_chat_stream)
     def test_chat_stream_returns_sse(self, mock_stream):
         """POST /api/chat/stream 返回 SSE 流"""
         resp = client.post("/api/chat/stream", json={
@@ -122,7 +132,7 @@ class TestSummaryGenerate:
 class TestDocuments:
     """文档生成端点"""
 
-    @patch("api.documents.generate_document_stream", side_effect=_fake_stream)
+    @patch("api.documents.generate_document_stream", side_effect=_fake_doc_stream)
     def test_prd_stream_returns_sse(self, mock_stream):
         """POST /api/documents/prd/stream 返回 SSE 流"""
         resp = client.post("/api/documents/prd/stream", json={
@@ -142,7 +152,7 @@ class TestDocuments:
         })
         assert resp.status_code == 400
 
-    @patch("api.documents.optimize_document_stream", side_effect=_fake_stream)
+    @patch("api.documents.optimize_document_stream", side_effect=_fake_doc_stream)
     def test_optimize_returns_sse(self, mock_stream):
         """POST /api/documents/prd/optimize 返回 SSE 流"""
         resp = client.post("/api/documents/prd/optimize", json={
@@ -257,3 +267,79 @@ class TestDebug:
         resp = client.post("/api/debug/log-level", json={"level": "TRACE"})
         assert resp.status_code == 400
         assert "Invalid" in resp.json()["detail"]
+
+
+class MockSkill:
+    """模拟 SkillSchema，供 skills API 测试用"""
+    def __init__(self, name: str, description: str, steps_count: int):
+        self.name = name
+        self.description = description
+        self.steps = [None] * steps_count
+
+
+class MockSkillLoader:
+    """模拟 SkillLoader，供 skills API 测试用"""
+    def __init__(self, skills: dict | None = None):
+        self._cache = skills or {}
+
+    def list_skills(self) -> list[str]:
+        return list(self._cache.keys())
+
+    def get(self, name: str):
+        return self._cache.get(name)
+
+    def reload(self) -> None:
+        pass
+
+
+class TestSkillsApi:
+    """Skill 管理 API 端点 — GET /api/skills & POST /api/skills/reload"""
+
+    def test_list_skills_when_loader_none(self):
+        """_skill_loader 为 None → 返回空列表"""
+        with patch("services.document_service._skill_loader", None):
+            resp = client.get("/api/skills")
+        assert resp.status_code == 200
+        assert resp.json() == {"skills": []}
+
+    def test_list_skills_with_entries(self):
+        """_skill_loader 有值 → 返回 skill 列表"""
+        skills = {
+            "prd-generate": MockSkill("prd-generate", "生成 PRD 文档", 3),
+            "api-generate": MockSkill("api-generate", "生成 API 文档", 2),
+        }
+        loader = MockSkillLoader(skills)
+        with patch("services.document_service._skill_loader", loader):
+            resp = client.get("/api/skills")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "skills" in data
+        assert len(data["skills"]) == 2
+        names = {s["name"] for s in data["skills"]}
+        assert "prd-generate" in names
+        assert "api-generate" in names
+        # 验证字段结构
+        entry = [s for s in data["skills"] if s["name"] == "prd-generate"][0]
+        assert entry["description"] == "生成 PRD 文档"
+        assert entry["steps"] == 3
+
+    def test_reload_when_loader_none(self):
+        """_skill_loader 为 None → reload 返回 error 状态"""
+        with patch("services.document_service._skill_loader", None):
+            resp = client.post("/api/skills/reload")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "error"
+
+    def test_reload_with_loader(self):
+        """reload 调用 loader.reload() 并返回 skill 数量"""
+        skills = {
+            "prd-generate": MockSkill("prd-generate", "生成 PRD 文档", 3),
+        }
+        loader = MockSkillLoader(skills)
+        with patch("services.document_service._skill_loader", loader):
+            resp = client.post("/api/skills/reload")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "ok"
+        assert data["skills"] == 1

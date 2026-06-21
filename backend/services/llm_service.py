@@ -18,7 +18,7 @@ _jinja_env = Environment(
 
 
 def load_prompt(name: str, **kwargs) -> str:
-    """加载 Jinja2 模板并渲染（路径相对项目根目录，如 prompts/generate_prd.jinja2）"""
+    """加载 Jinja2 模板并渲染（路径相对项目根目录，如 prompts/chat_system.jinja2）"""
     template: Template = _jinja_env.get_template(name)
     prompt_text = template.render(**kwargs)
     max_len = settings.prompt_log_max_length

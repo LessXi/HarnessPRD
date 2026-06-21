@@ -22,6 +22,7 @@ from api.sessions import router as sessions_router
 from api.conversation import router as conversation_router
 from api.documents import router as documents_router
 from api.debug import router as debug_router
+from api.skills import router as skills_router
 from core.logging_config import InterceptHandler, setup_logging
 from middleware.correlation import correlation_middleware
 from middleware.request_logging import request_logging_middleware
@@ -102,6 +103,7 @@ app.middleware("http")(request_logging_middleware)
 app.include_router(sessions_router)
 app.include_router(conversation_router)
 app.include_router(documents_router)
+app.include_router(skills_router)
 # Debug API 仅在开发/调试模式下可用（settings.debug 对应 uvicorn --reload）
 if settings.debug:
     app.include_router(debug_router)
@@ -115,6 +117,18 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+
+# ---------- 启动事件 ----------
+
+
+@app.on_event("startup")
+async def startup():
+    """初始化共享资源。"""
+    from services.document_service import init_skill_engine
+
+    init_skill_engine("skills")
+    logger.bind(event="startup").info("Skill engine initialized from backend/skills")
 
 
 # ---------- 直接运行时启动 ----------
